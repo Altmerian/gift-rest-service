@@ -26,9 +26,9 @@ class CertificateRestController {
         return certificateService.getAll();
     }
 
-    @GetMapping("/{certificateId}")
-    public Certificate getById(@PathVariable long certificateId) {
-        return RestPreconditions.checkFound(certificateService.getById(certificateId));
+    @GetMapping("/{id}")
+    public Certificate getById(@PathVariable long id) {
+        return RestPreconditions.checkFound(certificateService.getById(id));
     }
 
     @PostMapping
@@ -51,7 +51,4 @@ class CertificateRestController {
     public void delete(@PathVariable("id") long id) {
         certificateService.delete(id);
     }
-
-
-
 }

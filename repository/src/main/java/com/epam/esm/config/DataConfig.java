@@ -15,7 +15,7 @@ import static org.apache.commons.lang3.math.NumberUtils.isParsable;
 
 @Configuration
 @ComponentScan("com.epam.esm")
-@PropertySource({"classpath:application.properties"})
+@PropertySource({"classpath:datasource.properties"})
 public class DataConfig {
 
     @Autowired
