@@ -1,25 +1,26 @@
 package com.epam.esm.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Certificate {
 
     private long id;
-    private String ownerName;
+    private String name;
     private String description;
     private BigDecimal price;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
     @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime modificationDate;
-    @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate expirationDate;
-    private Set<Tag> tags;
+    private int durationInDays;
+    private List<Tag> tags;
+    private boolean isDeleted = false;
 
     public Certificate() {
     }
@@ -32,12 +33,12 @@ public class Certificate {
         this.id = id;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getName() {
+        return name;
     }
 
-    public void setOwnerName(String ownerName) {
-        this.ownerName = ownerName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -72,20 +73,52 @@ public class Certificate {
         this.modificationDate = modificationDate;
     }
 
-    public LocalDate getExpirationDate() {
-        return expirationDate;
+    public int getDurationInDays() {
+        return durationInDays;
     }
 
-    public void setExpirationDate(LocalDate expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setDurationInDays(int durationInDays) {
+        this.durationInDays = durationInDays;
     }
 
-    public Set<Tag> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(Set<Tag> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Certificate)) return false;
+
+        Certificate that = (Certificate) o;
+
+        if (!getName().equals(that.getName())) return false;
+        if (!getPrice().equals(that.getPrice())) return false;
+        if (getDurationInDays() != that.getDurationInDays()) return false;
+        if (isDeleted() != that.isDeleted()) return false;
+        return getTags() != null ? getTags().equals(that.getTags()) : that.getTags() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getName().hashCode();
+        result = 31 * result + getPrice().hashCode();
+        result = 31 * result + getDurationInDays();
+        result = 31 * result + (getTags() != null ? getTags().hashCode() : 0);
+        result = 31 * result + (isDeleted() ? 1 : 0);
+        return result;
     }
 }
 

@@ -3,18 +3,23 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public interface CertificateRepository {
 
-    public List<Certificate> getAll();
+    List<Certificate> getAll();
 
-    public Certificate getById(long id);
+    Certificate getById(long id);
 
-    public boolean create(Certificate theCertificate);
+    long create(Certificate theCertificate);
 
-    public boolean update(Certificate theCertificate);
+    long update(Certificate theCertificate);
 
-    public boolean delete(long id);
+    boolean delete(long id);
 
+    void addCertificateTag(long certificateId, long tagId);
+
+    Optional<Certificate> getByNameDurationPrice(String name, int durationInDays, BigDecimal price);
 }

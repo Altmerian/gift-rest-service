@@ -11,7 +11,7 @@ public class CertificateMapper implements RowMapper<Certificate> {
     public Certificate mapRow(ResultSet rs, int rowNum) throws SQLException {
         Certificate certificate = new Certificate();
         certificate.setId(rs.getInt("id"));
-        certificate.setOwnerName(rs.getString("owner_name"));
+        certificate.setName(rs.getString("name"));
         certificate.setDescription(rs.getString("description"));
         certificate.setPrice(rs.getBigDecimal("price"));
         certificate.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
@@ -19,8 +19,7 @@ public class CertificateMapper implements RowMapper<Certificate> {
             certificate.setModificationDate(
                     rs.getTimestamp("modification_date").toLocalDateTime());
         }
-        certificate.setExpirationDate(
-                rs.getTimestamp("expiration_date").toLocalDateTime().toLocalDate());
+        certificate.setDurationInDays(rs.getInt("duration_in_days"));
         return certificate;
     }
 }

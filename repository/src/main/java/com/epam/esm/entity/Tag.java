@@ -1,11 +1,14 @@
 package com.epam.esm.entity;
 
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.List;
 
 public class Tag {
     private long id;
     private String name;
-    private Set<Certificate> certificates;
+    @JsonIgnore
+    private List<Certificate> certificates;
 
     public Tag() {
     }
@@ -26,11 +29,26 @@ public class Tag {
         this.name = name;
     }
 
-    public Set<Certificate> getCertificates() {
+    public List<Certificate> getCertificates() {
         return certificates;
     }
 
-    public void setCertificates(Set<Certificate> certificates) {
+    public void setCertificates(List<Certificate> certificates) {
         this.certificates = certificates;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tag)) return false;
+
+        Tag tag = (Tag) o;
+
+        return getName().equals(tag.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
     }
 }

@@ -1,9 +1,9 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.entity.Certificate;
-import com.epam.esm.service.CertificateServiceImpl;
+import com.epam.esm.exception.ResourceConflictException;
+import com.epam.esm.service.CertificateService;
 import com.epam.esm.util.RestPreconditions;
-import com.google.common.base.Preconditions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +14,10 @@ import java.util.List;
 @RequestMapping("api/certificates")
 class CertificateRestController {
 
-    private final CertificateServiceImpl certificateService;
+    private final CertificateService certificateService;
 
     @Autowired
-    public CertificateRestController(CertificateServiceImpl certificateService) {
+    public CertificateRestController(CertificateService certificateService) {
         this.certificateService = certificateService;
     }
 
@@ -28,27 +28,31 @@ class CertificateRestController {
 
     @GetMapping("/{id}")
     public Certificate getById(@PathVariable long id) {
-        return RestPreconditions.checkFound(certificateService.getById(id));
+        return certificateService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public boolean create(@RequestBody Certificate certificate) {
-        Preconditions.checkNotNull(certificate);
-        return certificateService.create(certificate);
+    public Object create(@RequestBody Certificate certificate) throws ResourceConflictException {
+        if (certificateService.foundDuplicate(
+                certificate.getName(), certificate.getDurationInDays(),
+                certificate.getPrice(), certificate.getTags())) {
+            throw new ResourceConflictException("Your data conflicts with existing resources");
+        }
+        long result = certificateService.create(certificate);
+        return "Certificate has been created, id = " + result;
     }
 
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void update(@PathVariable( "id" ) long id, @RequestBody Certificate certificate) {
-        Preconditions.checkNotNull(certificate);
+    public long update(@PathVariable("id") long id, @RequestBody Certificate certificate) {
         RestPreconditions.checkFound(certificateService.getById(id));
-        certificateService.update(certificate);
+        return certificateService.update(certificate);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("id") long id) {
-        certificateService.delete(id);
+    public boolean delete(@PathVariable("id") long id) {
+        return certificateService.delete(id);
     }
 }
