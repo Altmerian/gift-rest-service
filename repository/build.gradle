@@ -12,7 +12,6 @@ repositories {
 }
 
 dependencies {
-    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0'
 
     implementation 'org.springframework:spring-jdbc:5.2.6.RELEASE'
     implementation 'org.springframework:spring-context:5.2.6.RELEASE'

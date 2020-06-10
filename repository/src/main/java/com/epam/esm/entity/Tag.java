@@ -1,54 +1,50 @@
 package com.epam.esm.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.List;
 
 public class Tag {
-    private long id;
-    private String name;
-    @JsonIgnore
-    private List<Certificate> certificates;
+  private long id;
+  private String name;
+  private List<Certificate> certificates;
 
-    public Tag() {
-    }
+  public Tag() {}
 
-    public long getId() {
-        return id;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public List<Certificate> getCertificates() {
-        return certificates;
-    }
+  public List<Certificate> getCertificates() {
+    return certificates;
+  }
 
-    public void setCertificates(List<Certificate> certificates) {
-        this.certificates = certificates;
-    }
+  public void setCertificates(List<Certificate> certificates) {
+    this.certificates = certificates;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Tag)) return false;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Tag)) return false;
 
-        Tag tag = (Tag) o;
+    Tag tag = (Tag) o;
 
-        return getName().equals(tag.getName());
-    }
+    return getName().equals(tag.getName());
+  }
 
-    @Override
-    public int hashCode() {
-        return getName().hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return getName().hashCode();
+  }
 }

@@ -5,41 +5,41 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
 public class ErrorResponse {
-    private int status;
-    private String message;
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-    private LocalDateTime time;
+  private int status;
+  private String message;
 
-    public ErrorResponse() {
-    }
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+  private LocalDateTime time;
 
-    public ErrorResponse(int status, String message, LocalDateTime time) {
-        this.status = status;
-        this.message = message;
-        this.time = time;
-    }
+  public ErrorResponse() {}
 
-    public int getStatus() {
-        return status;
-    }
+  public ErrorResponse(int status, String message, LocalDateTime time) {
+    this.status = status;
+    this.message = message;
+    this.time = time;
+  }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
+  public int getStatus() {
+    return status;
+  }
 
-    public String getMessage() {
-        return message;
-    }
+  public void setStatus(int status) {
+    this.status = status;
+  }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  public String getMessage() {
+    return message;
+  }
 
-    public LocalDateTime getTime() {
-        return time;
-    }
+  public void setMessage(String message) {
+    this.message = message;
+  }
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
-    }
+  public LocalDateTime getTime() {
+    return time;
+  }
+
+  public void setTime(LocalDateTime time) {
+    this.time = time;
+  }
 }

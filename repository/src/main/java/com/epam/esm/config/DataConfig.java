@@ -18,51 +18,41 @@ import static org.apache.commons.lang3.math.NumberUtils.isParsable;
 @PropertySource({"classpath:datasource.properties"})
 public class DataConfig {
 
-    @Autowired
-    private Environment env;
+  @Autowired private Environment env;
 
-    @Bean
-    public DataSource dataSource() {
+  @Bean
+  public DataSource dataSource() {
 
-        // create connection pool
-        ComboPooledDataSource dataSource = new ComboPooledDataSource();
+    // create connection pool
+    ComboPooledDataSource dataSource = new ComboPooledDataSource();
 
-        // set the jdbc driver
-        try {
-            dataSource.setDriverClass(env.getProperty("jdbc.driver"));
-        } catch (PropertyVetoException exc) {
-            throw new RuntimeException(exc);
-        }
-
-        // set database connection props
-        dataSource.setJdbcUrl(env.getProperty("jdbc.url"));
-        dataSource.setUser(env.getProperty("jdbc.user"));
-        dataSource.setPassword(env.getProperty("jdbc.password"));
-
-        // set connection pool props
-        dataSource.setInitialPoolSize(getIntProperty(env.getProperty("connection.pool.initialPoolSize")));
-        dataSource.setMinPoolSize(getIntProperty(env.getProperty("connection.pool.minPoolSize")));
-        dataSource.setMaxPoolSize(getIntProperty(env.getProperty("connection.pool.maxPoolSize")));
-        dataSource.setMaxIdleTime(getIntProperty(env.getProperty("connection.pool.maxIdleTime")));
-
-        return dataSource;
+    // set the jdbc driver
+    try {
+      dataSource.setDriverClass(env.getProperty("jdbc.driver"));
+    } catch (PropertyVetoException exc) {
+      throw new RuntimeException(exc);
     }
 
-    private int getIntProperty(String propValue) {
-        if (isParsable(propValue)) {
-            return Integer.parseInt(propValue);
-        } else {
-            throw new RuntimeException("Invalid connection pool parameter: " + propValue);
-        }
-    }
+    // set database connection props
+    dataSource.setJdbcUrl(env.getProperty("jdbc.url"));
+    dataSource.setUser(env.getProperty("jdbc.user"));
+    dataSource.setPassword(env.getProperty("jdbc.password"));
 
+    // set connection pool props
+    dataSource.setInitialPoolSize(
+        getIntProperty(env.getProperty("connection.pool.initialPoolSize")));
+    dataSource.setMinPoolSize(getIntProperty(env.getProperty("connection.pool.minPoolSize")));
+    dataSource.setMaxPoolSize(getIntProperty(env.getProperty("connection.pool.maxPoolSize")));
+    dataSource.setMaxIdleTime(getIntProperty(env.getProperty("connection.pool.maxIdleTime")));
+
+    return dataSource;
+  }
+
+  private int getIntProperty(String propValue) {
+    if (isParsable(propValue)) {
+      return Integer.parseInt(propValue);
+    } else {
+      throw new IllegalArgumentException("Invalid connection pool parameter: " + propValue);
+    }
+  }
 }
-
-
-
-
-
-
-
-
-

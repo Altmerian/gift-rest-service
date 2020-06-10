@@ -1,21 +1,30 @@
-package com.epam.esm.entity;
+package com.epam.esm.dto;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Certificate {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CertificateDTO {
 
   private long id;
   private String name;
   private String description;
   private BigDecimal price;
-  private LocalDateTime creationDate;
-  private LocalDateTime modificationDate;
-  private int durationInDays;
-  private List<Tag> tags;
 
-  public Certificate() {}
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+  private LocalDateTime creationDate;
+
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+  private LocalDateTime modificationDate;
+
+  private int durationInDays;
+  private List<TagDTO> tags;
+
+  public CertificateDTO() {}
 
   public long getId() {
     return id;
@@ -73,20 +82,20 @@ public class Certificate {
     this.durationInDays = durationInDays;
   }
 
-  public List<Tag> getTags() {
+  public List<TagDTO> getTags() {
     return tags;
   }
 
-  public void setTags(List<Tag> tags) {
+  public void setTags(List<TagDTO> tags) {
     this.tags = tags;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof Certificate)) return false;
+    if (!(o instanceof CertificateDTO)) return false;
 
-    Certificate that = (Certificate) o;
+    CertificateDTO that = (CertificateDTO) o;
 
     if (!getName().equals(that.getName())) return false;
     if (!getPrice().equals(that.getPrice())) return false;

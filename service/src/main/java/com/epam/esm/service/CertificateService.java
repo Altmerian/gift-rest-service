@@ -8,15 +8,15 @@ import java.util.List;
 
 public interface CertificateService {
 
-	public List<Certificate> getAll();
+  public List<Certificate> getAll();
 
-	public Certificate getById(long id);
+  public Certificate getById(long id);
 
-	public long create(Certificate certificate);
+  public long create(Certificate certificate);
 
-	public long update(Certificate certificate);
+  public long update(Certificate certificate);
 
-	public boolean delete(long id);
+  public boolean delete(long id);
 
-	public boolean foundDuplicate(String name, int durationInDays, BigDecimal price, List<Tag> tags);
+  public boolean foundDuplicate(String name, int durationInDays, BigDecimal price, List<Tag> tags);
 }

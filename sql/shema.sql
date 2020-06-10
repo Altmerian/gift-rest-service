@@ -1,3 +1,16 @@
+-- Database: giftService
+
+-- DROP DATABASE "giftService";
+
+-- CREATE DATABASE "giftService"
+--     WITH
+--     OWNER = postgres
+--     ENCODING = 'UTF8'
+--     CONNECTION LIMIT = -1;
+--
+-- COMMENT ON DATABASE "giftService"
+--     IS 'EPAM FARM task 2 REST service db';
+
 CREATE TABLE certificates
 (
     id integer NOT NULL DEFAULT nextval('certificates_id_seq'::regclass),
@@ -7,7 +20,6 @@ CREATE TABLE certificates
     creation_date timestamp(0) with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     modification_date timestamp(0) with time zone,
     duration_in_days smallint NOT NULL DEFAULT 90,
-    deleted boolean DEFAULT false,
     CONSTRAINT certificates_pkey PRIMARY KEY (id)
 )
 
