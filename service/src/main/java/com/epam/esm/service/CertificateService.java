@@ -1,22 +1,25 @@
 package com.epam.esm.service;
 
-import com.epam.esm.entity.Certificate;
-import com.epam.esm.entity.Tag;
+import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.TagDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 
 public interface CertificateService {
 
-  public List<Certificate> getAll();
+  List<CertificateDTO> getAll();
 
-  public Certificate getById(long id);
+  CertificateDTO getById(long id);
 
-  public long create(Certificate certificate);
+  long create(CertificateDTO certificate);
 
-  public long update(Certificate certificate);
+  void update(long id, CertificateDTO certificate);
 
-  public boolean delete(long id);
+  void delete(long id);
 
-  public boolean foundDuplicate(String name, int durationInDays, BigDecimal price, List<Tag> tags);
+  boolean foundDuplicate(String name, int durationInDays, BigDecimal price, Set<TagDTO> tags);
+
+
 }

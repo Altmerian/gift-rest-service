@@ -4,18 +4,19 @@ import com.epam.esm.entity.Tag;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface TagRepository {
 
   List<Tag> getAll();
 
-  Tag getById(long id);
+  Optional<Tag> getById(long id);
 
   long create(Tag tag);
 
   boolean delete(long id);
 
-  List<Tag> getByCertificateId(long id);
+  Set<Tag> getByCertificateId(long id);
 
   Optional<Tag> getByName(String name);
 }

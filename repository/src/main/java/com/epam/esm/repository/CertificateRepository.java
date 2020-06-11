@@ -10,15 +10,15 @@ public interface CertificateRepository {
 
   List<Certificate> getAll();
 
-  Certificate getById(long id);
+  Optional<Certificate> getById(long id);
 
-  long create(Certificate theCertificate);
+  long create(Certificate entity);
 
-  long update(Certificate theCertificate);
+  void update(long id, Certificate entity);
 
-  boolean delete(long id);
+  void delete(long id);
+
+  Optional<Certificate> getByNameDurationPrice (String name, int durationInDays, BigDecimal price);
 
   void addCertificateTag(long certificateId, long tagId);
-
-  Optional<Certificate> getByNameDurationPrice(String name, int durationInDays, BigDecimal price);
 }

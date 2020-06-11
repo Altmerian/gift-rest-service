@@ -2,7 +2,6 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateMapper;
-import com.epam.esm.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,13 +16,13 @@ import java.util.Map;
 import java.util.Optional;
 
 @Repository
-public class CertificateRepositoryImpl implements CertificateRepository {
+public class CertificateJdbcRepository implements CertificateRepository {
 
   private final JdbcTemplate jdbcTemplate;
   private final SimpleJdbcInsert simpleJdbcInsert;
 
   @Autowired
-  public CertificateRepositoryImpl(DataSource dataSource) {
+  public CertificateJdbcRepository(DataSource dataSource) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.simpleJdbcInsert =
         new SimpleJdbcInsert(dataSource)
@@ -39,16 +38,16 @@ public class CertificateRepositoryImpl implements CertificateRepository {
   }
 
   @Override
-  public Certificate getById(long id) {
+  public Optional<Certificate> getById(long id) {
     String SQL_GET_BY_ID = "SELECT * FROM certificates WHERE id = ?";
     Certificate certificate;
     try {
       certificate =
           jdbcTemplate.queryForObject(SQL_GET_BY_ID, new Object[] {id}, new CertificateMapper());
     } catch (IncorrectResultSizeDataAccessException e) {
-      throw new ResourceNotFoundException("Can't find a certificate with id = " + id);
+      return Optional.empty();
     }
-    return certificate;
+    return Optional.ofNullable(certificate);
   }
 
   @Override
@@ -81,17 +80,23 @@ public class CertificateRepositoryImpl implements CertificateRepository {
   @Override
   public void addCertificateTag(long certificateId, long tagId) {
     String SQL_ADD_CERTIFICATE_TAG =
-        "INSERT INTO certificates_tags " + "(certificate_id, tag_id) VALUES (?, ?)";
+        "INSERT INTO certificates_tags (certificate_id, tag_id) VALUES (?, ?)";
     jdbcTemplate.update(SQL_ADD_CERTIFICATE_TAG, certificateId, tagId);
   }
 
   @Override
-  public long update(Certificate certificate) {
-    return 0;
+  public void update(long id, Certificate certificate) {
+    String SQL_UPDATE =
+        "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ? WHERE id = ?";
+    jdbcTemplate.update(
+        SQL_UPDATE,
+        certificate.getName(),
+        certificate.getDescription(),
+        certificate.getPrice(),
+        certificate.getDurationInDays(),
+        id);
   }
 
   @Override
-  public boolean delete(long id) {
-    return false;
-  }
+  public void delete(long id) {}
 }

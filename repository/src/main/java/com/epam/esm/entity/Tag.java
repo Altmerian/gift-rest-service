@@ -1,11 +1,11 @@
 package com.epam.esm.entity;
 
-import java.util.List;
+import java.util.Set;
 
 public class Tag {
   private long id;
   private String name;
-  private List<Certificate> certificates;
+  private Set<Certificate> certificates;
 
   public Tag() {}
 
@@ -25,11 +25,11 @@ public class Tag {
     this.name = name;
   }
 
-  public List<Certificate> getCertificates() {
+  public Set<Certificate> getCertificates() {
     return certificates;
   }
 
-  public void setCertificates(List<Certificate> certificates) {
+  public void setCertificates(Set<Certificate> certificates) {
     this.certificates = certificates;
   }
 

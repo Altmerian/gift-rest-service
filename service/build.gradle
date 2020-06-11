@@ -12,8 +12,11 @@ repositories {
 }
 
 dependencies {
-    api project(':repository')
+    implementation project(':repository')
+    api 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
+    api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0'
     implementation 'org.springframework:spring-context:5.2.6.RELEASE'
+    implementation 'org.modelmapper:modelmapper:2.3.8'
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

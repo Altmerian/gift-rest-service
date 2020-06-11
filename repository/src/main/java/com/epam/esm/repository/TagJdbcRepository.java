@@ -2,7 +2,6 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.TagMapper;
-import com.epam.esm.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,19 +9,16 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
-public class TagRepositoryImpl implements TagRepository {
+public class TagJdbcRepository implements TagRepository {
 
   private final JdbcTemplate jdbcTemplate;
   private final SimpleJdbcInsert simpleJdbcInsert;
 
   @Autowired
-  public TagRepositoryImpl(DataSource dataSource) {
+  public TagJdbcRepository(DataSource dataSource) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.simpleJdbcInsert =
         new SimpleJdbcInsert(dataSource).withTableName("tags").usingGeneratedKeyColumns("id");
@@ -35,23 +31,25 @@ public class TagRepositoryImpl implements TagRepository {
   }
 
   @Override
-  public Tag getById(long id) {
+  public Optional<Tag> getById(long id) {
     String SQL_GET_BY_ID = "SELECT * FROM tags WHERE id = ?";
     Tag tag;
     try {
       tag = jdbcTemplate.queryForObject(SQL_GET_BY_ID, new Object[] {id}, new TagMapper());
     } catch (IncorrectResultSizeDataAccessException e) {
-      throw new ResourceNotFoundException("Can't find a tag with id = " + id);
+      return Optional.empty();
     }
-    return tag;
+    return Optional.ofNullable(tag);
   }
 
   @Override
-  public List<Tag> getByCertificateId(long id) {
+  public Set<Tag> getByCertificateId(long id) {
     String SQL_GET_BY_CERTIFICATE_ID =
         "SELECT id, name FROM tags "
             + "LEFT JOIN certificates_tags ON id = tag_id WHERE certificate_id = ?";
-    return jdbcTemplate.query(SQL_GET_BY_CERTIFICATE_ID, new Object[] {id}, new TagMapper());
+    List<Tag> tags =
+        jdbcTemplate.query(SQL_GET_BY_CERTIFICATE_ID, new Object[] {id}, new TagMapper());
+    return new HashSet<Tag>(tags);
   }
 
   @Override

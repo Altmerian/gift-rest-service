@@ -1,24 +1,23 @@
 package com.epam.esm.exception;
 
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpHeaders;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.lang.NonNull;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 
-@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
-public class CertificateExceptionHandler extends ResponseEntityExceptionHandler {
+public class CertificateExceptionHandler {
 
-  @ExceptionHandler
+  private static final Logger LOGGER = LogManager.getLogger();
+
+  @ExceptionHandler({ResourceNotFoundException.class})
   public ResponseEntity<ErrorResponse> handleException(ResourceNotFoundException exception) {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
@@ -27,7 +26,7 @@ public class CertificateExceptionHandler extends ResponseEntityExceptionHandler 
     return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler
+  @ExceptionHandler({ResourceConflictException.class})
   public ResponseEntity<ErrorResponse> handleException(ResourceConflictException exception) {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setStatus(HttpStatus.CONFLICT.value());
@@ -36,13 +35,17 @@ public class CertificateExceptionHandler extends ResponseEntityExceptionHandler 
     return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
   }
 
-  @Override
-  @NonNull
-  public ResponseEntity<Object> handleHttpMessageNotReadable(
-      @NonNull HttpMessageNotReadableException ex,
-      @NonNull HttpHeaders headers,
-      @NonNull HttpStatus status,
-      @NonNull WebRequest request) {
+  @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
+  public ResponseEntity<ErrorResponse> handleException(HttpRequestMethodNotSupportedException exception) {
+    ErrorResponse errorResponse = new ErrorResponse();
+    errorResponse.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
+    errorResponse.setMessage(exception.getMessage());
+    errorResponse.setTime(LocalDateTime.now());
+    return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
+  }
+
+  @ExceptionHandler({MethodArgumentTypeMismatchException.class})
+  public ResponseEntity<Object> handleException(MethodArgumentTypeMismatchException exception) {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
     errorResponse.setMessage("The request cannot be fulfilled due to bad syntax.");
@@ -51,10 +54,11 @@ public class CertificateExceptionHandler extends ResponseEntityExceptionHandler 
   }
 
   @ExceptionHandler({Exception.class})
-  public ResponseEntity<ErrorResponse> handleAll(Exception ex) {
+  public ResponseEntity<ErrorResponse> handleAll(Exception exception) {
     ErrorResponse errorResponse =
         new ErrorResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), LocalDateTime.now());
+            HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage(), LocalDateTime.now());
+    LOGGER.throwing(Level.ERROR, exception);
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

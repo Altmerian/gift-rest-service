@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CertificateDTO {
@@ -22,7 +22,7 @@ public class CertificateDTO {
   private LocalDateTime modificationDate;
 
   private int durationInDays;
-  private List<TagDTO> tags;
+  private Set<TagDTO> tags;
 
   public CertificateDTO() {}
 
@@ -82,11 +82,11 @@ public class CertificateDTO {
     this.durationInDays = durationInDays;
   }
 
-  public List<TagDTO> getTags() {
+  public Set<TagDTO> getTags() {
     return tags;
   }
 
-  public void setTags(List<TagDTO> tags) {
+  public void setTags(Set<TagDTO> tags) {
     this.tags = tags;
   }
 
