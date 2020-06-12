@@ -87,7 +87,8 @@ public class CertificateJdbcRepository implements CertificateRepository {
   @Override
   public void update(long id, Certificate certificate) {
     String SQL_UPDATE =
-        "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ? WHERE id = ?";
+        "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ?, " +
+            "modification_date = current_timestamp WHERE id = ?";
     jdbcTemplate.update(
         SQL_UPDATE,
         certificate.getName(),

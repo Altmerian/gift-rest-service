@@ -1,23 +1,7 @@
-plugins {
-    id 'java-library'
-}
-
-group 'by.epam.pavelshakhlovich'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-
     implementation 'org.springframework:spring-jdbc:5.2.6.RELEASE'
     implementation 'org.springframework:spring-context:5.2.6.RELEASE'
     implementation 'org.postgresql:postgresql:42.2.13'
     implementation 'com.mchange:c3p0:0.9.5.5'
     implementation 'org.apache.commons:commons-lang3:3.10'
-
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

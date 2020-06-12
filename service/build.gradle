@@ -2,21 +2,11 @@ plugins {
     id 'java-library'
 }
 
-group 'by.epam.pavelshakhlovich'
-version '1.0-SNAPSHOT'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation project(':repository')
+
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0'
     implementation 'org.springframework:spring-context:5.2.6.RELEASE'
     implementation 'org.modelmapper:modelmapper:2.3.8'
-
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }

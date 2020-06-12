@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,9 +33,6 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   public List<CertificateDTO> getAll() {
     List<Certificate> certificates = repository.getAll();
-    for (Certificate certificate : certificates) {
-      certificate.setTags(tagRepository.getByCertificateId(certificate.getId()));
-    }
     return certificates.stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
@@ -70,7 +64,7 @@ public class CertificateServiceImpl implements CertificateService {
     Certificate certificate = convertToEntity(certificateDTO);
     repository.update(id, certificate);
     if (certificate.getTags() != null) {
-      Set<Tag> tags = new HashSet<>(certificate.getTags());
+      Set<Tag> tags = certificate.getTags();
       Set<Tag> existingTags = tagRepository.getByCertificateId(id);
       tags.stream()
           .filter(tag -> !existingTags.contains(tag))
