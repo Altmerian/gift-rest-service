@@ -31,8 +31,8 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
-  public List<CertificateDTO> getAll() {
-    List<Certificate> certificates = repository.getAll();
+  public List<CertificateDTO> getAll(String tagName, String searchFor, String sortBy) {
+    List<Certificate> certificates = repository.getAll(tagName, searchFor, sortBy);
     return certificates.stream().map(this::convertToDto).collect(Collectors.toList());
   }
 

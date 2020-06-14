@@ -12,7 +12,7 @@ public interface TagService {
 
   public long create(TagDTO tag);
 
-  public boolean delete(long id);
+  public void delete(long id);
 
   public boolean foundDuplicate(String name);
 }

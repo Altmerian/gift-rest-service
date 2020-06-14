@@ -32,8 +32,11 @@ public class CertificateJdbcRepository implements CertificateRepository {
   }
 
   @Override
-  public List<Certificate> getAll() {
-    String SQL_GET_ALL = "SELECT * FROM certificates";
+  public List<Certificate> getAll(String tagName, String searchFor, String sortBy) {
+    //    String SQL_GET_ALL = "SELECT * FROM certificates";
+    //todo call function and receive result
+    String SQL_GET_ALL =
+        String.format("SELECT certificates_function('%s', '%s', '%s')", tagName, searchFor, sortBy);
     return jdbcTemplate.query(SQL_GET_ALL, new CertificateMapper());
   }
 
@@ -53,13 +56,15 @@ public class CertificateJdbcRepository implements CertificateRepository {
   @Override
   public Optional<Certificate> getByNameDurationPrice(
       String name, int durationInDays, BigDecimal price) {
-    String SQL_GET_BY_ID =
-        "SELECT * FROM certificates " + "WHERE name = ? AND price = ? AND duration_in_days = ?";
+    String SQL_GET_BY_NAME_DURATION_PRICE =
+        "SELECT * FROM certificates WHERE name = ? AND price = ? AND duration_in_days = ?";
     Certificate certificate;
     try {
       certificate =
           jdbcTemplate.queryForObject(
-              SQL_GET_BY_ID, new Object[] {name, price, durationInDays}, new CertificateMapper());
+              SQL_GET_BY_NAME_DURATION_PRICE,
+              new Object[] {name, price, durationInDays},
+              new CertificateMapper());
     } catch (IncorrectResultSizeDataAccessException e) {
       return Optional.empty();
     }
@@ -87,8 +92,8 @@ public class CertificateJdbcRepository implements CertificateRepository {
   @Override
   public void update(long id, Certificate certificate) {
     String SQL_UPDATE =
-        "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ?, " +
-            "modification_date = current_timestamp WHERE id = ?";
+        "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ?, "
+            + "modification_date = current_timestamp WHERE id = ?";
     jdbcTemplate.update(
         SQL_UPDATE,
         certificate.getName(),
@@ -99,5 +104,8 @@ public class CertificateJdbcRepository implements CertificateRepository {
   }
 
   @Override
-  public void delete(long id) {}
+  public void delete(long id) {
+    String SQL_DELETE = "delete from certificates where id = ?";
+    jdbcTemplate.update(SQL_DELETE, id);
+  }
 }

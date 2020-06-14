@@ -23,8 +23,11 @@ class CertificateRestController {
   }
 
   @GetMapping
-  public List<CertificateDTO> getAll() {
-    return certificateService.getAll();
+  public List<CertificateDTO> getAll(
+      @RequestParam(value = "tagName", defaultValue = "%") String tagName,
+      @RequestParam(value = "search", defaultValue = "%") String searchFor,
+      @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
+    return certificateService.getAll(tagName, searchFor, sortBy);
   }
 
   @GetMapping("/{id}")
@@ -56,6 +59,7 @@ class CertificateRestController {
 
   @DeleteMapping(value = "/{id}")
   public void delete(@PathVariable("id") long id) {
+    certificateService.getById(id);
     certificateService.delete(id);
   }
 }

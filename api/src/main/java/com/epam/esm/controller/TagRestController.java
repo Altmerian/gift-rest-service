@@ -46,8 +46,9 @@ class TagRestController {
   }
 
   @DeleteMapping(value = "/{id}")
-  public boolean delete(@PathVariable("id") long id) {
-    return tagService.delete(id);
+  public void delete(@PathVariable("id") long id) {
+    tagService.getById(id);
+    tagService.delete(id);
   }
 
 

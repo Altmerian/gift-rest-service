@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface CertificateService {
 
-  List<CertificateDTO> getAll();
+  List<CertificateDTO> getAll(String tagName, String searchFor, String sortBy);
 
   CertificateDTO getById(long id);
 
@@ -20,6 +20,4 @@ public interface CertificateService {
   void delete(long id);
 
   boolean foundDuplicate(String name, int durationInDays, BigDecimal price, Set<TagDTO> tags);
-
-
 }

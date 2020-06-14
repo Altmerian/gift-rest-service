@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface CertificateRepository {
 
-  List<Certificate> getAll();
+  List<Certificate> getAll(String tagName, String searchFor, String sortBy);
 
   Optional<Certificate> getById(long id);
 

@@ -14,7 +14,7 @@ public interface TagRepository {
 
   long create(Tag tag);
 
-  boolean delete(long id);
+  void delete(long id);
 
   Set<Tag> getByCertificateId(long id);
 

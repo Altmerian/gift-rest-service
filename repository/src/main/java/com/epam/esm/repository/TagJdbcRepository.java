@@ -73,8 +73,8 @@ public class TagJdbcRepository implements TagRepository {
   }
 
   @Override
-  public boolean delete(long id) {
+  public void delete(long id) {
     String SQL_DELETE_TAG = "delete from tags where id = ?";
-    return jdbcTemplate.update(SQL_DELETE_TAG, id) > 0;
+    jdbcTemplate.update(SQL_DELETE_TAG, id);
   }
 }
