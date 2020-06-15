@@ -32,11 +32,10 @@ public class TagServiceImpl implements TagService {
   @Override
   public TagDTO getById(long id) {
     Optional<Tag> tagOptional = tagRepository.getById(id);
-    if (tagOptional.isPresent()) {
-      return convertToDTO(tagOptional.get());
-    } else {
+    if (!tagOptional.isPresent()) {
       throw new ResourceNotFoundException("Can't find a tag with id = " + id);
     }
+    return convertToDTO(tagOptional.get());
   }
 
   @Override

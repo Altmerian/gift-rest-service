@@ -26,13 +26,13 @@ public class TagJdbcRepository implements TagRepository {
 
   @Override
   public List<Tag> getAll() {
-    String SQL_GET_ALL = "SELECT * FROM tags";
+    final String SQL_GET_ALL = "SELECT * FROM tags";
     return jdbcTemplate.query(SQL_GET_ALL, new TagMapper());
   }
 
   @Override
   public Optional<Tag> getById(long id) {
-    String SQL_GET_BY_ID = "SELECT * FROM tags WHERE id = ?";
+    final String SQL_GET_BY_ID = "SELECT * FROM tags WHERE id = ?";
     Tag tag;
     try {
       tag = jdbcTemplate.queryForObject(SQL_GET_BY_ID, new Object[] {id}, new TagMapper());
@@ -44,7 +44,7 @@ public class TagJdbcRepository implements TagRepository {
 
   @Override
   public Set<Tag> getByCertificateId(long id) {
-    String SQL_GET_BY_CERTIFICATE_ID =
+    final String SQL_GET_BY_CERTIFICATE_ID =
         "SELECT id, name FROM tags "
             + "LEFT JOIN certificates_tags ON id = tag_id WHERE certificate_id = ?";
     List<Tag> tags =
@@ -54,7 +54,7 @@ public class TagJdbcRepository implements TagRepository {
 
   @Override
   public Optional<Tag> getByName(String name) {
-    String SQL_GET_BY_NAME = "SELECT id, name FROM tags WHERE name = ?";
+    final String SQL_GET_BY_NAME = "SELECT id, name FROM tags WHERE name = ?";
     Tag tag;
     try {
       tag = jdbcTemplate.queryForObject(SQL_GET_BY_NAME, new Object[] {name}, new TagMapper());
@@ -74,7 +74,7 @@ public class TagJdbcRepository implements TagRepository {
 
   @Override
   public void delete(long id) {
-    String SQL_DELETE_TAG = "delete from tags where id = ?";
+    final String SQL_DELETE_TAG = "delete from tags where id = ?";
     jdbcTemplate.update(SQL_DELETE_TAG, id);
   }
 }

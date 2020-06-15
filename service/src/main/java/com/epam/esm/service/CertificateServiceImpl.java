@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +34,6 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public List<CertificateDTO> getAll(String tagName, String searchFor, String sortBy) {
-
     List<Certificate> certificates = repository.getAll(tagName, searchFor, sortBy);
     return certificates.stream().map(this::convertToDto).collect(Collectors.toList());
   }
@@ -40,13 +41,12 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   public CertificateDTO getById(long id) {
     Optional<Certificate> certificateOptional = repository.getById(id);
-    if (certificateOptional.isPresent()) {
-      Certificate certificate = certificateOptional.get();
-      certificate.setTags(tagRepository.getByCertificateId(certificate.getId()));
-      return convertToDto(certificate);
-    } else {
+    if (!certificateOptional.isPresent()) {
       throw new ResourceNotFoundException("Can't find a certificate with id = " + id);
     }
+    Certificate certificate = certificateOptional.get();
+    certificate.setTags(tagRepository.getByCertificateId(certificate.getId()));
+    return convertToDto(certificate);
   }
 
   @Override
@@ -64,13 +64,14 @@ public class CertificateServiceImpl implements CertificateService {
   public void update(long id, CertificateDTO certificateDTO) {
     Certificate certificate = convertToEntity(certificateDTO);
     repository.update(id, certificate);
-    if (certificate.getTags() != null) {
-      Set<Tag> tags = certificate.getTags();
-      Set<Tag> existingTags = tagRepository.getByCertificateId(id);
-      tags.stream()
-          .filter(tag -> !existingTags.contains(tag))
-          .forEach(tag -> addCertificateTag(id, tag));
+    if (certificate.getTags() == null) {
+      return;
     }
+    Set<Tag> tags = certificate.getTags();
+    Set<Tag> existingTags = tagRepository.getByCertificateId(id);
+    tags.stream()
+        .filter(tag -> !existingTags.contains(tag))
+        .forEach(tag -> addCertificateTag(id, tag));
   }
 
   @Override

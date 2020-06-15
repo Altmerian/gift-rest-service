@@ -1,7 +1,7 @@
 package com.epam.esm.util;
 
 public class QueryHelper {
-  public static String getSortParams (String queryString) {
+  public static String getSortQuery(String queryString) {
     StringBuilder stringBuilder = new StringBuilder();
     String[] strings = queryString.trim().split("[;,.\\s|]+");
     for (String string : strings) {

@@ -34,22 +34,22 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public List<Certificate> getAll(String tagName, String searchFor, String sortBy) {
-    String sortQuery = QueryHelper.getSortParams(sortBy);
-    String SQL_GET_ALL;
+    String sortQuery = QueryHelper.getSortQuery(sortBy);
+    String sqlGetAll;
     if (tagName.equals("%") && searchFor.equals("%")) {
-      SQL_GET_ALL = String.format("SELECT * FROM certificates ORDER BY %s", sortQuery);
+      sqlGetAll = String.format("SELECT * FROM certificates ORDER BY %s", sortQuery);
     } else {
-      SQL_GET_ALL =
+      sqlGetAll =
           String.format(
               "SELECT * FROM certificates_function('%s', '%s') ORDER BY %s",
               tagName, searchFor, sortQuery);
     }
-    return jdbcTemplate.query(SQL_GET_ALL, new CertificateMapper());
+    return jdbcTemplate.query(sqlGetAll, new CertificateMapper());
   }
 
   @Override
   public Optional<Certificate> getById(long id) {
-    String SQL_GET_BY_ID = "SELECT * FROM certificates WHERE id = ?";
+    final String SQL_GET_BY_ID = "SELECT * FROM certificates WHERE id = ?";
     Certificate certificate;
     try {
       certificate =
@@ -63,7 +63,7 @@ public class CertificateJdbcRepository implements CertificateRepository {
   @Override
   public Optional<Certificate> getByNameDurationPrice(
       String name, int durationInDays, BigDecimal price) {
-    String SQL_GET_BY_NAME_DURATION_PRICE =
+    final String SQL_GET_BY_NAME_DURATION_PRICE =
         "SELECT * FROM certificates WHERE name = ? AND price = ? AND duration_in_days = ?";
     Certificate certificate;
     try {
@@ -91,14 +91,14 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public void addCertificateTag(long certificateId, long tagId) {
-    String SQL_ADD_CERTIFICATE_TAG =
+    final String SQL_ADD_CERTIFICATE_TAG =
         "INSERT INTO certificates_tags (certificate_id, tag_id) VALUES (?, ?)";
     jdbcTemplate.update(SQL_ADD_CERTIFICATE_TAG, certificateId, tagId);
   }
 
   @Override
   public void update(long id, Certificate certificate) {
-    String SQL_UPDATE =
+    final String SQL_UPDATE =
         "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ?, "
             + "modification_date = current_timestamp WHERE id = ?";
     jdbcTemplate.update(
@@ -112,7 +112,7 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public void delete(long id) {
-    String SQL_DELETE = "delete from certificates where id = ?";
+    final String SQL_DELETE = "delete from certificates where id = ?";
     jdbcTemplate.update(SQL_DELETE, id);
   }
 }
