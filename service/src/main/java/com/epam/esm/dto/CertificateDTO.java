@@ -2,11 +2,13 @@ package com.epam.esm.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CertificateDTO {
 
@@ -22,6 +24,7 @@ public class CertificateDTO {
   private LocalDateTime modificationDate;
 
   private int durationInDays;
+
   private Set<TagDTO> tags;
 
   public CertificateDTO() {}

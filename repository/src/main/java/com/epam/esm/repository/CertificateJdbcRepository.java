@@ -2,6 +2,7 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateMapper;
+import com.epam.esm.util.QueryHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,10 +34,16 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public List<Certificate> getAll(String tagName, String searchFor, String sortBy) {
-    //    String SQL_GET_ALL = "SELECT * FROM certificates";
-    //todo call function and receive result
-    String SQL_GET_ALL =
-        String.format("SELECT certificates_function('%s', '%s', '%s')", tagName, searchFor, sortBy);
+    String sortQuery = QueryHelper.getSortParams(sortBy);
+    String SQL_GET_ALL;
+    if (tagName.equals("%") && searchFor.equals("%")) {
+      SQL_GET_ALL = String.format("SELECT * FROM certificates ORDER BY %s", sortQuery);
+    } else {
+      SQL_GET_ALL =
+          String.format(
+              "SELECT * FROM certificates_function('%s', '%s') ORDER BY %s",
+              tagName, searchFor, sortQuery);
+    }
     return jdbcTemplate.query(SQL_GET_ALL, new CertificateMapper());
   }
 

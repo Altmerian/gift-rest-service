@@ -24,7 +24,7 @@ class CertificateRestController {
 
   @GetMapping
   public List<CertificateDTO> getAll(
-      @RequestParam(value = "tagName", defaultValue = "%") String tagName,
+      @RequestParam(value = "tag", defaultValue = "%") String tagName,
       @RequestParam(value = "search", defaultValue = "%") String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
     return certificateService.getAll(tagName, searchFor, sortBy);
