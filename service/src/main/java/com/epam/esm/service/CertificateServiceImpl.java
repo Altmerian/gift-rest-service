@@ -7,9 +7,11 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
+import com.epam.esm.util.Precondition;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,6 +52,7 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
+  @Transactional
   public long create(CertificateDTO certificateDTO) {
     Certificate certificate = convertToEntity(certificateDTO);
     long certificateId = repository.create(certificate);
@@ -61,9 +64,12 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
+  @Transactional
   public void update(long id, CertificateDTO certificateDTO) {
+    Precondition.checkExistence(repository.getById(id));
     Certificate certificate = convertToEntity(certificateDTO);
-    repository.update(id, certificate);
+    certificate.setId(id);
+    repository.update(certificate);
     if (certificate.getTags() == null) {
       return;
     }
@@ -76,7 +82,8 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public void delete(long id) {
-    repository.delete(id);
+    Certificate certificate = Precondition.checkExistence(repository.getById(id));
+    repository.delete(certificate);
   }
 
   @Override

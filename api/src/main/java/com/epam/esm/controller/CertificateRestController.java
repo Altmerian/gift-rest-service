@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/certificates")
+@RequestMapping("api/v1/certificates")
 class CertificateRestController {
 
   private final CertificateService certificateService;
@@ -24,13 +24,13 @@ class CertificateRestController {
 
   @GetMapping
   public List<CertificateDTO> getAll(
-      @RequestParam(value = "tag", defaultValue = "%") String tagName,
-      @RequestParam(value = "search", defaultValue = "%") String searchFor,
+      @RequestParam(value = "tag", required = false) String tagName,
+      @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
     return certificateService.getAll(tagName, searchFor, sortBy);
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/{id:\\d+}")
   public CertificateDTO getById(@PathVariable long id) {
     return certificateService.getById(id);
   }
@@ -50,16 +50,15 @@ class CertificateRestController {
     resp.setHeader("Location", url + certificateId);
   }
 
-  @PutMapping(value = "/{id}")
+  @PutMapping(value = "/{id:\\d+}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void update(@PathVariable("id") long id, @RequestBody CertificateDTO certificateDTO) {
-    certificateService.getById(id);
     certificateService.update(id, certificateDTO);
   }
 
-  @DeleteMapping(value = "/{id}")
+  @DeleteMapping(value = "/{id:\\d+}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable("id") long id) {
-    certificateService.getById(id);
     certificateService.delete(id);
   }
 }

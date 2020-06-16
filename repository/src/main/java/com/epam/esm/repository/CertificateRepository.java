@@ -12,11 +12,11 @@ public interface CertificateRepository {
 
   Optional<Certificate> getById(long id);
 
-  long create(Certificate entity);
+  long create(Certificate certificate);
 
-  void update(long id, Certificate entity);
+  void update(Certificate certificate);
 
-  void delete(long id);
+  void delete(Certificate certificate);
 
   Optional<Certificate> getByNameDurationPrice (String name, int durationInDays, BigDecimal price);
 

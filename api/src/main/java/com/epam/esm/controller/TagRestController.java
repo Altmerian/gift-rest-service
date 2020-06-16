@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/tags")
+@RequestMapping("api/v1/tags")
 class TagRestController {
 
   private final TagService tagService;
@@ -27,7 +27,7 @@ class TagRestController {
     return tagService.getAll();
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/{id:\\d+}")
   public TagDTO getById(@PathVariable long id) {
     return tagService.getById(id);
   }
@@ -45,7 +45,7 @@ class TagRestController {
     resp.setHeader("Location", url + tagId);
   }
 
-  @DeleteMapping(value = "/{id}")
+  @DeleteMapping("/{id:\\d+}")
   public void delete(@PathVariable("id") long id) {
     tagService.getById(id);
     tagService.delete(id);
