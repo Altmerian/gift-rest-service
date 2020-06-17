@@ -9,7 +9,9 @@ import java.util.Set;
 
 public interface CertificateService {
 
-  List<CertificateDTO> getAll(String tagName, String searchFor, String sortBy);
+  List<CertificateDTO> getAll();
+
+  List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy);
 
   CertificateDTO getById(long id);
 

@@ -25,7 +25,6 @@ public class TagDTO {
     this.name = name;
   }
 
-
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -33,11 +32,14 @@ public class TagDTO {
 
     TagDTO tagDTO = (TagDTO) o;
 
-    return getName().equals(tagDTO.getName());
+    if (getId() != tagDTO.getId()) return false;
+    return getName() != null ? getName().equals(tagDTO.getName()) : tagDTO.getName() == null;
   }
 
   @Override
   public int hashCode() {
-    return getName().hashCode();
+    int result = (int) (getId() ^ (getId() >>> 32));
+    result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+    return result;
   }
 }

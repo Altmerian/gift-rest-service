@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,8 +27,13 @@ class CertificateRestController {
   public List<CertificateDTO> getAll(
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
-      @RequestParam(value = "sort", defaultValue = "id") String sortBy) {
-    return certificateService.getAll(tagName, searchFor, sortBy);
+      @RequestParam(value = "sort", defaultValue = "id") String sortBy,
+      HttpServletRequest request) {
+    if (request.getQueryString().trim().isEmpty()) {
+      return certificateService.getAll();
+    } else {
+      return certificateService.sendQuery(tagName, searchFor, sortBy);
+    }
   }
 
   @GetMapping("/{id:\\d+}")
@@ -38,12 +44,15 @@ class CertificateRestController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public void create(
-      @RequestBody CertificateDTO certificateDTO, HttpServletRequest req, HttpServletResponse resp)
+      @Valid @RequestBody CertificateDTO certificateDTO,
+      HttpServletRequest req,
+      HttpServletResponse resp)
       throws ResourceConflictException {
     if (certificateService.foundDuplicate(
         certificateDTO.getName(), certificateDTO.getDurationInDays(),
         certificateDTO.getPrice(), certificateDTO.getTags())) {
-      throw new ResourceConflictException("Your data conflicts with existing resources");
+      throw new ResourceConflictException(
+          "Your data conflicts with existing resources. Certificate with given name, price and duration already exists");
     }
     long certificateId = certificateService.create(certificateDTO);
     String url = req.getRequestURL().toString();
@@ -52,7 +61,8 @@ class CertificateRestController {
 
   @PutMapping(value = "/{id:\\d+}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void update(@PathVariable("id") long id, @RequestBody CertificateDTO certificateDTO) {
+  public void update(
+      @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
   }
 

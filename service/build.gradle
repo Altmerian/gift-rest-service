@@ -7,6 +7,10 @@ dependencies {
 
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0'
+    api 'javax.validation:validation-api:2.0.1.Final'
+    api 'org.hibernate:hibernate-validator:6.1.5.Final'
+
+
     implementation 'org.springframework:spring-context:5.2.6.RELEASE'
     implementation 'org.springframework:spring-tx:5.2.6.RELEASE'
     implementation 'org.modelmapper:modelmapper:2.3.8'

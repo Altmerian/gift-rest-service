@@ -21,6 +21,8 @@ CREATE TABLE certificates
     modification_date timestamp(0) with time zone,
     duration_in_days smallint NOT NULL DEFAULT 90,
     CONSTRAINT certificates_pkey PRIMARY KEY (id)
+    CONSTRAINT positive_price CHECK (price > 0::numeric),
+    CONSTRAINT positive_duration CHECK (duration_in_days > 0)
 )
 
 CREATE TABLE tags

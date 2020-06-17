@@ -40,11 +40,14 @@ public class Tag {
 
     Tag tag = (Tag) o;
 
-    return getName().equals(tag.getName());
+    if (getId() != tag.getId()) return false;
+    return getName() != null ? getName().equals(tag.getName()) : tag.getName() == null;
   }
 
   @Override
   public int hashCode() {
-    return getName().hashCode();
+    int result = (int) (getId() ^ (getId() >>> 32));
+    result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+    return result;
   }
 }

@@ -32,7 +32,7 @@ public class TagServiceImpl implements TagService {
 
   @Override
   public TagDTO getById(long id) {
-    Optional<Tag> tagOptional = tagRepository.getById(id);
+    Optional<Tag> tagOptional = tagRepository.get(id);
     if (!tagOptional.isPresent()) {
       throw new ResourceNotFoundException("Can't find a tag with id = " + id);
     }
@@ -46,13 +46,13 @@ public class TagServiceImpl implements TagService {
 
   @Override
   public void delete(long id) {
-    Tag tag = Precondition.checkExistence(tagRepository.getById(id));
+    Tag tag = Precondition.checkExistence(tagRepository.get(id));
     tagRepository.delete(tag);
   }
 
   @Override
-  public boolean foundDuplicate(String name) {
-    return tagRepository.getByName(name).isPresent();
+  public boolean foundDuplicate(TagDTO tagDTO) {
+    return tagRepository.contains(convertToEntity(tagDTO));
   }
 
   private TagDTO convertToDTO(Tag tag) {

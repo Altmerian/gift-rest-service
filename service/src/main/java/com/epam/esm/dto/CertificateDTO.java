@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -13,8 +15,13 @@ import java.util.Set;
 public class CertificateDTO {
 
   private long id;
+
+  @NotBlank(message = "Certificate name cannot be empty!")
   private String name;
+
   private String description;
+
+  @Positive(message = "Certificate price must be positive!")
   private BigDecimal price;
 
   @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
@@ -23,6 +30,7 @@ public class CertificateDTO {
   @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
   private LocalDateTime modificationDate;
 
+  @Positive(message = "'duration_in_days' field must be positive!")
   private int durationInDays;
 
   private Set<TagDTO> tags;

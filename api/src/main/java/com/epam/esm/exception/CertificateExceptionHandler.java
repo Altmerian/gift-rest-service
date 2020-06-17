@@ -4,11 +4,19 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @ControllerAdvice
 @ResponseBody
@@ -42,6 +50,34 @@ public class CertificateExceptionHandler {
     return createErrorResponse(exception, HttpStatus.METHOD_NOT_ALLOWED);
   }
 
+  @ExceptionHandler(value = {ConstraintViolationException.class})
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleException(ConstraintViolationException ex) {
+    Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+    StringBuilder strBuilder = new StringBuilder();
+    for (ConstraintViolation<?> violation : violations) {
+      strBuilder.append(violation.getMessage()).append("\n");
+    }
+    ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    errorResponse.setMessage(strBuilder.toString());
+    return errorResponse;
+  }
+
+  @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleException(MethodArgumentNotValidException ex) {
+    StringBuilder strBuilder = new StringBuilder();
+    for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+      strBuilder
+          .append(error.getField())
+          .append(": ")
+          .append(error.getDefaultMessage())
+          .append("\n");
+    }
+    ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    errorResponse.setMessage(strBuilder.toString());
+    return errorResponse;
+  }
 
   @ExceptionHandler({Exception.class})
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

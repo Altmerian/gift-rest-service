@@ -34,5 +34,6 @@
             <AppenderRef ref="Console"/>
         </Root>
         <logger level="error" name="com.mchange"/>
+        <logger level="error" name="org.hibernate"/>
     </Loggers>
 </Configuration>

@@ -2,6 +2,8 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.TagMapper;
+import com.epam.esm.specification.tag.TagSQLSpecification;
+import com.epam.esm.specification.tag.TagSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,7 +11,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class TagJdbcRepository implements TagRepository {
@@ -26,16 +31,16 @@ public class TagJdbcRepository implements TagRepository {
 
   @Override
   public List<Tag> getAll() {
-    final String SQL_GET_ALL = "SELECT * FROM tags";
-    return jdbcTemplate.query(SQL_GET_ALL, new TagMapper());
+    String sqlGetAll = "SELECT * FROM tags";
+    return jdbcTemplate.query(sqlGetAll, new TagMapper());
   }
 
   @Override
-  public Optional<Tag> getById(long id) {
-    final String SQL_GET_BY_ID = "SELECT * FROM tags WHERE id = ?";
+  public Optional<Tag> get(long id) {
+    String sqlGetById = "SELECT * FROM tags WHERE id = ?";
     Tag tag;
     try {
-      tag = jdbcTemplate.queryForObject(SQL_GET_BY_ID, new Object[] {id}, new TagMapper());
+      tag = jdbcTemplate.queryForObject(sqlGetById, new Object[] {id}, new TagMapper());
     } catch (IncorrectResultSizeDataAccessException e) {
       return Optional.empty();
     }
@@ -43,25 +48,21 @@ public class TagJdbcRepository implements TagRepository {
   }
 
   @Override
-  public Set<Tag> getByCertificateId(long id) {
-    final String SQL_GET_BY_CERTIFICATE_ID =
-        "SELECT id, name FROM tags "
-            + "LEFT JOIN certificates_tags ON id = tag_id WHERE certificate_id = ?";
-    List<Tag> tags =
-        jdbcTemplate.query(SQL_GET_BY_CERTIFICATE_ID, new Object[] {id}, new TagMapper());
-    return new HashSet<Tag>(tags);
+  public List<Tag> query(TagSpecification specification) {
+    TagSQLSpecification sqlSpecification = (TagSQLSpecification) specification;
+    String sqlGetByCertificateId = sqlSpecification.toSqlQuery();
+    return jdbcTemplate.query(sqlGetByCertificateId, new TagMapper());
   }
 
   @Override
-  public Optional<Tag> getByName(String name) {
-    final String SQL_GET_BY_NAME = "SELECT id, name FROM tags WHERE name = ?";
-    Tag tag;
+  public boolean contains(Tag tag) {
+    String sqlGetByName = "SELECT id, name FROM tags WHERE name = ?";
     try {
-      tag = jdbcTemplate.queryForObject(SQL_GET_BY_NAME, new Object[] {name}, new TagMapper());
+      jdbcTemplate.queryForObject(sqlGetByName, new Object[] {tag.getName()}, new TagMapper());
     } catch (IncorrectResultSizeDataAccessException e) {
-      return Optional.empty();
+      return false;
     }
-    return Optional.ofNullable(tag);
+    return true;
   }
 
   @Override
@@ -74,7 +75,7 @@ public class TagJdbcRepository implements TagRepository {
 
   @Override
   public void delete(Tag tag) {
-    final String SQL_DELETE_TAG = "delete from tags where id = ?";
-    jdbcTemplate.update(SQL_DELETE_TAG, tag.getId());
+    String sqlDeleteTag = "delete from tags where id = ?";
+    jdbcTemplate.update(sqlDeleteTag, tag.getId());
   }
 }

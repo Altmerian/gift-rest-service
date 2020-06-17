@@ -34,11 +34,11 @@ class TagRestController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(
-      @RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp)
+  public void create(@RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp)
       throws ResourceConflictException {
-    if (tagService.foundDuplicate(tagDTO.getName())) {
-      throw new ResourceConflictException("Your data conflicts with existing resources");
+    if (tagService.foundDuplicate(tagDTO)) {
+      throw new ResourceConflictException(
+          "Your data conflicts with existing resources. A Tag with the given name already exists");
     }
     long tagId = tagService.create(tagDTO);
     String url = req.getRequestURL().toString();
@@ -47,9 +47,6 @@ class TagRestController {
 
   @DeleteMapping("/{id:\\d+}")
   public void delete(@PathVariable("id") long id) {
-    tagService.getById(id);
     tagService.delete(id);
   }
-
-
 }

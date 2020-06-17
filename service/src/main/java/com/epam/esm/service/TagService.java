@@ -14,5 +14,5 @@ public interface TagService {
 
   public void delete(long id);
 
-  public boolean foundDuplicate(String name);
+  public boolean foundDuplicate(TagDTO tagDTO);
 }

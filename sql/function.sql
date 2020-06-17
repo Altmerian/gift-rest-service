@@ -14,6 +14,6 @@ SELECT DISTINCT c.id,
 FROM certificates c
          LEFT JOIN certificates_tags ct ON c.id = ct.certificate_id
          LEFT JOIN tags t on ct.tag_id = t.id
-WHERE t.name ILIKE tag_name
-  AND (c.name ILIKE '%' || search_for || '%' OR c.description ILIKE '%' || search_for || '%');
+WHERE lower(t.name) SIMILAR TO tag_name
+  AND (lower(c.name) SIMILAR TO '%' || search_for || '%' OR lower(c.description) SIMILAR TO '%' || search_for || '%');
 $$ LANGUAGE sql;
