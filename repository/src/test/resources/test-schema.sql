@@ -1,23 +1,23 @@
--- Database: giftService
+-- Database: giftServiceTest
 
--- DROP DATABASE "giftService";
+-- DROP DATABASE "giftServiceTest";
 
--- CREATE DATABASE "giftService"
+-- CREATE DATABASE "giftServiceTest"
 --     WITH
 --     OWNER = postgres
 --     ENCODING = 'UTF8'
 --     CONNECTION LIMIT = -1;
 --
--- COMMENT ON DATABASE "giftService"
---     IS 'EPAM FARM task 2 REST service db';
+-- COMMENT ON DATABASE "giftServiceTest"
+--     IS 'EPAM FARM task 2 REST service integration test db';
 
--- DROP TABLE certificates CASCADE ;
--- DROP TABLE certificates_tags;
--- DROP TABLE tags;
+DROP TABLE IF EXISTS certificates CASCADE ;
+DROP TABLE IF EXISTS certificates_tags;
+DROP TABLE IF EXISTS tags;
 
-CREATE TABLE certificates
+CREATE TABLE IF NOT EXISTS certificates
 (
-    id serial NOT NULL,
+    id integer NOT NULL,
     name character varying(64) NOT NULL,
     description character varying(128),
     price numeric(14,2) NOT NULL,
@@ -29,15 +29,15 @@ CREATE TABLE certificates
     CONSTRAINT positive_duration CHECK (duration_in_days > 0)
 );
 
-CREATE TABLE tags
+CREATE TABLE IF NOT EXISTS tags
 (
-    id serial NOT NULL,
+    id integer NOT NULL,
     name character varying(64) NOT NULL,
     CONSTRAINT tags_pkey PRIMARY KEY (id),
     CONSTRAINT tag_name UNIQUE (name)
 );
 
-CREATE TABLE certificates_tags
+CREATE TABLE IF NOT EXISTS certificates_tags
 (
     certificate_id integer NOT NULL,
     tag_id integer NOT NULL,

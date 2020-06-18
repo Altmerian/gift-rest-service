@@ -49,7 +49,7 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public List<Certificate> getAll() {
-      String sqlGetAll = "SELECT * FROM certificates";
+    String sqlGetAll = "SELECT * FROM certificates";
     return jdbcTemplate.query(sqlGetAll, new CertificateMapper());
   }
 
@@ -70,7 +70,8 @@ public class CertificateJdbcRepository implements CertificateRepository {
   public List<Certificate> query(CertificateSpecification specification) {
     final CertificateSQLSpecification sqlSpecification =
         (CertificateSQLSpecification) specification;
-    return jdbcTemplate.query(sqlSpecification.toSqlQuery(), new CertificateMapper());
+    return jdbcTemplate.query(
+        sqlSpecification.toSqlQuery(), sqlSpecification.getParameters(), new CertificateMapper());
   }
 
   @Override
@@ -102,8 +103,7 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public void clearCertificateTags(long certificateId) {
-    String sqlClearCertificateTags =
-        "DELETE FROM certificates_tags WHERE certificate_id = ?";
+    String sqlClearCertificateTags = "DELETE FROM certificates_tags WHERE certificate_id = ?";
     jdbcTemplate.update(sqlClearCertificateTags, certificateId);
   }
 }

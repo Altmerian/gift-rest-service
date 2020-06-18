@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -50,6 +51,12 @@ public class CertificateExceptionHandler {
     return createErrorResponse(exception, HttpStatus.METHOD_NOT_ALLOWED);
   }
 
+  @ExceptionHandler({HttpMediaTypeNotSupportedException.class})
+  @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+  public ErrorResponse handleException(HttpMediaTypeNotSupportedException exception) {
+    return createErrorResponse(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+  }
+
   @ExceptionHandler(value = {ConstraintViolationException.class})
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(ConstraintViolationException ex) {
@@ -72,7 +79,7 @@ public class CertificateExceptionHandler {
           .append(error.getField())
           .append(": ")
           .append(error.getDefaultMessage())
-          .append("\n");
+          .append(" \n ");
     }
     ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     errorResponse.setMessage(strBuilder.toString());

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 public class ErrorResponse {
   private int status;
+  //todo list of messages
   private String message;
 
   @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")

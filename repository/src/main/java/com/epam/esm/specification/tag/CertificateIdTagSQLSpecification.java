@@ -9,8 +9,11 @@ public class CertificateIdTagSQLSpecification implements TagSQLSpecification {
 
   @Override
   public String toSqlQuery() {
-    return String.format(
-        "SELECT id, name FROM tags LEFT JOIN certificates_tags ON id = tag_id WHERE certificate_id = %d",
-        certificate_id);
+    return "SELECT id, name FROM tags LEFT JOIN certificates_tags ON id = tag_id WHERE certificate_id = ?";
+  }
+
+  @Override
+  public Object[] getParameters() {
+    return new Object[]{certificate_id};
   }
 }

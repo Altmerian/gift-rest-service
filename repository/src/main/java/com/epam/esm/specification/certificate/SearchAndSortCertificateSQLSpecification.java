@@ -7,6 +7,7 @@ public class SearchAndSortCertificateSQLSpecification
   private final String tagName;
   private final String searchFor;
   private final String sortBy;
+  private String sortQuery;
 
   public SearchAndSortCertificateSQLSpecification(
       String tagName, String price, String sortBy) {
@@ -19,9 +20,13 @@ public class SearchAndSortCertificateSQLSpecification
   public String toSqlQuery() {
     String tagQuery = tagName == null ? "%" : QueryHelper.getQueryString(tagName);
     String searchQuery = searchFor == null ? "%" : QueryHelper.getQueryString(searchFor);
-    String sortQuery = QueryHelper.getSortQuery(sortBy);
-    return String.format(
-        "SELECT * FROM certificates_function('%s', '%s') ORDER BY %s",
-        tagQuery, searchQuery, sortQuery);
+    sortQuery = QueryHelper.getSortQuery(sortBy);
+    return String.format("SELECT * FROM certificates_function('%s', '%s') ORDER BY ?",
+        tagQuery, searchQuery);
+  }
+
+  @Override
+  public Object[] getParameters() {
+    return new Object[] {sortQuery};
   }
 }

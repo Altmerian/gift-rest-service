@@ -2,9 +2,13 @@ package com.epam.esm.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.validation.constraints.Size;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TagDTO {
   private long id;
+  @Size(max = 64, message
+      = "Tag name mustn't be longer than 64 characters.")
   private String name;
 
   public TagDTO() {}
@@ -32,14 +36,12 @@ public class TagDTO {
 
     TagDTO tagDTO = (TagDTO) o;
 
-    if (getId() != tagDTO.getId()) return false;
+    if (getId() == tagDTO.getId()) return true;
     return getName() != null ? getName().equals(tagDTO.getName()) : tagDTO.getName() == null;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (getId() ^ (getId() >>> 32));
-    result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-    return result;
+    return getName() != null ? getName().hashCode() : Long.hashCode(getId());
   }
 }

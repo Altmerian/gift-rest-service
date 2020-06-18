@@ -29,7 +29,7 @@ class CertificateRestController {
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
       HttpServletRequest request) {
-    if (request.getQueryString().trim().isEmpty()) {
+    if (request.getQueryString() == null || request.getQueryString().trim().isEmpty()) {
       return certificateService.getAll();
     } else {
       return certificateService.sendQuery(tagName, searchFor, sortBy);
@@ -41,7 +41,7 @@ class CertificateRestController {
     return certificateService.getById(id);
   }
 
-  @PostMapping
+  @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   public void create(
       @Valid @RequestBody CertificateDTO certificateDTO,

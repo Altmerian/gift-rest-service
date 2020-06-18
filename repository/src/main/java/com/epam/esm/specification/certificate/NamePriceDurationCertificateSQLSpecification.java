@@ -15,8 +15,11 @@ public class NamePriceDurationCertificateSQLSpecification implements Certificate
 
   @Override
   public String toSqlQuery() {
-    return String.format(
-        "SELECT * FROM certificates WHERE name = '%s' AND price = %f AND duration_in_days = %d",
-        name, price, duration);
+    return "SELECT * FROM certificates WHERE name = ? AND price = ? AND duration_in_days = ?";
+  }
+
+  @Override
+  public Object[] getParameters() {
+    return new Object[] {name, price, duration};
   }
 }

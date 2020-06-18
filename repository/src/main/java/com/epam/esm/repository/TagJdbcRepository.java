@@ -50,8 +50,10 @@ public class TagJdbcRepository implements TagRepository {
   @Override
   public List<Tag> query(TagSpecification specification) {
     TagSQLSpecification sqlSpecification = (TagSQLSpecification) specification;
-    String sqlGetByCertificateId = sqlSpecification.toSqlQuery();
-    return jdbcTemplate.query(sqlGetByCertificateId, new TagMapper());
+    return jdbcTemplate.query(
+        sqlSpecification.toSqlQuery(),
+        sqlSpecification.getParameters(),
+        new TagMapper());
   }
 
   @Override

@@ -9,7 +9,11 @@ public class NameTagSQLSpecification implements TagSQLSpecification {
 
   @Override
   public String toSqlQuery() {
-    return String.format(
-        "SELECT id, name FROM tags WHERE name = '%s'", name);
+    return "SELECT id, name FROM tags WHERE name = ?";
+  }
+
+  @Override
+  public Object[] getParameters() {
+    return new Object[] {name};
   }
 }

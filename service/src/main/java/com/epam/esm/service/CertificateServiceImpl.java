@@ -12,6 +12,7 @@ import com.epam.esm.specification.certificate.SearchAndSortCertificateSQLSpecifi
 import com.epam.esm.specification.tag.CertificateIdTagSQLSpecification;
 import com.epam.esm.specification.tag.NameTagSQLSpecification;
 import com.epam.esm.util.Precondition;
+import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,13 +111,18 @@ public class CertificateServiceImpl implements CertificateService {
           new CertificateIdTagSQLSpecification(certificateId);
       List<Tag> tagsList = tagRepository.query(tagSQLSpecification);
       Set<TagDTO> tagSet = tagsList.stream().map(this::convertTagToDto).collect(Collectors.toSet());
-      return tags.equals(tagSet);
+      tags.stream()
+          .filter(tagDTO -> tagDTO.getName() == null)
+          .forEach(tagDTO -> tagDTO.setName(tagRepository.get(tagDTO.getId()).get().getName()));
+      Set<TagDTO> tagDTOs = new HashSet<>(tags);
+      return tagDTOs.equals(tagSet);
     } else {
       return false;
     }
   }
 
-  private void addCertificateTag(long certificateId, Tag tag) {
+  @VisibleForTesting
+  void addCertificateTag(long certificateId, Tag tag) {
     long tagId;
     if (tag.getId() == 0) {
       NameTagSQLSpecification tagSQLSpecification = new NameTagSQLSpecification(tag.getName());
@@ -134,15 +140,18 @@ public class CertificateServiceImpl implements CertificateService {
     repository.addCertificateTag(certificateId, tagId);
   }
 
-  private CertificateDTO convertToDto(Certificate certificate) {
+  @VisibleForTesting
+  CertificateDTO convertToDto(Certificate certificate) {
     return modelMapper.map(certificate, CertificateDTO.class);
   }
 
-  private Certificate convertToEntity(CertificateDTO certificateDTO) {
+  @VisibleForTesting
+  Certificate convertToEntity(CertificateDTO certificateDTO) {
     return modelMapper.map(certificateDTO, Certificate.class);
   }
 
-  private TagDTO convertTagToDto(Tag tag) {
+  @VisibleForTesting
+  TagDTO convertTagToDto(Tag tag) {
     return modelMapper.map(tag, TagDTO.class);
   }
 }
