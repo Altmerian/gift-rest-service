@@ -35,5 +35,6 @@
         </Root>
         <logger level="error" name="com.mchange"/>
         <logger level="error" name="org.hibernate"/>
+        <logger level="debug" name="org.springframework.test"/>
     </Loggers>
 </Configuration>

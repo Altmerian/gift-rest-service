@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,7 +23,7 @@ class TagRestController {
     this.tagService = tagService;
   }
 
-  @GetMapping
+  @GetMapping("/")
   public List<TagDTO> getAll() {
     return tagService.getAll();
   }
@@ -32,9 +33,9 @@ class TagRestController {
     return tagService.getById(id);
   }
 
-  @PostMapping
+  @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(@RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp)
+  public void create(@Valid @RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp)
       throws ResourceConflictException {
     if (tagService.foundDuplicate(tagDTO)) {
       throw new ResourceConflictException(

@@ -13,7 +13,6 @@ import com.epam.esm.specification.tag.TagSQLSpecification;
 import com.sun.tools.javac.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,10 +22,11 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -35,6 +35,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith({MockitoExtension.class})
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Certificate service")
+// todo refactor given when then
+// todo add verify interaction with mock
 public class CertificateServiceImplTest {
 
   @InjectMocks private CertificateServiceImpl certificateService;
@@ -64,11 +66,12 @@ public class CertificateServiceImplTest {
   public void getById_givenCertificateId_expectedCertificateDTO() {
     // given
     CertificateIdTagSQLSpecification tagSQLSpecification = new CertificateIdTagSQLSpecification(1L);
-    // when
     when(certificateRepository.get(anyLong())).thenReturn(Optional.of(mockCertificate));
     when(tagRepository.query(tagSQLSpecification)).thenReturn(List.of(new Tag()));
+    // when
+    CertificateDTO certificateDTO = certificateService.getById(1L);
     // then
-    assertEquals(mockCertificateDTO, certificateService.getById(1L));
+    assertThat(certificateDTO, is(equalTo(mockCertificateDTO)));
   }
 
   @Test
@@ -96,23 +99,27 @@ public class CertificateServiceImplTest {
   @Test
   public void foundDuplicate_givenNamePriceDurationTags_expectedTrue() {
     // given
-    Set<TagDTO> tagDTOSet = new HashSet<>(List.of(mockTagDTO));
-    // when
-    when(certificateRepository.query(any(CertificateSQLSpecification.class))).thenReturn(List.of(mockCertificate));
+    when(certificateRepository.query(any(CertificateSQLSpecification.class)))
+        .thenReturn(List.of(mockCertificate));
+    when(mockCertificate.getId()).thenReturn(1L);
+    when(mockCertificateDTO.getTags()).thenReturn(Collections.singleton(mockTagDTO));
     when(tagRepository.query(any(TagSQLSpecification.class))).thenReturn(List.of(mockTag));
     when(tagRepository.get(anyLong())).thenReturn(Optional.of(mockTag));
+    // when
+    boolean actual = certificateService.foundDuplicate(mockCertificateDTO);
     // then
-    assertTrue(certificateService.foundDuplicate("name", 30, BigDecimal.valueOf(100.00), tagDTOSet));
+    assertTrue(actual);
   }
 
   @Test
   public void foundDuplicate_uniqueNamePriceDurationTags_expectedFalse() {
     // given
-    Set<TagDTO> tagDTOSet = new HashSet<>(List.of(mockTagDTO));
+    when(certificateRepository.query(any(CertificateSQLSpecification.class)))
+        .thenReturn(new ArrayList<>());
     // when
-    when(certificateRepository.query(any(CertificateSQLSpecification.class))).thenReturn(new ArrayList<>());
+    boolean actual = certificateService.foundDuplicate(mockCertificateDTO);
     // then
-    assertFalse(certificateService.foundDuplicate("name", 30, BigDecimal.valueOf(100.00), tagDTOSet));
+    assertFalse(actual);
   }
 
   @Test
@@ -120,62 +127,20 @@ public class CertificateServiceImplTest {
 
   @Test
   void convertToDto_certificate_certificateDTO() {
-    // given certificate
-    // when
+    // given
     when(modelMapper.map(mockCertificate, CertificateDTO.class)).thenReturn(mockCertificateDTO);
+    // when
     // then
     assertEquals(mockCertificateDTO, certificateService.convertToDto(mockCertificate));
   }
 
   @Test
   void convertToEntity_certificateDTO_certificate() {
-    // given certificateDTO
-    // when
+    // given
     when(modelMapper.map(mockCertificateDTO, Certificate.class)).thenReturn(mockCertificate);
+    // when
+    Certificate certificate = certificateService.convertToEntity(mockCertificateDTO);
     // then
-    assertEquals(mockCertificate, certificateService.convertToEntity(mockCertificateDTO));
-  }
-
-  @Nested
-  @DisplayName("ModelMapper converting methods")
-  class ModelMapperTest {
-    private Certificate certificate;
-    private CertificateDTO certificateDTO;
-    private final ModelMapper modelMapper = new ModelMapper();
-
-    @BeforeEach
-    void setUp() {
-      certificate = new Certificate();
-      certificate.setId(1L);
-      certificate.setName("Test certificate");
-      certificate.setDescription("Text");
-      certificate.setCreationDate(LocalDateTime.now());
-      certificate.setPrice(BigDecimal.valueOf(100.00));
-      Tag tag = new Tag();
-      tag.setId(1L);
-      tag.setName("TestTag");
-      certificate.setTags(new HashSet<>(List.of(tag)));
-
-      certificateDTO = new CertificateDTO();
-      certificateDTO.setId(1L);
-      certificateDTO.setName("Test certificate");
-      certificateDTO.setDescription("Text");
-      certificateDTO.setCreationDate(certificate.getCreationDate());
-      certificateDTO.setPrice(BigDecimal.valueOf(100.00));
-      TagDTO tagDTO = new TagDTO();
-      tagDTO.setId(1L);
-      tagDTO.setName("TestTag");
-      certificateDTO.setTags(new HashSet<>(List.of(tagDTO)));
-    }
-
-    @Test
-    void map_certificate_certificateDTO() {
-      assertEquals(certificateDTO, modelMapper.map(certificate, CertificateDTO.class));
-    }
-
-    @Test
-    void map_certificateDTO_certificate() {
-      assertEquals(certificate, modelMapper.map(certificateDTO, Certificate.class));
-    }
+    assertThat(certificate, is(equalTo(mockCertificate)));
   }
 }

@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS tags;
 
 CREATE TABLE IF NOT EXISTS certificates
 (
-    id integer NOT NULL,
+    id serial NOT NULL,
     name character varying(64) NOT NULL,
     description character varying(128),
     price numeric(14,2) NOT NULL,
@@ -29,9 +29,12 @@ CREATE TABLE IF NOT EXISTS certificates
     CONSTRAINT positive_duration CHECK (duration_in_days > 0)
 );
 
+ALTER SEQUENCE certificates_id_seq
+    RESTART 3;
+
 CREATE TABLE IF NOT EXISTS tags
 (
-    id integer NOT NULL,
+    id serial NOT NULL,
     name character varying(64) NOT NULL,
     CONSTRAINT tags_pkey PRIMARY KEY (id),
     CONSTRAINT tag_name UNIQUE (name)

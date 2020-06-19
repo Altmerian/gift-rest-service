@@ -4,6 +4,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -17,6 +18,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 @ControllerAdvice
@@ -41,7 +45,7 @@ public class CertificateExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(NoHandlerFoundException exception) {
     ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
-    errorResponse.setMessage("The request cannot be fulfilled due to bad syntax.");
+    errorResponse.setMessages(Collections.singletonList("The request cannot be fulfilled due to bad syntax."));
     return errorResponse;
   }
 
@@ -61,29 +65,31 @@ public class CertificateExceptionHandler {
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(ConstraintViolationException ex) {
     Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-    StringBuilder strBuilder = new StringBuilder();
+    List<String> messages = new LinkedList<>();
     for (ConstraintViolation<?> violation : violations) {
-      strBuilder.append(violation.getMessage()).append("\n");
+      messages.add(violation.getMessage());
     }
     ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
-    errorResponse.setMessage(strBuilder.toString());
+    errorResponse.setMessages(messages);
     return errorResponse;
   }
 
   @ExceptionHandler(value = {MethodArgumentNotValidException.class})
   @ResponseStatus(value = HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(MethodArgumentNotValidException ex) {
-    StringBuilder strBuilder = new StringBuilder();
+    List<String> messages = new LinkedList<>();
     for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-      strBuilder
-          .append(error.getField())
-          .append(": ")
-          .append(error.getDefaultMessage())
-          .append(" \n ");
+     messages.add(error.getDefaultMessage());
     }
     ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
-    errorResponse.setMessage(strBuilder.toString());
+    errorResponse.setMessages(messages);
     return errorResponse;
+  }
+
+  @ExceptionHandler(value = {HttpMessageNotReadableException.class})
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleException(HttpMessageNotReadableException exception) {
+    return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler({Exception.class})
@@ -96,7 +102,7 @@ public class CertificateExceptionHandler {
   private ErrorResponse createErrorResponse(Exception exception, HttpStatus status) {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setStatus(status.value());
-    errorResponse.setMessage(exception.getMessage());
+    errorResponse.setMessages(Collections.singletonList(exception.getMessage()));
     errorResponse.setTime(LocalDateTime.now());
     return errorResponse;
   }

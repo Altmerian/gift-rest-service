@@ -48,11 +48,10 @@ class CertificateRestController {
       HttpServletRequest req,
       HttpServletResponse resp)
       throws ResourceConflictException {
-    if (certificateService.foundDuplicate(
-        certificateDTO.getName(), certificateDTO.getDurationInDays(),
-        certificateDTO.getPrice(), certificateDTO.getTags())) {
+    if (certificateService.foundDuplicate(certificateDTO)) {
       throw new ResourceConflictException(
-          "Your data conflicts with existing resources. Certificate with given name, price and duration already exists");
+          "Your data conflicts with existing resources. "
+              + "Certificate with given name, price, duration and Tags already exists");
     }
     long certificateId = certificateService.create(certificateDTO);
     String url = req.getRequestURL().toString();

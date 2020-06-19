@@ -7,8 +7,8 @@ import javax.validation.constraints.Size;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TagDTO {
   private long id;
-  @Size(max = 64, message
-      = "Tag name mustn't be longer than 64 characters.")
+
+  @Size(max = 64, message = "Tag name mustn't be longer than 64 characters.")
   private String name;
 
   public TagDTO() {}

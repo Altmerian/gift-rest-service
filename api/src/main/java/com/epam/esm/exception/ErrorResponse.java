@@ -3,20 +3,20 @@ package com.epam.esm.exception;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ErrorResponse {
   private int status;
-  //todo list of messages
-  private String message;
+  private List<String> messages;
 
   @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
   private LocalDateTime time;
 
   public ErrorResponse() {}
 
-  public ErrorResponse(int status, String message, LocalDateTime time) {
+  public ErrorResponse(int status, List<String> messages, LocalDateTime time) {
     this.status = status;
-    this.message = message;
+    this.messages = messages;
     this.time = time;
   }
 
@@ -28,12 +28,12 @@ public class ErrorResponse {
     this.status = status;
   }
 
-  public String getMessage() {
-    return message;
+  public List<String> getMessages() {
+    return messages;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public void setMessages(List<String> messages) {
+    this.messages = messages;
   }
 
   public LocalDateTime getTime() {

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -100,25 +99,34 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
-  public boolean foundDuplicate(
-      String name, int durationInDays, BigDecimal price, Set<TagDTO> tags) {
+  public boolean foundDuplicate(CertificateDTO certificateDTO) {
     NamePriceDurationCertificateSQLSpecification sqlSpecification =
-        new NamePriceDurationCertificateSQLSpecification(name, price, durationInDays);
+        new NamePriceDurationCertificateSQLSpecification(
+            certificateDTO.getName(),
+            certificateDTO.getPrice(),
+            certificateDTO.getDurationInDays());
     List<Certificate> certificateList = repository.query(sqlSpecification);
-    if (!certificateList.isEmpty()) {
-      long certificateId = certificateList.get(0).getId();
-      CertificateIdTagSQLSpecification tagSQLSpecification =
-          new CertificateIdTagSQLSpecification(certificateId);
-      List<Tag> tagsList = tagRepository.query(tagSQLSpecification);
-      Set<TagDTO> tagSet = tagsList.stream().map(this::convertTagToDto).collect(Collectors.toSet());
-      tags.stream()
-          .filter(tagDTO -> tagDTO.getName() == null)
-          .forEach(tagDTO -> tagDTO.setName(tagRepository.get(tagDTO.getId()).get().getName()));
-      Set<TagDTO> tagDTOs = new HashSet<>(tags);
-      return tagDTOs.equals(tagSet);
-    } else {
+    long certificateId = certificateList.stream().findFirst().map(Certificate::getId).orElse(0L);
+    if (certificateId == 0L) {
       return false;
     }
+    CertificateIdTagSQLSpecification tagSQLSpecification =
+        new CertificateIdTagSQLSpecification(certificateId);
+    List<Tag> tagsList = tagRepository.query(tagSQLSpecification);
+    Set<TagDTO> persistedSet =
+        tagsList.stream().map(this::convertTagToDto).collect(Collectors.toSet());
+    return compareTagDTOSets(certificateDTO.getTags(), persistedSet);
+  }
+
+  private boolean compareTagDTOSets(Set<TagDTO> incomingTagSet, Set<TagDTO> persistedTagSet) {
+        incomingTagSet.stream()
+            .filter(tagDTO -> tagDTO.getName() == null)
+            .forEach(tagDTO -> tagDTO.setName(
+                        tagRepository.get(tagDTO.getId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Tag hasn't been found"))
+                            .getName()));
+    Set<TagDTO> tagDTOs = new HashSet<>(incomingTagSet);
+    return persistedTagSet.equals(tagDTOs);
   }
 
   @VisibleForTesting

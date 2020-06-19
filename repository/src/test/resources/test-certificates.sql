@@ -1,4 +1,3 @@
-
 BEGIN;
 INSERT INTO certificates(id, name, description, price, duration_in_days)
 VALUES (1, 'Adidas', 'gift', 100.00, 90);
