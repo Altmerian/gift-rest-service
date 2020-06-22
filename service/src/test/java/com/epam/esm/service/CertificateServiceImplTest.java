@@ -134,7 +134,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void delete_givenCertificateDTOId_shouldInvokeRepositoryDeleteMethod(){
+  public void delete_givenCertificateDTOId_shouldInvokeRepositoryDeleteMethod() {
     // given
     long certificateDTOId = 1L;
     when(certificateRepository.get(certificateDTOId)).thenReturn(Optional.of(mockCertificate));

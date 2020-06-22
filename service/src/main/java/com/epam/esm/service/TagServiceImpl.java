@@ -5,6 +5,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.util.Precondition;
+import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,9 +46,9 @@ public class TagServiceImpl implements TagService {
   }
 
   @Override
-  public void delete(long id) {
+  public boolean delete(long id) {
     Tag tag = Precondition.checkExistence(tagRepository.get(id));
-    tagRepository.delete(tag);
+    return tagRepository.delete(tag);
   }
 
   @Override
@@ -55,11 +56,13 @@ public class TagServiceImpl implements TagService {
     return tagRepository.contains(convertToEntity(tagDTO));
   }
 
-  private TagDTO convertToDTO(Tag tag) {
+  @VisibleForTesting
+  TagDTO convertToDTO(Tag tag) {
     return modelMapper.map(tag, TagDTO.class);
   }
 
-  private Tag convertToEntity(TagDTO tagDTO) {
+  @VisibleForTesting
+  Tag convertToEntity(TagDTO tagDTO) {
     return modelMapper.map(tagDTO, Tag.class);
   }
 }
