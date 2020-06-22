@@ -79,23 +79,24 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   @Transactional
-  public void update(long id, CertificateDTO certificateDTO) {
+  public boolean update(long id, CertificateDTO certificateDTO) {
     Precondition.checkExistence(repository.get(id));
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setId(id);
-    repository.update(certificate);
+    boolean result = repository.update(certificate);
     if (certificate.getTags() == null) {
-      return;
+      return result;
     }
-    repository.clearCertificateTags(id);
+    boolean clearResult = repository.clearCertificateTags(id);
     Set<Tag> tags = certificate.getTags();
     tags.forEach(tag -> addCertificateTag(id, tag));
+    return result && clearResult;
   }
 
   @Override
-  public void delete(long id) {
+  public boolean delete(long id) {
     Certificate certificate = Precondition.checkExistence(repository.get(id));
-    repository.delete(certificate);
+    return repository.delete(certificate);
   }
 
   @Override
@@ -130,7 +131,7 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @VisibleForTesting
-  void addCertificateTag(long certificateId, Tag tag) {
+  boolean addCertificateTag(long certificateId, Tag tag) {
     long tagId;
     if (tag.getId() == 0) {
       NameTagSQLSpecification tagSQLSpecification = new NameTagSQLSpecification(tag.getName());
@@ -145,7 +146,7 @@ public class CertificateServiceImpl implements CertificateService {
         throw new ResourceNotFoundException("Can't find a tag with id = " + tagId);
       }
     }
-    repository.addCertificateTag(certificateId, tagId);
+    return repository.addCertificateTag(certificateId, tagId);
   }
 
   @VisibleForTesting

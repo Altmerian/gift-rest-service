@@ -8,15 +8,16 @@ import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.specification.certificate.CertificateSQLSpecification;
-import com.epam.esm.specification.tag.CertificateIdTagSQLSpecification;
+import com.epam.esm.specification.certificate.CertificateSpecification;
 import com.epam.esm.specification.tag.TagSQLSpecification;
-import com.sun.tools.javac.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -25,18 +26,16 @@ import org.modelmapper.ModelMapper;
 import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Certificate service")
-// todo refactor given when then
-// todo add verify interaction with mock
 public class CertificateServiceImplTest {
 
   @InjectMocks private CertificateServiceImpl certificateService;
@@ -50,65 +49,118 @@ public class CertificateServiceImplTest {
   @Mock private TagDTO mockTagDTO;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setUp() {
     when(certificateService.convertToDto(mockCertificate)).thenReturn(mockCertificateDTO);
     when(certificateService.convertToEntity(mockCertificateDTO)).thenReturn(mockCertificate);
     when(certificateService.convertTagToDto(mockTag)).thenReturn(mockTagDTO);
   }
 
   @Test
-  public void getAll() {}
+  public void getAll_queryForAll_expectedListOfAllCertificates() {
+    // given
+    when(certificateRepository.getAll()).thenReturn(Collections.singletonList(mockCertificate));
+    // when
+    List<CertificateDTO> certificateDTOList = certificateService.getAll();
+    // then
+    verify(certificateRepository).getAll();
+    assertThat(certificateDTOList, hasSize(1));
+  }
 
   @Test
-  public void sendQuery() {}
+  public void sendQuery_whenQueryWithParameters_expectedCertificateDTOList() {
+    // given
+    when(certificateRepository.query(any(CertificateSpecification.class)))
+        .thenReturn(Collections.singletonList(mockCertificate));
+    // when
+    List<CertificateDTO> certificateDTOList =
+        certificateService.sendQuery("tagName", "searchFor", "sortBy");
+    // then
+    verify(certificateRepository).query(any(CertificateSpecification.class));
+    assertThat(certificateDTOList, hasSize(1));
+  }
 
   @Test
   public void getById_givenCertificateId_expectedCertificateDTO() {
     // given
-    CertificateIdTagSQLSpecification tagSQLSpecification = new CertificateIdTagSQLSpecification(1L);
     when(certificateRepository.get(anyLong())).thenReturn(Optional.of(mockCertificate));
-    when(tagRepository.query(tagSQLSpecification)).thenReturn(List.of(new Tag()));
     // when
     CertificateDTO certificateDTO = certificateService.getById(1L);
     // then
+    verify(certificateRepository).get(anyLong());
     assertThat(certificateDTO, is(equalTo(mockCertificateDTO)));
   }
 
   @Test
   public void getById_nonexistentCertificateId_thenExceptionThrows() {
     // given
-    long certificateId = 666L;
-    CertificateIdTagSQLSpecification tagSQLSpecification =
-        new CertificateIdTagSQLSpecification(certificateId);
+    long nonexistentCertificateId = 666L;
     // when
-    when(certificateRepository.get(certificateId)).thenReturn(Optional.empty());
-    when(tagRepository.query(tagSQLSpecification)).thenReturn(List.of(new Tag()));
+    when(certificateRepository.get(nonexistentCertificateId)).thenReturn(Optional.empty());
+    Executable retrievingAttempt = () -> certificateService.getById(nonexistentCertificateId);
     // then
-    assertThrows(ResourceNotFoundException.class, () -> certificateService.getById(certificateId));
+    assertThrows(ResourceNotFoundException.class, retrievingAttempt);
   }
 
   @Test
-  public void create() {}
+  public void create_givenCertificateDTO_expectedPersistedCertificateId() {
+    // given
+    when(certificateRepository.create(any(Certificate.class))).thenReturn(1L);
+    // when
+    long certificateId = certificateService.create(mockCertificateDTO);
+    // then
+    verify(certificateRepository).create(any(Certificate.class));
+    assertThat(certificateId, is(equalTo(1L)));
+  }
 
   @Test
-  public void update() {}
+  public void update_givenCertificateDTO_shouldInvokeRepositoryUpdateMethods() {
+    // given
+    CertificateDTO certificateDTO = new CertificateDTO();
+    Certificate certificate = new Certificate();
+    Tag[] tags = {new Tag("Tag1"), new Tag("Tag2")};
+    certificate.setTags(new HashSet<>(Arrays.asList(tags)));
+    when(certificateRepository.get(anyLong())).thenReturn(Optional.of(mockCertificate));
+    when(certificateRepository.update(any(Certificate.class))).thenReturn(true);
+    when(certificateRepository.clearCertificateTags(anyLong())).thenReturn(true);
+    when(certificateService.convertToEntity(certificateDTO)).thenReturn(certificate);
+    // when
+    boolean actualResult = certificateService.update(1L, certificateDTO);
+    // then
+    verify(certificateRepository).get(1L);
+    verify(certificateRepository).update(certificate);
+    verify(certificateRepository).clearCertificateTags(1L);
+    verify(certificateRepository, Mockito.times(2)).addCertificateTag(1L, 0);
+    assertTrue(actualResult);
+  }
 
   @Test
-  public void delete() {}
+  public void delete_givenCertificateDTOId_shouldInvokeRepositoryDeleteMethod(){
+    // given
+    long certificateDTOId = 1L;
+    when(certificateRepository.get(certificateDTOId)).thenReturn(Optional.of(mockCertificate));
+    when(certificateRepository.delete(any(Certificate.class))).thenReturn(true);
+    // when
+    boolean actualResult = certificateService.delete(certificateDTOId);
+    // then
+    verify(certificateRepository).get(certificateDTOId);
+    verify(certificateRepository).delete(mockCertificate);
+    assertTrue(actualResult);
+  }
 
   @Test
   public void foundDuplicate_givenNamePriceDurationTags_expectedTrue() {
     // given
     when(certificateRepository.query(any(CertificateSQLSpecification.class)))
-        .thenReturn(List.of(mockCertificate));
+        .thenReturn(Collections.singletonList(mockCertificate));
     when(mockCertificate.getId()).thenReturn(1L);
     when(mockCertificateDTO.getTags()).thenReturn(Collections.singleton(mockTagDTO));
-    when(tagRepository.query(any(TagSQLSpecification.class))).thenReturn(List.of(mockTag));
+    when(tagRepository.query(any(TagSQLSpecification.class)))
+        .thenReturn(Collections.singletonList(mockTag));
     when(tagRepository.get(anyLong())).thenReturn(Optional.of(mockTag));
     // when
-    boolean actual = certificateService.foundDuplicate(mockCertificateDTO);
+    boolean actualResult = certificateService.foundDuplicate(mockCertificateDTO);
     // then
-    assertTrue(actual);
+    assertTrue(actualResult);
   }
 
   @Test
@@ -117,21 +169,32 @@ public class CertificateServiceImplTest {
     when(certificateRepository.query(any(CertificateSQLSpecification.class)))
         .thenReturn(new ArrayList<>());
     // when
-    boolean actual = certificateService.foundDuplicate(mockCertificateDTO);
+    boolean actualResult = certificateService.foundDuplicate(mockCertificateDTO);
     // then
-    assertFalse(actual);
+    assertFalse(actualResult);
   }
 
   @Test
-  void addCertificateTag() {}
+  void addCertificateTag_tagWithUniqueName_registeredCertificateTag() {
+    // given
+    when(tagRepository.contains(mockTag)).thenReturn(false);
+    when(certificateRepository.addCertificateTag(anyLong(), anyLong())).thenReturn(true);
+    // when
+    boolean isAddedCertificateTag = certificateService.addCertificateTag(1L, mockTag);
+    // then
+    verify(tagRepository).contains(mockTag);
+    verify(certificateRepository).addCertificateTag(anyLong(), anyLong());
+    assertTrue(isAddedCertificateTag);
+  }
 
   @Test
   void convertToDto_certificate_certificateDTO() {
     // given
     when(modelMapper.map(mockCertificate, CertificateDTO.class)).thenReturn(mockCertificateDTO);
     // when
+    CertificateDTO certificateDTO = certificateService.convertToDto(mockCertificate);
     // then
-    assertEquals(mockCertificateDTO, certificateService.convertToDto(mockCertificate));
+    assertThat(certificateDTO, is(equalTo(mockCertificateDTO)));
   }
 
   @Test

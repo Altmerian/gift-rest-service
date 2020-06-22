@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+/**
+ * Represents certificate entity in the system
+ */
 public class Certificate {
 
   private long id;

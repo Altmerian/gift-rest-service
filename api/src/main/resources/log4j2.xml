@@ -35,6 +35,11 @@
         </Root>
         <logger level="error" name="com.mchange"/>
         <logger level="error" name="org.hibernate"/>
-        <logger level="debug" name="org.springframework.test"/>
+        <logger level="info" name="org.springframework.test.context.BootstrapUtils">
+            <appender-ref ref="Console" />
+        </logger>
+        <logger level="warn" name="com.epam.esm.config.AppDispatcherServletInitializer">
+            <appender-ref ref="Console" />
+        </logger>
     </Loggers>
 </Configuration>

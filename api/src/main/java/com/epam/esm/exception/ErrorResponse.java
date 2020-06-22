@@ -5,7 +5,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Represents response body for all errors to be sent to the user
+ */
 public class ErrorResponse {
+  /**
+   * HTTP response status
+   */
   private int status;
   private List<String> messages;
 

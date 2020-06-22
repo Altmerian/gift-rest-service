@@ -23,6 +23,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * The main exception handler
+ */
 @ControllerAdvice
 @ResponseBody
 public class CertificateExceptionHandler {

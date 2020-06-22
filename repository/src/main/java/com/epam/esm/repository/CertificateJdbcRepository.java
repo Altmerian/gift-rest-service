@@ -75,35 +75,35 @@ public class CertificateJdbcRepository implements CertificateRepository {
   }
 
   @Override
-  public void update(Certificate certificate) {
+  public boolean update(Certificate certificate) {
     String sqlUpdate =
         "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ?, "
             + "modification_date = current_timestamp WHERE id = ?";
-    jdbcTemplate.update(
+    return jdbcTemplate.update(
         sqlUpdate,
         certificate.getName(),
         certificate.getDescription(),
         certificate.getPrice(),
         certificate.getDurationInDays(),
-        certificate.getId());
+        certificate.getId()) > 0;
   }
 
   @Override
-  public void delete(Certificate certificate) {
+  public boolean delete(Certificate certificate) {
     String sqlDelete = "delete from certificates where id = ?";
-    jdbcTemplate.update(sqlDelete, certificate.getId());
+    return jdbcTemplate.update(sqlDelete, certificate.getId()) > 0;
   }
 
   @Override
-  public void addCertificateTag(long certificateId, long tagId) {
+  public boolean addCertificateTag(long certificateId, long tagId) {
     String sqlAddCertificateTag =
         "INSERT INTO certificates_tags (certificate_id, tag_id) VALUES (?, ?)";
-    jdbcTemplate.update(sqlAddCertificateTag, certificateId, tagId);
+    return jdbcTemplate.update(sqlAddCertificateTag, certificateId, tagId) > 0;
   }
 
   @Override
-  public void clearCertificateTags(long certificateId) {
+  public boolean clearCertificateTags(long certificateId) {
     String sqlClearCertificateTags = "DELETE FROM certificates_tags WHERE certificate_id = ?";
-    jdbcTemplate.update(sqlClearCertificateTags, certificateId);
+    return jdbcTemplate.update(sqlClearCertificateTags, certificateId) > 0;
   }
 }

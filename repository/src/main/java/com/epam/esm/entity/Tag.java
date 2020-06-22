@@ -2,12 +2,19 @@ package com.epam.esm.entity;
 
 import java.util.Set;
 
+/**
+ * Represents tag entity in the system
+ */
 public class Tag {
   private long id;
   private String name;
   private Set<Certificate> certificates;
 
   public Tag() {}
+
+  public Tag(String name) {
+    this.name = name;
+  }
 
   public long getId() {
     return id;

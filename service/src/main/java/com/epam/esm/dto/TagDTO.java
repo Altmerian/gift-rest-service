@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.validation.constraints.Size;
 
+/**
+ * Data transfer object representing a tag
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TagDTO {
   private long id;
