@@ -82,13 +82,11 @@ class TagServiceImplTest {
     // given
     long tagDTOId = 1L;
     when(tagRepository.get(tagDTOId)).thenReturn(Optional.of(mockTag));
-    when(tagRepository.delete(any(Tag.class))).thenReturn(true);
-    // when
-    boolean actualResult = tagService.delete(tagDTOId);
+    //when
+    tagService.delete(tagDTOId);
     // then
     verify(tagRepository).get(tagDTOId);
     verify(tagRepository).delete(mockTag);
-    assertTrue(actualResult);
   }
 
   @Test

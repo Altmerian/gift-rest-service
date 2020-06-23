@@ -2,7 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.repository.CertificateRepository;
-import com.epam.esm.specification.certificate.CertificateSpecification;
+import com.epam.esm.specification.Specification;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public interface CertificateService {
   CertificateDTO getById(long id);
 
   /**
-   * Constructs {@link CertificateSpecification} from given parameters and send it to appropriate
+   * Constructs {@link Specification} from given parameters and send it to appropriate
    * repository method.
    *
    * @param tagName tag name for query
@@ -52,7 +52,7 @@ public interface CertificateService {
    * @param certificateDTO certificate data in transfer format
    * @return {@code true} if the certificate was successfully updated
    */
-  boolean update(long id, CertificateDTO certificateDTO);
+  void update(long id, CertificateDTO certificateDTO);
 
   /**
    * Invokes repository method to delete certificate data from the system
@@ -60,7 +60,7 @@ public interface CertificateService {
    * @param id id of the certificate to delete
    * @return {@code true} if the certificate was successfully deleted
    */
-  boolean delete(long id);
+  void delete(long id);
 
   /**
    * Finds duplicates of the given certificate in the system. Duplicate is a certificate with the

@@ -1,6 +1,5 @@
 package com.epam.esm.exception;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -19,87 +18,94 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-/**
- * The main exception handler
- */
+/** The main exception handler */
 @ControllerAdvice
 @ResponseBody
 public class CertificateExceptionHandler {
 
   private static final Logger LOGGER = LogManager.getLogger();
 
-  @ExceptionHandler({ResourceNotFoundException.class})
+  @ExceptionHandler(ResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ErrorResponse handleException(ResourceNotFoundException exception) {
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler({ResourceConflictException.class})
+  @ExceptionHandler(ResourceConflictException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
   public ErrorResponse handleException(ResourceConflictException exception) {
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.CONFLICT);
   }
 
-  @ExceptionHandler({NoHandlerFoundException.class})
+  @ExceptionHandler(NoHandlerFoundException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(NoHandlerFoundException exception) {
+    LOGGER.error(exception);
     ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
-    errorResponse.setMessages(Collections.singletonList("The request cannot be fulfilled due to bad syntax."));
+    errorResponse.setMessages(
+        Collections.singletonList("The request cannot be fulfilled due to bad syntax."));
     return errorResponse;
   }
 
-  @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
   public ErrorResponse handleException(HttpRequestMethodNotSupportedException exception) {
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.METHOD_NOT_ALLOWED);
   }
 
-  @ExceptionHandler({HttpMediaTypeNotSupportedException.class})
+  @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
   @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
   public ErrorResponse handleException(HttpMediaTypeNotSupportedException exception) {
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
   }
 
-  @ExceptionHandler(value = {ConstraintViolationException.class})
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(ConstraintViolationException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(ConstraintViolationException ex) {
-    Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
-    List<String> messages = new LinkedList<>();
-    for (ConstraintViolation<?> violation : violations) {
-      messages.add(violation.getMessage());
-    }
+    LOGGER.error(ex);
+    List<String> messages =
+        ex.getConstraintViolations().stream()
+            .map(ConstraintViolation::getMessage)
+            .collect(Collectors.toList());
     ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     errorResponse.setMessages(messages);
     return errorResponse;
   }
 
-  @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(MethodArgumentNotValidException ex) {
-    List<String> messages = new LinkedList<>();
-    for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-     messages.add(error.getDefaultMessage());
-    }
+    LOGGER.error(ex);
+    List<String> messages =
+        ex.getBindingResult().getFieldErrors().stream()
+            .map(FieldError::getDefaultMessage)
+            .collect(Collectors.toList());
     ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     errorResponse.setMessages(messages);
     return errorResponse;
   }
 
-  @ExceptionHandler(value = {HttpMessageNotReadableException.class})
-  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(HttpMessageNotReadableException exception) {
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler({Exception.class})
+  @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ErrorResponse handleAll(Exception exception) {
-    LOGGER.throwing(Level.ERROR, exception);
-    return createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR);
+    LOGGER.error(exception);
+    ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR);
+    errorResponse.setMessages(Collections.singletonList("Oops. Something was going wrong"));
+    return errorResponse;
   }
 
   private ErrorResponse createErrorResponse(Exception exception, HttpStatus status) {

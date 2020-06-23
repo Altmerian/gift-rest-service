@@ -9,7 +9,7 @@ import java.util.Set;
  */
 public class Certificate {
 
-  private long id;
+  private Long id;
   private String name;
   private String description;
   private BigDecimal price;
@@ -20,11 +20,11 @@ public class Certificate {
 
   public Certificate() {}
 
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -86,20 +86,31 @@ public class Certificate {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Certificate)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Certificate)) {
+      return false;
+    }
 
     Certificate that = (Certificate) o;
 
-    if (!getName().equals(that.getName())) return false;
-    if (!getPrice().equals(that.getPrice())) return false;
-    if (getDurationInDays() != that.getDurationInDays()) return false;
+    if (!getName().equals(that.getName())) {
+      return false;
+    }
+    if (!getPrice().equals(that.getPrice())) {
+      return false;
+    }
+    if (getDurationInDays() != that.getDurationInDays()) {
+      return false;
+    }
     return getTags() != null ? getTags().equals(that.getTags()) : that.getTags() == null;
   }
 
   @Override
   public int hashCode() {
     int result = getName().hashCode();
+    result = 31 * result + Long.hashCode(getId());
     result = 31 * result + getPrice().hashCode();
     result = 31 * result + getDurationInDays();
     result = 31 * result + (getTags() != null ? getTags().hashCode() : 0);

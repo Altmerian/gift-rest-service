@@ -1,7 +1,7 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
-import com.epam.esm.specification.certificate.CertificateSpecification;
+import com.epam.esm.specification.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,19 +39,15 @@ public interface CertificateRepository {
    * Updates specified certificate data stored in the repository.
    *
    * @param certificate certificate to be updated in the repository
-   * @return {@code true} if repository changed as a result of the call, i.e. if certificate was
-   *     successfully updated
    */
-  boolean update(Certificate certificate);
+  void update(Certificate certificate);
 
   /**
    * Removes specified certificate from the repository.
    *
    * @param certificate certificate to be removed from repository
-   * @return {@code true} if repository changed as a result of the call, i.e. if certificate was
-   *     successfully removed
    */
-  boolean delete(Certificate certificate);
+  void delete(Certificate certificate);
 
   /**
    * Makes a query for certificates that match given criteria through {@code CertificateSpecification}
@@ -59,24 +55,20 @@ public interface CertificateRepository {
    * @param specification certificate specification with necessary parameters
    * @return list of certificates that match the specification
    */
-  List<Certificate> query(CertificateSpecification specification);
+  List<Certificate> query(Specification specification);
 
   /**
    * Saves data about certificate tag in the repository
    *
    * @param certificateId certificate id
    * @param tagId tag id
-   * @return {@code true} if repository changed as a result of the call, i.e. if data was *
-   *     successfully persisted
    */
-  boolean addCertificateTag(long certificateId, long tagId);
+  void addCertificateTag(long certificateId, long tagId);
 
   /**
    * Purges data in repository about certificate tags
    *
    * @param certificateId certificate id
-   * @return {@code true} if repository changed as a result of the call, i.e. if data was * *
-   *     successfully purged
    */
-  boolean clearCertificateTags(long certificateId);
+  void clearCertificateTags(long certificateId);
 }

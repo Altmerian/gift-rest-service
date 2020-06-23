@@ -1,7 +1,7 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.specification.tag.TagSpecification;
+import com.epam.esm.specification.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,10 +37,8 @@ public interface TagRepository {
    * Removes specified tag from the repository.
    *
    * @param tag tag to be removed from repository
-   * @return {@code true} if repository changed as a result of the call, i.e. if tag was
-   *     successfully removed
    */
-  boolean delete(Tag tag);
+  void delete(Tag tag);
 
   /**
    * Makes a query for tags that match given criteria through {@code TagSpecification}
@@ -48,7 +46,7 @@ public interface TagRepository {
    * @param specification tag specification with necessary parameters
    * @return list of tags that match the specification
    */
-  List<Tag> query(TagSpecification specification);
+  List<Tag> query(Specification specification);
 
   /**
    * Checks whether repository contains given tag.

@@ -1,10 +1,10 @@
-package com.epam.esm.specification.tag;
+package com.epam.esm.specification;
 
 /**
  * Used to construct SQL-based query from relational database-backed repositories. Query parameters
  * are set as fields during interface implementation.
  */
-public interface TagSQLSpecification extends TagSpecification {
+public interface SQLSpecification extends Specification {
 
   /**
    * Constructs SQL-query according given parameters

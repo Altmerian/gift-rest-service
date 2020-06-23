@@ -1,6 +1,6 @@
-package com.epam.esm.specification.tag;
+package com.epam.esm.specification;
 
-public class NameTagSQLSpecification implements TagSQLSpecification {
+public class NameTagSQLSpecification implements SQLSpecification {
   private final String name;
 
   public NameTagSQLSpecification(String name) {

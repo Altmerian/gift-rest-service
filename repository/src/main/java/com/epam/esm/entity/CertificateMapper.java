@@ -10,7 +10,7 @@ public class CertificateMapper implements RowMapper<Certificate> {
   @Override
   public Certificate mapRow(ResultSet rs, int rowNum) throws SQLException {
     Certificate certificate = new Certificate();
-    certificate.setId(rs.getInt("id"));
+    certificate.setId(rs.getLong("id"));
     certificate.setName(rs.getString("name"));
     certificate.setDescription(rs.getString("description"));
     certificate.setPrice(rs.getBigDecimal("price"));

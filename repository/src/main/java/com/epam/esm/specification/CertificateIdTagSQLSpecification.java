@@ -1,6 +1,6 @@
-package com.epam.esm.specification.tag;
+package com.epam.esm.specification;
 
-public class CertificateIdTagSQLSpecification implements TagSQLSpecification {
+public class CertificateIdTagSQLSpecification implements SQLSpecification {
   private final long certificate_id;
 
   public CertificateIdTagSQLSpecification(long certificate_id) {

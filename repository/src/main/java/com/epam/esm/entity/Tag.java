@@ -6,7 +6,7 @@ import java.util.Set;
  * Represents tag entity in the system
  */
 public class Tag {
-  private long id;
+  private Long id;
   private String name;
   private Set<Certificate> certificates;
 
@@ -16,11 +16,11 @@ public class Tag {
     this.name = name;
   }
 
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -42,19 +42,23 @@ public class Tag {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Tag)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Tag)) {
+      return false;
+    }
 
     Tag tag = (Tag) o;
 
-    if (getId() != tag.getId()) return false;
+    if (!getId().equals(tag.getId())) {
+      return false;
+    }
     return getName() != null ? getName().equals(tag.getName()) : tag.getName() == null;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (getId() ^ (getId() >>> 32));
-    result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-    return result;
+    return getName() != null ? getName().hashCode() : Long.hashCode(getId());
   }
 }

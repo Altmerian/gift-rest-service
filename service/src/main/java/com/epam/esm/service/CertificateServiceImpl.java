@@ -7,11 +7,11 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.certificate.NamePriceDurationCertificateSQLSpecification;
-import com.epam.esm.specification.certificate.SearchAndSortCertificateSQLSpecification;
-import com.epam.esm.specification.tag.CertificateIdTagSQLSpecification;
-import com.epam.esm.specification.tag.NameTagSQLSpecification;
-import com.epam.esm.util.Precondition;
+import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
+import com.epam.esm.specification.SearchAndSortCertificateSQLSpecification;
+import com.epam.esm.specification.CertificateIdTagSQLSpecification;
+import com.epam.esm.specification.NameTagSQLSpecification;
+import com.epam.esm.util.ExistenceChecker;
 import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,32 +70,28 @@ public class CertificateServiceImpl implements CertificateService {
     Certificate certificate = convertToEntity(certificateDTO);
     long certificateId = repository.create(certificate);
     certificate.setId(certificateId);
-    for (Tag tag : certificate.getTags()) {
-      addCertificateTag(certificateId, tag);
-    }
+    certificate.getTags().forEach(tag -> addCertificateTag(certificateId, tag));
     return certificateId;
   }
 
   @Override
   @Transactional
-  public boolean update(long id, CertificateDTO certificateDTO) {
-    Precondition.checkExistence(repository.get(id));
+  public void update(long id, CertificateDTO certificateDTO) {
+    ExistenceChecker.check(repository.get(id));
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setId(id);
-    boolean result = repository.update(certificate);
-    if (certificate.getTags() == null) {
-      return result;
-    }
-    boolean clearResult = repository.clearCertificateTags(id);
-    Set<Tag> tags = certificate.getTags();
-    tags.forEach(tag -> addCertificateTag(id, tag));
-    return result && clearResult;
+    repository.update(certificate);
+    repository.clearCertificateTags(id);
+    certificate.getTags().forEach(tag -> addCertificateTag(id, tag));
   }
 
   @Override
-  public boolean delete(long id) {
-    Certificate certificate = Precondition.checkExistence(repository.get(id));
-    return repository.delete(certificate);
+  public void delete(long id) {
+    Optional<Certificate> certificateOptional = repository.get(id);
+    if (!certificateOptional.isPresent()) {
+      throw new ResourceNotFoundException(id);
+    }
+    repository.delete(certificateOptional.get());
   }
 
   @Override
@@ -108,32 +103,13 @@ public class CertificateServiceImpl implements CertificateService {
             certificateDTO.getDurationInDays());
     List<Certificate> certificateList = repository.query(sqlSpecification);
     long certificateId = certificateList.stream().findFirst().map(Certificate::getId).orElse(0L);
-    if (certificateId == 0L) {
-      return false;
-    }
-    CertificateIdTagSQLSpecification tagSQLSpecification =
-        new CertificateIdTagSQLSpecification(certificateId);
-    List<Tag> tagsList = tagRepository.query(tagSQLSpecification);
-    Set<TagDTO> persistedSet =
-        tagsList.stream().map(this::convertTagToDto).collect(Collectors.toSet());
-    return compareTagDTOSets(certificateDTO.getTags(), persistedSet);
-  }
-
-  private boolean compareTagDTOSets(Set<TagDTO> incomingTagSet, Set<TagDTO> persistedTagSet) {
-        incomingTagSet.stream()
-            .filter(tagDTO -> tagDTO.getName() == null)
-            .forEach(tagDTO -> tagDTO.setName(
-                        tagRepository.get(tagDTO.getId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Tag hasn't been found"))
-                            .getName()));
-    Set<TagDTO> tagDTOs = new HashSet<>(incomingTagSet);
-    return persistedTagSet.equals(tagDTOs);
+    return certificateId != 0L;
   }
 
   @VisibleForTesting
-  boolean addCertificateTag(long certificateId, Tag tag) {
+  void addCertificateTag(long certificateId, Tag tag) {
     long tagId;
-    if (tag.getId() == 0) {
+    if (tag.getId() == null || tag.getId() == 0) {
       NameTagSQLSpecification tagSQLSpecification = new NameTagSQLSpecification(tag.getName());
       boolean tagExists = tagRepository.contains(tag);
       tagId =
@@ -146,7 +122,7 @@ public class CertificateServiceImpl implements CertificateService {
         throw new ResourceNotFoundException("Can't find a tag with id = " + tagId);
       }
     }
-    return repository.addCertificateTag(certificateId, tagId);
+    repository.addCertificateTag(certificateId, tagId);
   }
 
   @VisibleForTesting

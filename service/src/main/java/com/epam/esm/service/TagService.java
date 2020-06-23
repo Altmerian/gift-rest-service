@@ -39,7 +39,7 @@ public interface TagService {
    *
    * @param id id of the tag to delete
    */
-  boolean delete(long id);
+  void delete(long id);
 
   /**
    * Finds duplicates of the given tag in the system. Duplicate is a tag with the same name.

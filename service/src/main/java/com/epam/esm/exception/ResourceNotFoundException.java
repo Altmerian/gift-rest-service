@@ -14,4 +14,8 @@ public class ResourceNotFoundException extends RuntimeException {
   public ResourceNotFoundException(Throwable cause) {
     super(cause);
   }
+
+  public ResourceNotFoundException(long id) {
+    super(String.format("Resource with id=%d was not found.", id));
+  }
 }

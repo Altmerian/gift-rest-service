@@ -1,8 +1,8 @@
-package com.epam.esm.specification.certificate;
+package com.epam.esm.specification;
 
 import java.math.BigDecimal;
 
-public class NamePriceDurationCertificateSQLSpecification implements CertificateSQLSpecification {
+public class NamePriceDurationCertificateSQLSpecification implements SQLSpecification {
   private final String name;
   private final BigDecimal price;
   private final int duration;

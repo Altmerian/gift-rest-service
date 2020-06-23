@@ -4,15 +4,17 @@ import com.epam.esm.config.TestDataConfig;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.TestingDatasourceException;
-import com.epam.esm.specification.certificate.NamePriceDurationCertificateSQLSpecification;
+import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,8 +23,12 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SqlGroup({
   @Sql("/test-schema.sql"),
@@ -33,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class CertificateJdbcRepositoryTest {
 
   @Autowired private CertificateJdbcRepository repository;
+  @Autowired private JdbcTemplate jdbcTemplate;
+
 
   @Test
   void create_givenCertificate_shouldBePersistedInDatasource() {
@@ -98,10 +106,9 @@ class CertificateJdbcRepositoryTest {
     String newName = "NewName";
     certificateToUpdate.setName(newName);
     // when
-    boolean result = repository.update(certificateToUpdate);
+    repository.update(certificateToUpdate);
     String actualName = repository.get(1L).orElse(new Certificate()).getName();
     // then
-    assertTrue(result);
     assertThat(actualName, is(equalTo(newName)));
   }
 
@@ -110,10 +117,9 @@ class CertificateJdbcRepositoryTest {
     //given
     Certificate certificate = repository.get(1L).orElseThrow(() -> new TestingDatasourceException("There is no data in testing database"));
     //when
-    boolean result = repository.delete(certificate);
+    repository.delete(certificate);
     Executable retrievingAttempt =() -> repository.get(1L).orElseThrow(NoSuchElementException::new);
     //then
-    assertTrue(result);
     assertThrows(NoSuchElementException.class, retrievingAttempt);
   }
 
@@ -123,9 +129,10 @@ class CertificateJdbcRepositoryTest {
     long certificateId = 1L;
     long tagId = 2L;
     //when
-    boolean actualResult = repository.addCertificateTag(certificateId, tagId);
+    repository.addCertificateTag(certificateId, tagId);
+    int rowsCount = JdbcTestUtils.countRowsInTable(jdbcTemplate, "certificates_tags");
     //then
-    assertTrue(actualResult);
+    assertThat(rowsCount, is(equalTo(5)));
   }
 
   @Test
@@ -133,8 +140,9 @@ class CertificateJdbcRepositoryTest {
     //given
     long certificateId = 2L;
     //when
-    boolean actualResult = repository.clearCertificateTags(certificateId);
+    repository.clearCertificateTags(certificateId);
+    int rowsCount = JdbcTestUtils.countRowsInTable(jdbcTemplate, "certificates_tags");
     //then
-    assertTrue(actualResult);
+    assertThat(rowsCount, is(equalTo(2)));
   }
 }

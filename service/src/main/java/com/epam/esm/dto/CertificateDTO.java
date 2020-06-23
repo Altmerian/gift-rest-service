@@ -12,23 +12,18 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-/**
- * Data transfer object representing a certificate
- */
-
+/** Data transfer object representing a certificate */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CertificateDTO {
 
-  private long id;
+  private Long id;
 
   @NotBlank(message = "Certificate name cannot be empty.")
-  @Size(max = 64, message
-      = "Certificate name mustn't be longer than 64 characters.")
+  @Size(max = 64, message = "Certificate name mustn't be longer than 64 characters.")
   private String name;
 
-  @Size(max = 128, message
-      = "Description mustn't be longer than 128 characters.")
+  @Size(max = 128, message = "Description mustn't be longer than 128 characters.")
   private String description;
 
   @Positive(message = "Certificate price must be positive.")
@@ -43,16 +38,15 @@ public class CertificateDTO {
   @Positive(message = "Duration in days must be positive.")
   private int durationInDays;
 
-  @Valid
-  private Set<TagDTO> tags;
+  @Valid private Set<TagDTO> tags;
 
   public CertificateDTO() {}
 
-  public long getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
@@ -114,20 +108,32 @@ public class CertificateDTO {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof CertificateDTO)) return false;
+    if (this == o) {
+      return true;
+    }
+
+    if (!(o instanceof CertificateDTO)) {
+      return false;
+    }
 
     CertificateDTO that = (CertificateDTO) o;
 
-    if (!getName().equals(that.getName())) return false;
-    if (!getPrice().equals(that.getPrice())) return false;
-    if (getDurationInDays() != that.getDurationInDays()) return false;
+    if (!getName().equals(that.getName())) {
+      return false;
+    }
+    if (!getPrice().equals(that.getPrice())) {
+      return false;
+    }
+    if (getDurationInDays() != that.getDurationInDays()) {
+      return false;
+    }
     return getTags() != null ? getTags().equals(that.getTags()) : that.getTags() == null;
   }
 
   @Override
   public int hashCode() {
     int result = getName().hashCode();
+    result = 31 * result + Long.hashCode(getId());
     result = 31 * result + getPrice().hashCode();
     result = 31 * result + getDurationInDays();
     result = 31 * result + (getTags() != null ? getTags().hashCode() : 0);

@@ -7,9 +7,8 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.certificate.CertificateSQLSpecification;
-import com.epam.esm.specification.certificate.CertificateSpecification;
-import com.epam.esm.specification.tag.TagSQLSpecification;
+import com.epam.esm.specification.SQLSpecification;
+import com.epam.esm.specification.Specification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,11 +22,20 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -69,13 +77,13 @@ public class CertificateServiceImplTest {
   @Test
   public void sendQuery_whenQueryWithParameters_expectedCertificateDTOList() {
     // given
-    when(certificateRepository.query(any(CertificateSpecification.class)))
+    when(certificateRepository.query(any(Specification.class)))
         .thenReturn(Collections.singletonList(mockCertificate));
     // when
     List<CertificateDTO> certificateDTOList =
         certificateService.sendQuery("tagName", "searchFor", "sortBy");
     // then
-    verify(certificateRepository).query(any(CertificateSpecification.class));
+    verify(certificateRepository).query(any(Specification.class));
     assertThat(certificateDTOList, hasSize(1));
   }
 
@@ -94,8 +102,8 @@ public class CertificateServiceImplTest {
   public void getById_nonexistentCertificateId_thenExceptionThrows() {
     // given
     long nonexistentCertificateId = 666L;
-    // when
     when(certificateRepository.get(nonexistentCertificateId)).thenReturn(Optional.empty());
+    // when
     Executable retrievingAttempt = () -> certificateService.getById(nonexistentCertificateId);
     // then
     assertThrows(ResourceNotFoundException.class, retrievingAttempt);
@@ -120,17 +128,14 @@ public class CertificateServiceImplTest {
     Tag[] tags = {new Tag("Tag1"), new Tag("Tag2")};
     certificate.setTags(new HashSet<>(Arrays.asList(tags)));
     when(certificateRepository.get(anyLong())).thenReturn(Optional.of(mockCertificate));
-    when(certificateRepository.update(any(Certificate.class))).thenReturn(true);
-    when(certificateRepository.clearCertificateTags(anyLong())).thenReturn(true);
     when(certificateService.convertToEntity(certificateDTO)).thenReturn(certificate);
     // when
-    boolean actualResult = certificateService.update(1L, certificateDTO);
+    certificateService.update(1L, certificateDTO);
     // then
     verify(certificateRepository).get(1L);
     verify(certificateRepository).update(certificate);
     verify(certificateRepository).clearCertificateTags(1L);
     verify(certificateRepository, Mockito.times(2)).addCertificateTag(1L, 0);
-    assertTrue(actualResult);
   }
 
   @Test
@@ -138,23 +143,21 @@ public class CertificateServiceImplTest {
     // given
     long certificateDTOId = 1L;
     when(certificateRepository.get(certificateDTOId)).thenReturn(Optional.of(mockCertificate));
-    when(certificateRepository.delete(any(Certificate.class))).thenReturn(true);
     // when
-    boolean actualResult = certificateService.delete(certificateDTOId);
+    certificateService.delete(certificateDTOId);
     // then
     verify(certificateRepository).get(certificateDTOId);
     verify(certificateRepository).delete(mockCertificate);
-    assertTrue(actualResult);
   }
 
   @Test
   public void foundDuplicate_givenNamePriceDurationTags_expectedTrue() {
     // given
-    when(certificateRepository.query(any(CertificateSQLSpecification.class)))
+    when(certificateRepository.query(any(SQLSpecification.class)))
         .thenReturn(Collections.singletonList(mockCertificate));
     when(mockCertificate.getId()).thenReturn(1L);
     when(mockCertificateDTO.getTags()).thenReturn(Collections.singleton(mockTagDTO));
-    when(tagRepository.query(any(TagSQLSpecification.class)))
+    when(tagRepository.query(any(SQLSpecification.class)))
         .thenReturn(Collections.singletonList(mockTag));
     when(tagRepository.get(anyLong())).thenReturn(Optional.of(mockTag));
     // when
@@ -166,7 +169,7 @@ public class CertificateServiceImplTest {
   @Test
   public void foundDuplicate_uniqueNamePriceDurationTags_expectedFalse() {
     // given
-    when(certificateRepository.query(any(CertificateSQLSpecification.class)))
+    when(certificateRepository.query(any(SQLSpecification.class)))
         .thenReturn(new ArrayList<>());
     // when
     boolean actualResult = certificateService.foundDuplicate(mockCertificateDTO);
@@ -178,13 +181,11 @@ public class CertificateServiceImplTest {
   void addCertificateTag_tagWithUniqueName_registeredCertificateTag() {
     // given
     when(tagRepository.contains(mockTag)).thenReturn(false);
-    when(certificateRepository.addCertificateTag(anyLong(), anyLong())).thenReturn(true);
     // when
-    boolean isAddedCertificateTag = certificateService.addCertificateTag(1L, mockTag);
+    certificateService.addCertificateTag(1L, mockTag);
     // then
     verify(tagRepository).contains(mockTag);
     verify(certificateRepository).addCertificateTag(anyLong(), anyLong());
-    assertTrue(isAddedCertificateTag);
   }
 
   @Test
