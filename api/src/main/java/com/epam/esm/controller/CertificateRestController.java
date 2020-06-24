@@ -90,7 +90,6 @@ class CertificateRestController {
       @Valid @RequestBody CertificateDTO certificateDTO,
       HttpServletRequest req,
       HttpServletResponse resp) {
-    checkDuplicate(certificateDTO);
     long certificateId = certificateService.create(certificateDTO);
     String url = req.getRequestURL().toString();
     resp.setHeader(HttpHeaders.LOCATION, url + certificateId);
@@ -107,9 +106,8 @@ class CertificateRestController {
    */
   @PutMapping(value = "/{id:\\d+}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void update(@PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO)
-      throws ResourceConflictException {
-    checkDuplicate(certificateDTO);
+  public void update(
+      @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
   }
 
@@ -123,20 +121,5 @@ class CertificateRestController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable("id") long id) {
     certificateService.delete(id);
-  }
-
-  /**
-   * Checks certificate data for duplicates persisted in the system.
-   *
-   * @param certificateDTO certificate data in a certain format for transfer
-   * @throws ResourceConflictException if certificate with given name, price, duration and set of
-   *     tags already exists
-   */
-  private void checkDuplicate(CertificateDTO certificateDTO) throws ResourceConflictException {
-    if (certificateService.foundDuplicate(certificateDTO)) {
-      throw new ResourceConflictException(
-          "Your data conflicts with existing resources. "
-              + "Certificate with given name, price and duration already exists");
-    }
   }
 }

@@ -2,11 +2,13 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.repository.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -19,8 +21,10 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -90,12 +94,13 @@ class TagServiceImplTest {
   }
 
   @Test
-  void foundDuplicate_givenTagName_expectedTrue() {
+  void foundDuplicate_givenTagName_expectedException() {
     // given
     when(tagRepository.contains(mockTag)).thenReturn(true);
     // when
-    boolean actualResult = tagService.foundDuplicate(mockTagDTO);
+    Executable checkingAttempt = () ->  tagService.checkForDuplicate(mockTagDTO);
     // then
-    assertTrue(actualResult);
+    assertThrows(ResourceConflictException.class, checkingAttempt);
+    verify(tagRepository).contains(mockTag);
   }
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.repository.TagRepository;
 
 import java.util.List;
@@ -42,10 +43,10 @@ public interface TagService {
   void delete(long id);
 
   /**
-   * Finds duplicates of the given tag in the system. Duplicate is a tag with the same name.
+   * Checks tag data for duplicates in the system. Duplicate is a tag with the same name.
    *
    * @param tagDTO tag data to search
-   * @return {@code true} if such a duplicate was found
+   * @throws ResourceConflictException if tag with given name already exists
    */
-  boolean foundDuplicate(TagDTO tagDTO);
+  void checkForDuplicate(TagDTO tagDTO) throws ResourceConflictException;
 }

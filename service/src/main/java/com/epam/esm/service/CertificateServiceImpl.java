@@ -4,13 +4,14 @@ import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
-import com.epam.esm.specification.SearchAndSortCertificateSQLSpecification;
 import com.epam.esm.specification.CertificateIdTagSQLSpecification;
+import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
 import com.epam.esm.specification.NameTagSQLSpecification;
+import com.epam.esm.specification.SearchAndSortCertificateSQLSpecification;
 import com.epam.esm.util.ExistenceChecker;
 import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
@@ -67,6 +68,7 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   @Transactional
   public long create(CertificateDTO certificateDTO) {
+    checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
     long certificateId = repository.create(certificate);
     certificate.setId(certificateId);
@@ -78,6 +80,7 @@ public class CertificateServiceImpl implements CertificateService {
   @Transactional
   public void update(long id, CertificateDTO certificateDTO) {
     ExistenceChecker.check(repository.get(id));
+    checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setId(id);
     repository.update(certificate);
@@ -95,7 +98,7 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
-  public boolean foundDuplicate(CertificateDTO certificateDTO) {
+  public void checkForDuplicate(CertificateDTO certificateDTO) throws ResourceConflictException {
     NamePriceDurationCertificateSQLSpecification sqlSpecification =
         new NamePriceDurationCertificateSQLSpecification(
             certificateDTO.getName(),
@@ -103,7 +106,11 @@ public class CertificateServiceImpl implements CertificateService {
             certificateDTO.getDurationInDays());
     List<Certificate> certificateList = repository.query(sqlSpecification);
     long certificateId = certificateList.stream().findFirst().map(Certificate::getId).orElse(0L);
-    return certificateId != 0L;
+    if (certificateId != 0L) {
+      throw new ResourceConflictException(
+          "Your data conflicts with existing resources. "
+              + "Certificate with given name, price and duration already exists");
+    }
   }
 
   @VisibleForTesting

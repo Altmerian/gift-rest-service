@@ -5,7 +5,14 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,20 +68,15 @@ class TagRestController {
   @PostMapping("/")
   @ResponseStatus(HttpStatus.CREATED)
   public void create(
-      @Valid @RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp)
-      throws ResourceConflictException {
-    if (tagService.foundDuplicate(tagDTO)) {
-      throw new ResourceConflictException(
-          "Your data conflicts with existing resources. A Tag with the given name already exists");
-    }
+      @Valid @RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp) {
     long tagId = tagService.create(tagDTO);
     String url = req.getRequestURL().toString();
     resp.setHeader("Location", url + tagId);
   }
 
   /**
-   * Handles requests which use DELETE HTTP method to delete all data linked with a certain
-   * tag in the system
+   * Handles requests which use DELETE HTTP method to delete all data linked with a certain tag in
+   * the system
    *
    * @param id certificate id
    */

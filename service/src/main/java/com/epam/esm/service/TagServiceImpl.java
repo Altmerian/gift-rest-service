@@ -2,6 +2,7 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.TagRepository;
 import com.google.common.annotations.VisibleForTesting;
@@ -41,6 +42,7 @@ public class TagServiceImpl implements TagService {
 
   @Override
   public long create(TagDTO tagDTO) {
+    checkForDuplicate(tagDTO);
     return tagRepository.create(convertToEntity(tagDTO));
   }
 
@@ -54,8 +56,11 @@ public class TagServiceImpl implements TagService {
   }
 
   @Override
-  public boolean foundDuplicate(TagDTO tagDTO) {
-    return tagRepository.contains(convertToEntity(tagDTO));
+  public void checkForDuplicate(TagDTO tagDTO) {
+    if (tagRepository.contains(convertToEntity(tagDTO))) {
+      throw new ResourceConflictException(
+          "Your data conflicts with existing resources. A Tag with the given name already exists");
+    }
   }
 
   @VisibleForTesting

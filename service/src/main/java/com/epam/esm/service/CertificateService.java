@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.specification.Specification;
 
@@ -28,8 +29,8 @@ public interface CertificateService {
   CertificateDTO getById(long id);
 
   /**
-   * Constructs {@link Specification} from given parameters and send it to appropriate
-   * repository method.
+   * Constructs {@link Specification} from given parameters and send it to appropriate repository
+   * method.
    *
    * @param tagName tag name for query
    * @param searchFor part of certificate name or description for query
@@ -50,7 +51,6 @@ public interface CertificateService {
    * Invokes repository method to update certificate data in the system
    *
    * @param certificateDTO certificate data in transfer format
-   * @return {@code true} if the certificate was successfully updated
    */
   void update(long id, CertificateDTO certificateDTO);
 
@@ -58,16 +58,15 @@ public interface CertificateService {
    * Invokes repository method to delete certificate data from the system
    *
    * @param id id of the certificate to delete
-   * @return {@code true} if the certificate was successfully deleted
    */
   void delete(long id);
 
   /**
-   * Finds duplicates of the given certificate in the system. Duplicate is a certificate with the
-   * same name, price, duration, and tags.
+   * Checks certificate data for duplicates persisted in the system.
    *
-   * @param certificateDTO certificate data to search
-   * @return {@code true} if such a duplicate was found
+   * @param certificateDTO certificate data in a certain format for transfer
+   * @throws ResourceConflictException if certificate with given name, price and duration already
+   *     exists
    */
-  boolean foundDuplicate(CertificateDTO certificateDTO);
+  void checkForDuplicate(CertificateDTO certificateDTO) throws ResourceConflictException;
 }

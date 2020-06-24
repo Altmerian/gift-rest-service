@@ -4,6 +4,7 @@ import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
@@ -22,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,9 +33,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -151,30 +150,28 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void foundDuplicate_givenNamePriceDurationTags_expectedTrue() {
+  public void checkDuplicate_givenNamePriceDurationTags_expectedException() {
     // given
     when(certificateRepository.query(any(SQLSpecification.class)))
         .thenReturn(Collections.singletonList(mockCertificate));
     when(mockCertificate.getId()).thenReturn(1L);
-    when(mockCertificateDTO.getTags()).thenReturn(Collections.singleton(mockTagDTO));
-    when(tagRepository.query(any(SQLSpecification.class)))
-        .thenReturn(Collections.singletonList(mockTag));
-    when(tagRepository.get(anyLong())).thenReturn(Optional.of(mockTag));
     // when
-    boolean actualResult = certificateService.foundDuplicate(mockCertificateDTO);
+    Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
-    assertTrue(actualResult);
+    assertThrows(ResourceConflictException.class, checkingAttempt);
+    verify(certificateRepository).query(any(SQLSpecification.class));
   }
 
   @Test
-  public void foundDuplicate_uniqueNamePriceDurationTags_expectedFalse() {
+  public void checkDuplicate_uniqueNamePriceDurationTags_expectedNotToThrow() {
     // given
     when(certificateRepository.query(any(SQLSpecification.class)))
-        .thenReturn(new ArrayList<>());
+        .thenReturn(Collections.emptyList());
     // when
-    boolean actualResult = certificateService.foundDuplicate(mockCertificateDTO);
+    Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
-    assertFalse(actualResult);
+    assertDoesNotThrow(checkingAttempt);
+    verify(certificateRepository).query(any(SQLSpecification.class));
   }
 
   @Test

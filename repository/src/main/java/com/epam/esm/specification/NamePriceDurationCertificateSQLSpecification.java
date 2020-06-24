@@ -15,7 +15,7 @@ public class NamePriceDurationCertificateSQLSpecification implements SQLSpecific
 
   @Override
   public String toSqlQuery() {
-    return "SELECT * FROM certificates WHERE name = ? AND price = ? AND duration_in_days = ?";
+    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM certificates WHERE name = ? AND price = ? AND duration_in_days = ?";
   }
 
   @Override

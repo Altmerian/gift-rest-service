@@ -14,15 +14,11 @@ public class QueryHelper {
     StringBuilder stringBuilder = new StringBuilder();
     String[] strings = queryString.trim().split("[;,.|]+");
     for (String string : strings) {
-      string = string.trim().toLowerCase();
-      if (string.charAt(0) == '-') {
-        if (ALLOWED_SORTABLE_COLUMNS.contains(string.substring(1).trim())) {
-          stringBuilder.append(string.substring(1)).append(" DESC, ");
-        }
-      } else {
-        if (ALLOWED_SORTABLE_COLUMNS.contains(string.trim())) {
-          stringBuilder.append(string).append(", ");
-        }
+      String field = string.trim().toLowerCase();
+      boolean desc = field.charAt(0) == '-';
+      field = desc ? field.substring(1) : field;
+      if (ALLOWED_SORTABLE_COLUMNS.contains(field.trim())) {
+        stringBuilder.append(field.trim()).append(desc ? " DESC, " : ", ");
       }
     }
     return stringBuilder.length() == 0
