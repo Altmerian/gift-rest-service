@@ -11,7 +11,7 @@ public class QueryHelper {
           "name", "description", "price", "duration_in_days", "creation_date", "modification_date");
 
   public static String getSortQuery(String queryString) {
-    StringBuilder stringBuilder = new StringBuilder();
+    StringBuilder stringBuilder = new StringBuilder("ORDER BY ");
     String[] strings = queryString.trim().split("[;,.|]+");
     for (String string : strings) {
       String field = string.trim().toLowerCase();
@@ -21,7 +21,7 @@ public class QueryHelper {
         stringBuilder.append(field.trim()).append(desc ? " DESC, " : ", ");
       }
     }
-    return stringBuilder.length() == 0
+    return stringBuilder.toString().equals("ORDER BY ")
         ? StringUtils.EMPTY
         : stringBuilder.substring(0, stringBuilder.length() - 2);
   }

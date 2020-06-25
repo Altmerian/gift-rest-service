@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
 
 public class CertificateMapper implements RowMapper<Certificate> {
 
@@ -14,9 +15,9 @@ public class CertificateMapper implements RowMapper<Certificate> {
     certificate.setName(rs.getString("name"));
     certificate.setDescription(rs.getString("description"));
     certificate.setPrice(rs.getBigDecimal("price"));
-    certificate.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime());
+    certificate.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime().atZone(ZoneId.systemDefault()));
     if (rs.getTimestamp("modification_date") != null) {
-      certificate.setModificationDate(rs.getTimestamp("modification_date").toLocalDateTime());
+      certificate.setModificationDate(rs.getTimestamp("modification_date").toLocalDateTime().atZone(ZoneId.systemDefault()));
     }
     certificate.setDurationInDays(rs.getInt("duration_in_days"));
     return certificate;

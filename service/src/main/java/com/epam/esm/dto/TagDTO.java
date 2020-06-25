@@ -1,14 +1,19 @@
 package com.epam.esm.dto;
 
+import com.epam.esm.validation.TagNameConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 /** Data transfer object representing a tag */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TagDTO {
+
+  @Positive(message = "Tag id must be positive integer.")
   private Long id;
 
+  @TagNameConstraint
   @Size(max = 64, message = "Tag name mustn't be longer than 64 characters.")
   private String name;
 

@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -50,7 +50,7 @@ class CertificateJdbcRepositoryTest {
     certificate.setDescription("Text");
     certificate.setPrice(BigDecimal.valueOf(100.00));
     certificate.setDurationInDays(90);
-    certificate.setCreationDate(LocalDateTime.now());
+    certificate.setCreationDate(ZonedDateTime.now());
     Tag tag = new Tag();
     tag.setName("TestTag");
     certificate.setTags(Collections.singleton(tag));

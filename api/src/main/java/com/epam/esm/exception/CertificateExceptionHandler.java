@@ -2,6 +2,7 @@ package com.epam.esm.exception;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -16,7 +17,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,13 @@ public class CertificateExceptionHandler {
     LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.NOT_FOUND);
   }
+  @ExceptionHandler(MinorResourceNotFoundException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleException(MinorResourceNotFoundException exception) {
+    LOGGER.error(exception);
+    return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
+  }
+
 
   @ExceptionHandler(ResourceConflictException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
@@ -79,6 +87,15 @@ public class CertificateExceptionHandler {
     return errorResponse;
   }
 
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleException(DataIntegrityViolationException exception) {
+    LOGGER.error(exception);
+    ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
+    errorResponse.setMessages(Collections.singletonList("Fields values violate data source constraints."));
+    return errorResponse;
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(MethodArgumentNotValidException ex) {
@@ -96,7 +113,9 @@ public class CertificateExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(HttpMessageNotReadableException exception) {
     LOGGER.error(exception);
-    return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
+    ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
+    errorResponse.setMessages(Collections.singletonList("Invalid JSON format."));
+    return errorResponse;
   }
 
   @ExceptionHandler(Exception.class)
@@ -112,7 +131,7 @@ public class CertificateExceptionHandler {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setStatus(status.value());
     errorResponse.setMessages(Collections.singletonList(exception.getMessage()));
-    errorResponse.setTime(LocalDateTime.now());
+    errorResponse.setTime(ZonedDateTime.now());
     return errorResponse;
   }
 }

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +30,7 @@ class ModelMapperTest {
     certificate.setId(1L);
     certificate.setName("Test certificate");
     certificate.setDescription("Text");
-    certificate.setCreationDate(LocalDateTime.now());
+    certificate.setCreationDate(ZonedDateTime.now());
     certificate.setPrice(BigDecimal.valueOf(100.00));
     Tag tag = new Tag();
     tag.setId(1L);

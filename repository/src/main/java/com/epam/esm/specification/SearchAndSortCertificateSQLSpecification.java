@@ -17,7 +17,7 @@ public class SearchAndSortCertificateSQLSpecification
 
   @Override
   public String toSqlQuery() {
-    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM certificates_function(?, ?) ORDER BY " + sortQuery;
+    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM certificates_function(?, ?) " + sortQuery;
   }
 
   @Override

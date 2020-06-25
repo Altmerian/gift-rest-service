@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 /** Data transfer object representing a certificate */
@@ -29,11 +29,11 @@ public class CertificateDTO {
   @Positive(message = "Certificate price must be positive.")
   private BigDecimal price;
 
-  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-  private LocalDateTime creationDate;
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss Z")
+  private ZonedDateTime creationDate;
 
-  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-  private LocalDateTime modificationDate;
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss Z")
+  private ZonedDateTime modificationDate;
 
   @Positive(message = "Duration in days must be positive.")
   private int durationInDays;
@@ -74,19 +74,19 @@ public class CertificateDTO {
     this.price = price;
   }
 
-  public LocalDateTime getCreationDate() {
+  public ZonedDateTime getCreationDate() {
     return creationDate;
   }
 
-  public void setCreationDate(LocalDateTime creationDate) {
+  public void setCreationDate(ZonedDateTime creationDate) {
     this.creationDate = creationDate;
   }
 
-  public LocalDateTime getModificationDate() {
+  public ZonedDateTime getModificationDate() {
     return modificationDate;
   }
 
-  public void setModificationDate(LocalDateTime modificationDate) {
+  public void setModificationDate(ZonedDateTime modificationDate) {
     this.modificationDate = modificationDate;
   }
 

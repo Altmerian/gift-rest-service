@@ -4,6 +4,7 @@ import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.MinorResourceNotFoundException;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
@@ -107,6 +108,7 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @VisibleForTesting
+  @Transactional
   void addCertificateTag(long certificateId, Tag tag) {
     long tagId;
     if (tag.getId() == null || tag.getId() == 0) {
@@ -119,7 +121,7 @@ public class CertificateServiceImpl implements CertificateService {
     } else {
       tagId = tag.getId();
       if (!tagRepository.get(tagId).isPresent()) {
-        throw new ResourceNotFoundException("Can't find a tag with id = " + tagId);
+        throw new MinorResourceNotFoundException(tag.getClass(), tagId);
       }
     }
     repository.addCertificateTag(certificateId, tagId);

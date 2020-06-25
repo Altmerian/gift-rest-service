@@ -1,20 +1,18 @@
 package com.epam.esm.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
-/**
- * Represents certificate entity in the system
- */
+/** Represents certificate entity in the system */
 public class Certificate {
 
   private Long id;
   private String name;
   private String description;
   private BigDecimal price;
-  private LocalDateTime creationDate;
-  private LocalDateTime modificationDate;
+  private ZonedDateTime creationDate;
+  private ZonedDateTime modificationDate;
   private int durationInDays;
   private Set<Tag> tags;
 
@@ -52,19 +50,19 @@ public class Certificate {
     this.price = price;
   }
 
-  public LocalDateTime getCreationDate() {
+  public ZonedDateTime getCreationDate() {
     return creationDate;
   }
 
-  public void setCreationDate(LocalDateTime creationDate) {
+  public void setCreationDate(ZonedDateTime creationDate) {
     this.creationDate = creationDate;
   }
 
-  public LocalDateTime getModificationDate() {
+  public ZonedDateTime getModificationDate() {
     return modificationDate;
   }
 
-  public void setModificationDate(LocalDateTime modificationDate) {
+  public void setModificationDate(ZonedDateTime modificationDate) {
     this.modificationDate = modificationDate;
   }
 

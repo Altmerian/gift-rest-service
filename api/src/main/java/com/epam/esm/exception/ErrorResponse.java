@@ -2,7 +2,7 @@ package com.epam.esm.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 /**
@@ -15,12 +15,12 @@ public class ErrorResponse {
   private int status;
   private List<String> messages;
 
-  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-  private LocalDateTime time;
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss Z")
+  private ZonedDateTime time;
 
   public ErrorResponse() {}
 
-  public ErrorResponse(int status, List<String> messages, LocalDateTime time) {
+  public ErrorResponse(int status, List<String> messages, ZonedDateTime time) {
     this.status = status;
     this.messages = messages;
     this.time = time;
@@ -42,11 +42,11 @@ public class ErrorResponse {
     this.messages = messages;
   }
 
-  public LocalDateTime getTime() {
+  public ZonedDateTime getTime() {
     return time;
   }
 
-  public void setTime(LocalDateTime time) {
+  public void setTime(ZonedDateTime time) {
     this.time = time;
   }
 }
