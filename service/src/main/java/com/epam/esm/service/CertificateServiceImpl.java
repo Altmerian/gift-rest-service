@@ -12,7 +12,6 @@ import com.epam.esm.specification.CertificateIdTagSQLSpecification;
 import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
 import com.epam.esm.specification.NameTagSQLSpecification;
 import com.epam.esm.specification.SearchAndSortCertificateSQLSpecification;
-import com.epam.esm.util.ExistenceChecker;
 import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -54,11 +52,8 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public CertificateDTO getById(long id) {
-    Optional<Certificate> certificateOptional = repository.get(id);
-    if (!certificateOptional.isPresent()) {
-      throw new ResourceNotFoundException("Can't find a certificate with id = " + id);
-    }
-    Certificate certificate = certificateOptional.get();
+    Certificate certificate =
+        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     CertificateIdTagSQLSpecification tagSQLSpecification =
         new CertificateIdTagSQLSpecification(certificate.getId());
     certificate.setTags(new HashSet<>(tagRepository.query(tagSQLSpecification)));
@@ -79,7 +74,7 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   @Transactional
   public void update(long id, CertificateDTO certificateDTO) {
-    ExistenceChecker.check(repository.get(id));
+    repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setId(id);
@@ -90,11 +85,9 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public void delete(long id) {
-    Optional<Certificate> certificateOptional = repository.get(id);
-    if (!certificateOptional.isPresent()) {
-      throw new ResourceNotFoundException(id);
-    }
-    repository.delete(certificateOptional.get());
+    Certificate certificate =
+        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    repository.delete(certificate);
   }
 
   @Override

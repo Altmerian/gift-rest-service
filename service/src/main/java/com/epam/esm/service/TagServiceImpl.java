@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,11 +32,8 @@ public class TagServiceImpl implements TagService {
 
   @Override
   public TagDTO getById(long id) {
-    Optional<Tag> tagOptional = tagRepository.get(id);
-    if (!tagOptional.isPresent()) {
-      throw new ResourceNotFoundException("Can't find a tag with id = " + id);
-    }
-    return convertToDTO(tagOptional.get());
+    Tag tag = tagRepository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    return convertToDTO(tag);
   }
 
   @Override
@@ -48,11 +44,8 @@ public class TagServiceImpl implements TagService {
 
   @Override
   public void delete(long id) {
-    Optional<Tag> tagOptional = tagRepository.get(id);
-    if (!tagOptional.isPresent()) {
-      throw new ResourceNotFoundException(id);
-    }
-    tagRepository.delete(tagOptional.get());
+    Tag tag = tagRepository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    tagRepository.delete(tag);
   }
 
   @Override
