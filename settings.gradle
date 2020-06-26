@@ -1,0 +1,5 @@
+rootProject.name = 'gift-rest-service'
+include 'api'
+include 'repository'
+include 'service'
+

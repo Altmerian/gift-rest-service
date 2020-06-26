@@ -2,11 +2,12 @@
 *.class
 
 # Output files
-/build/
-/target/
-/out/
+build/
+target/
+out/
 
 # Log file
+/logs/
 *.log
 
 # BlueJ files
@@ -30,3 +31,6 @@ hs_err_pid*
 #IDE files
 *.iml
 /.idea/
+
+#Gradle files
+.gradle/

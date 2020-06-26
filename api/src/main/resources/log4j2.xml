@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="fileName">gift-service</Property>
+        <Property name="basePath">logs</Property>
+    </Properties>
+    <Appenders>
+        <RollingFile name="File" fileName="${basePath}/${fileName}.log"
+                     filePattern="${basePath}/${fileName}-%d{MM-dd-yyyy}-%i.log">
+            <PatternLayout>
+                <Pattern>%d [%t] %-5p %c{6} %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="512 KB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="${basePath}" maxDepth="2">
+                    <IfFileName glob="${fileName}-*.log">
+                        <IfAccumulatedFileSize exceeds="20 MB"/>
+                        <IfAccumulatedFileCount exceeds="10"/>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{6} - %msg%n %ex{short}"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="Console"/>
+        </Root>
+        <logger level="error" name="com.mchange"/>
+        <logger level="error" name="org.hibernate"/>
+        <logger level="info" name="org.springframework.test.context.BootstrapUtils">
+            <appender-ref ref="Console" />
+        </logger>
+        <logger level="warn" name="com.epam.esm.config.AppDispatcherServletInitializer">
+            <appender-ref ref="Console" />
+        </logger>
+    </Loggers>
+</Configuration>
