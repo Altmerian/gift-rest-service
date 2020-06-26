@@ -1,10 +1,10 @@
 package com.epam.esm.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
@@ -26,13 +26,12 @@ public class CertificateDTO {
   @Size(max = 128, message = "Description mustn't be longer than 128 characters.")
   private String description;
 
+  @Digits(integer = 14, fraction = 2)
   @Positive(message = "Certificate price must be positive.")
   private BigDecimal price;
 
-  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss Z")
   private ZonedDateTime creationDate;
 
-  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss Z")
   private ZonedDateTime modificationDate;
 
   @Positive(message = "Duration in days must be positive.")

@@ -1,5 +1,8 @@
 package com.epam.esm.exception;
 
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -17,7 +20,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,13 +40,13 @@ public class CertificateExceptionHandler {
     LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.NOT_FOUND);
   }
+
   @ExceptionHandler(MinorResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(MinorResourceNotFoundException exception) {
     LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
   }
-
 
   @ExceptionHandler(ResourceConflictException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
@@ -92,7 +97,8 @@ public class CertificateExceptionHandler {
   public ErrorResponse handleException(DataIntegrityViolationException exception) {
     LOGGER.error(exception);
     ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
-    errorResponse.setMessages(Collections.singletonList("Fields values violate data source constraints."));
+    errorResponse.setMessages(
+        Collections.singletonList("Fields values violate data source constraints."));
     return errorResponse;
   }
 
@@ -113,8 +119,21 @@ public class CertificateExceptionHandler {
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(HttpMessageNotReadableException exception) {
     LOGGER.error(exception);
+    Throwable rootCause = ExceptionUtils.getRootCause(exception);
+    JsonLocation location = new JsonLocation(new Object(), -1, -1, -1);
+    String originalMessage = "";
+    if (rootCause instanceof JsonProcessingException) {
+      JsonProcessingException cause = (JsonProcessingException) rootCause;
+      location = cause.getLocation();
+      originalMessage = cause.getOriginalMessage();
+    }
     ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
-    errorResponse.setMessages(Collections.singletonList("Invalid JSON format."));
+    String rootMessage =
+        String.format(
+            "line: %d, column: %d",
+            location.getLineNr(), location.getColumnNr());
+    errorResponse.setMessages(
+        Arrays.asList("Invalid JSON format; " + rootMessage, originalMessage));
     return errorResponse;
   }
 
@@ -131,7 +150,7 @@ public class CertificateExceptionHandler {
     ErrorResponse errorResponse = new ErrorResponse();
     errorResponse.setStatus(status.value());
     errorResponse.setMessages(Collections.singletonList(exception.getMessage()));
-    errorResponse.setTime(ZonedDateTime.now());
+    errorResponse.setTime(LocalDateTime.now().atZone(ZoneId.systemDefault()));
     return errorResponse;
   }
 }

@@ -1,6 +1,6 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.validation.TagNameConstraint;
+import com.epam.esm.validation.NullOrNotEmptyConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.validation.constraints.Positive;
@@ -13,7 +13,7 @@ public class TagDTO {
   @Positive(message = "Tag id must be positive integer.")
   private Long id;
 
-  @TagNameConstraint
+  @NullOrNotEmptyConstraint(message = "Tag name cannot be empty.")
   @Size(max = 64, message = "Tag name mustn't be longer than 64 characters.")
   private String name;
 

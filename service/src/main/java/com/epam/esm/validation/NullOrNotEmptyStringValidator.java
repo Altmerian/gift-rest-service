@@ -3,10 +3,10 @@ package com.epam.esm.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class TagNameValidator implements ConstraintValidator<TagNameConstraint, String> {
+public class NullOrNotEmptyStringValidator implements ConstraintValidator<NullOrNotEmptyConstraint, String> {
 
   @Override
-  public void initialize(TagNameConstraint constraintAnnotation) {
+  public void initialize(NullOrNotEmptyConstraint constraintAnnotation) {
   }
 
   @Override

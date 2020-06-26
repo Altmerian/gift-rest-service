@@ -1,21 +1,14 @@
 package com.epam.esm.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.time.ZonedDateTime;
 import java.util.List;
 
-/**
- * Represents response body for all errors to be sent to the user
- */
+/** Represents response body for all errors to be sent to the user */
 public class ErrorResponse {
-  /**
-   * HTTP response status
-   */
+  /** HTTP response status */
   private int status;
-  private List<String> messages;
 
-  @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss Z")
+  private List<String> messages;
   private ZonedDateTime time;
 
   public ErrorResponse() {}

@@ -15,9 +15,11 @@ public class CertificateMapper implements RowMapper<Certificate> {
     certificate.setName(rs.getString("name"));
     certificate.setDescription(rs.getString("description"));
     certificate.setPrice(rs.getBigDecimal("price"));
-    certificate.setCreationDate(rs.getTimestamp("creation_date").toLocalDateTime().atZone(ZoneId.systemDefault()));
+    certificate.setCreationDate(
+        rs.getTimestamp("creation_date").toLocalDateTime().atZone(ZoneId.systemDefault()));
     if (rs.getTimestamp("modification_date") != null) {
-      certificate.setModificationDate(rs.getTimestamp("modification_date").toLocalDateTime().atZone(ZoneId.systemDefault()));
+      certificate.setModificationDate(
+          rs.getTimestamp("modification_date").toLocalDateTime().atZone(ZoneId.systemDefault()));
     }
     certificate.setDurationInDays(rs.getInt("duration_in_days"));
     return certificate;
