@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -33,25 +34,27 @@ import java.util.stream.Collectors;
 public class CertificateExceptionHandler {
 
   private static final Logger LOGGER = LogManager.getLogger();
+  private static final org.slf4j.Logger slf4jLogger =  LoggerFactory.getLogger(CertificateExceptionHandler.class);
 
   @ExceptionHandler(ResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ErrorResponse handleException(ResourceNotFoundException exception) {
-    LOGGER.error(exception);
+    LOGGER.error(exception.getMessage());
     return createErrorResponse(exception, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(MinorResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(MinorResourceNotFoundException exception) {
-    LOGGER.error(exception);
+    LOGGER.error(exception.getMessage());
     return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(ResourceConflictException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
   public ErrorResponse handleException(ResourceConflictException exception) {
-    LOGGER.error(exception);
+//    LOGGER.error(exception);
+    slf4jLogger.error(exception.getMessage());
     return createErrorResponse(exception, HttpStatus.CONFLICT);
   }
 
@@ -140,7 +143,7 @@ public class CertificateExceptionHandler {
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public ErrorResponse handleAll(Exception exception) {
-    LOGGER.error(exception);
+    LOGGER.error("Internal server error.", exception);
     ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.INTERNAL_SERVER_ERROR);
     errorResponse.setMessages(Collections.singletonList("Oops. Something was going wrong"));
     return errorResponse;
