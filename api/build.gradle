@@ -2,8 +2,4 @@ dependencies {
     implementation project(':service')
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-//    implementation "org.springframework:spring-webmvc:$springVersion"
-//    implementation "org.springframework:spring-jdbc:$springVersion"
-//    implementation 'javax.xml.bind:jaxb-api:2.3.1'
-//    implementation 'javax.servlet:javax.servlet-api:4.0.1'
 }

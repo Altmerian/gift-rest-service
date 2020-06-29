@@ -1,36 +1,26 @@
 package com.epam.esm.config;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
 
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
-public class AppConfig implements WebMvcConfigurer {
+public class AppConfig {
 
-  @Override
-  public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-    MappingJackson2HttpMessageConverter jacksonMessageConverter = new MappingJackson2HttpMessageConverter();
-    ObjectMapper objectMapper = jacksonMessageConverter.getObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-
-//    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss z");
-    StdDateFormat stdDateFormat = new StdDateFormat();
-    objectMapper.setDateFormat(stdDateFormat);
-
-    objectMapper.configure(DeserializationFeature.ACCEPT_FLOAT_AS_INT, false);
-    converters.add(jacksonMessageConverter);
+  @Bean
+  public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
+    String dateTimeFormat = "yyyy-MM-dd hh:mm:ss XXX";
+    return builder -> {
+      builder.simpleDateFormat(dateTimeFormat);
+      builder.serializers(new ZonedDateTimeSerializer(DateTimeFormatter.ofPattern(dateTimeFormat)));
+    };
   }
 
   public static void main(String[] args) {
     SpringApplication.run(AppConfig.class, args);
   }
-
 }

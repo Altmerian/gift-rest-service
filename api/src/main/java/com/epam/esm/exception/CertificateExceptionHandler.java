@@ -39,22 +39,22 @@ public class CertificateExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public ErrorResponse handleException(ResourceNotFoundException exception) {
-    LOGGER.error(exception.getMessage());
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(MinorResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(MinorResourceNotFoundException exception) {
-    LOGGER.error(exception.getMessage());
+    LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(ResourceConflictException.class)
   @ResponseStatus(HttpStatus.CONFLICT)
   public ErrorResponse handleException(ResourceConflictException exception) {
-//    LOGGER.error(exception);
-    slf4jLogger.error(exception.getMessage());
+    LOGGER.error(exception);
+//    slf4jLogger.error(exception.getMessage());
     return createErrorResponse(exception, HttpStatus.CONFLICT);
   }
 
