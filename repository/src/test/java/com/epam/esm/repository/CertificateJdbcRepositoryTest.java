@@ -4,16 +4,14 @@ import com.epam.esm.config.TestDataConfig;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.TestingDatasourceException;
-import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
+import com.epam.esm.specification.NamePriceDurationCertificateSpecification;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlGroup;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.math.BigDecimal;
@@ -34,13 +32,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
   @Sql("/test-schema.sql"),
   @Sql("/test-certificates.sql"),
 })
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = TestDataConfig.class)
+@SpringBootTest(classes = TestDataConfig.class)
 class CertificateJdbcRepositoryTest {
 
   @Autowired private CertificateJdbcRepository repository;
   @Autowired private JdbcTemplate jdbcTemplate;
-
 
   @Test
   void create_givenCertificate_shouldBePersistedInDatasource() {
@@ -85,10 +81,10 @@ class CertificateJdbcRepositoryTest {
   @Test
   void query_givenNamePriceDuration_expectedCertificate() {
     // given
-    NamePriceDurationCertificateSQLSpecification namePriceDurationCertificateSQLSpecification =
-        new NamePriceDurationCertificateSQLSpecification("Adidas", new BigDecimal("100.00"), 90);
+    NamePriceDurationCertificateSpecification namePriceDurationCertificateSpecification =
+        new NamePriceDurationCertificateSpecification("Adidas", new BigDecimal("100.00"), 90);
     // when
-    List<Certificate> certificates = repository.query(namePriceDurationCertificateSQLSpecification);
+    List<Certificate> certificates = repository.query(namePriceDurationCertificateSpecification);
     Certificate actual = certificates.get(0);
     // then
     assertAll(

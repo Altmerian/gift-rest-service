@@ -1,14 +1,22 @@
 package com.epam.esm.entity;
 
-import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
-/**
- * Represents tag entity in the system
- */
+/** Represents tag entity in the system */
+@Entity
+@Table(name = "tags")
 public class Tag {
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tags_id_seq")
+  @SequenceGenerator(name = "tags_id_seq", allocationSize = 1)
   private Long id;
+
   private String name;
-  private Set<Certificate> certificates;
 
   public Tag() {}
 
@@ -30,14 +38,6 @@ public class Tag {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public Set<Certificate> getCertificates() {
-    return certificates;
-  }
-
-  public void setCertificates(Set<Certificate> certificates) {
-    this.certificates = certificates;
   }
 
   @Override

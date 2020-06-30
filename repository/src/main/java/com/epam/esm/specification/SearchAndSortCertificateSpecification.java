@@ -1,14 +1,19 @@
 package com.epam.esm.specification;
 
+import com.epam.esm.entity.Certificate;
 import com.epam.esm.util.QueryHelper;
 
-public class SearchAndSortCertificateSQLSpecification
-    implements SQLSpecification {
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+public class SearchAndSortCertificateSpecification
+    implements Specification<Certificate> {
   private final String tagName;
   private final String searchFor;
   private final String sortQuery;
 
-  public SearchAndSortCertificateSQLSpecification(
+  public SearchAndSortCertificateSpecification(
       String tagName, String searchFor, String sortBy) {
     this.tagName = tagName == null ? "%" : QueryHelper.getQueryString(tagName);
     this.searchFor = searchFor == null ? "%" : QueryHelper.getQueryString(searchFor);
@@ -25,5 +30,15 @@ public class SearchAndSortCertificateSQLSpecification
 
 
     return new Object[] {tagName, searchFor};
+  }
+
+  @Override
+  public boolean isSatisfiedBy(Certificate certificate) {
+    return false;
+  }
+
+  @Override
+  public Predicate toPredicate(Root<Certificate> root, CriteriaBuilder cb) {
+    return null;
   }
 }

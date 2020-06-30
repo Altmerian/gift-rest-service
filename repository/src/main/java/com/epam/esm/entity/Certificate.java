@@ -1,19 +1,42 @@
 package com.epam.esm.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
 /** Represents certificate entity in the system */
+@Entity
+@Table(name = "certificates")
 public class Certificate {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "certificates_id_seq")
+  @SequenceGenerator(name = "certificates_id_seq", allocationSize = 1)
   private Long id;
+
   private String name;
   private String description;
   private BigDecimal price;
   private ZonedDateTime creationDate;
   private ZonedDateTime modificationDate;
   private int durationInDays;
+
+  @ManyToMany
+  @JoinTable(
+      name = "certificates_tags",
+      joinColumns = @JoinColumn(name = "certificate_id"),
+      inverseJoinColumns = @JoinColumn(name = "tag_id"))
+  @Transient
   private Set<Tag> tags;
 
   public Certificate() {}
@@ -80,6 +103,10 @@ public class Certificate {
 
   public void setTags(Set<Tag> tags) {
     this.tags = tags;
+  }
+
+  public void addTag(Tag tag) {
+    this.tags.add(tag);
   }
 
   @Override

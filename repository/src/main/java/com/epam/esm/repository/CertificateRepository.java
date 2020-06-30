@@ -55,7 +55,7 @@ public interface CertificateRepository {
    * @param specification certificate specification with necessary parameters
    * @return list of certificates that match the specification
    */
-  List<Certificate> query(Specification specification);
+  List<Certificate> query(Specification<Certificate> specification);
 
   /**
    * Saves data about certificate tag in the repository

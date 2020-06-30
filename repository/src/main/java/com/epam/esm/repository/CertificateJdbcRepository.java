@@ -2,7 +2,6 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateMapper;
-import com.epam.esm.specification.SQLSpecification;
 import com.epam.esm.specification.Specification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -70,13 +68,9 @@ public class CertificateJdbcRepository implements CertificateRepository {
   }
 
   @Override
-  public List<Certificate> query(Specification specification) {
-    if (!(specification instanceof SQLSpecification)) {
-      return Collections.emptyList();
-    }
-    SQLSpecification sqlSpecification = (SQLSpecification) specification;
+  public List<Certificate> query(Specification<Certificate> specification) {
     return jdbcTemplate.query(
-        sqlSpecification.toSqlQuery(), sqlSpecification.getParameters(), new CertificateMapper());
+        specification.toSqlQuery(), specification.getParameters(), new CertificateMapper());
   }
 
   @Override

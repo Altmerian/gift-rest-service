@@ -46,7 +46,7 @@ public interface TagRepository {
    * @param specification tag specification with necessary parameters
    * @return list of tags that match the specification
    */
-  List<Tag> query(Specification specification);
+  List<Tag> query(Specification<Tag> specification);
 
   /**
    * Checks whether repository contains given tag.

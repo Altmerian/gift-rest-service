@@ -9,13 +9,14 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.CertificateIdTagSQLSpecification;
-import com.epam.esm.specification.NamePriceDurationCertificateSQLSpecification;
-import com.epam.esm.specification.NameTagSQLSpecification;
-import com.epam.esm.specification.SearchAndSortCertificateSQLSpecification;
+import com.epam.esm.specification.CertificateIdTagSpecification;
+import com.epam.esm.specification.NamePriceDurationCertificateSpecification;
+import com.epam.esm.specification.NameTagSpecification;
+import com.epam.esm.specification.SearchAndSortCertificateSpecification;
 import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +33,9 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Autowired
   public CertificateServiceImpl(
-      CertificateRepository repository, TagRepository tagRepository, ModelMapper modelMapper) {
+      @Qualifier("certificateJPARepository")CertificateRepository repository,
+      @Qualifier("tagJPARepository") TagRepository tagRepository,
+      ModelMapper modelMapper) {
     this.repository = repository;
     this.tagRepository = tagRepository;
     this.modelMapper = modelMapper;
@@ -45,9 +48,9 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy) {
-    SearchAndSortCertificateSQLSpecification sqlSpecification =
-        new SearchAndSortCertificateSQLSpecification(tagName, searchFor, sortBy);
-    List<Certificate> certificates = repository.query(sqlSpecification);
+    SearchAndSortCertificateSpecification Specification =
+        new SearchAndSortCertificateSpecification(tagName, searchFor, sortBy);
+    List<Certificate> certificates = repository.query(Specification);
     return certificates.stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
@@ -55,9 +58,9 @@ public class CertificateServiceImpl implements CertificateService {
   public CertificateDTO getById(long id) {
     Certificate certificate =
         repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
-    CertificateIdTagSQLSpecification tagSQLSpecification =
-        new CertificateIdTagSQLSpecification(certificate.getId());
-    certificate.setTags(new HashSet<>(tagRepository.query(tagSQLSpecification)));
+    CertificateIdTagSpecification tagSpecification =
+        new CertificateIdTagSpecification(certificate.getId());
+    certificate.setTags(new HashSet<>(tagRepository.query(tagSpecification)));
     return convertToDto(certificate);
   }
 
@@ -93,12 +96,12 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public void checkForDuplicate(CertificateDTO certificateDTO) throws ResourceConflictException {
-    NamePriceDurationCertificateSQLSpecification sqlSpecification =
-        new NamePriceDurationCertificateSQLSpecification(
+    NamePriceDurationCertificateSpecification specification =
+        new NamePriceDurationCertificateSpecification(
             certificateDTO.getName(),
             certificateDTO.getPrice(),
             certificateDTO.getDurationInDays());
-    List<Certificate> certificateList = repository.query(sqlSpecification);
+    List<Certificate> certificateList = repository.query(specification);
     long certificateId = certificateList.stream().findFirst().map(Certificate::getId).orElse(0L);
     if (certificateId != 0L) {
       throw new ResourceConflictException(
@@ -112,11 +115,11 @@ public class CertificateServiceImpl implements CertificateService {
   void addCertificateTag(long certificateId, Tag tag) {
     long tagId;
     if (tag.getId() == null || tag.getId() == 0) {
-      NameTagSQLSpecification tagSQLSpecification = new NameTagSQLSpecification(tag.getName());
+      NameTagSpecification tagSpecification = new NameTagSpecification(tag.getName());
       boolean tagExists = tagRepository.contains(tag);
       tagId =
           tagExists
-              ? tagRepository.query(tagSQLSpecification).get(0).getId()
+              ? tagRepository.query(tagSpecification).get(0).getId()
               : tagRepository.create(tag);
     } else {
       tagId = tag.getId();

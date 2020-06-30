@@ -8,7 +8,6 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.SQLSpecification;
 import com.epam.esm.specification.Specification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -152,26 +151,26 @@ public class CertificateServiceImplTest {
   @Test
   public void checkDuplicate_givenNamePriceDurationTags_expectedException() {
     // given
-    when(certificateRepository.query(any(SQLSpecification.class)))
+    when(certificateRepository.query(any(Specification.class)))
         .thenReturn(Collections.singletonList(mockCertificate));
     when(mockCertificate.getId()).thenReturn(1L);
     // when
     Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
     assertThrows(ResourceConflictException.class, checkingAttempt);
-    verify(certificateRepository).query(any(SQLSpecification.class));
+    verify(certificateRepository).query(any(Specification.class));
   }
 
   @Test
   public void checkDuplicate_uniqueNamePriceDurationTags_expectedNotToThrow() {
     // given
-    when(certificateRepository.query(any(SQLSpecification.class)))
+    when(certificateRepository.query(any(Specification.class)))
         .thenReturn(Collections.emptyList());
     // when
     Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
     assertDoesNotThrow(checkingAttempt);
-    verify(certificateRepository).query(any(SQLSpecification.class));
+    verify(certificateRepository).query(any(Specification.class));
   }
 
   @Test

@@ -56,6 +56,8 @@ class CertificateRestController {
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
+      @RequestParam(value = "page", defaultValue = "1") int page,
+      @RequestParam(value = "size", defaultValue = "20") int size,
       HttpServletRequest request) {
     if (StringUtils.isBlank(request.getQueryString())) {
       return certificateService.getAll();
