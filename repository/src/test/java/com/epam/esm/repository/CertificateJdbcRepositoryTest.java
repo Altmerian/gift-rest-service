@@ -49,6 +49,7 @@ class CertificateJdbcRepositoryTest {
     certificate.setCreationDate(ZonedDateTime.now());
     Tag tag = new Tag();
     tag.setName("TestTag");
+    tag.setId(3L);
     certificate.setTags(Collections.singleton(tag));
     // when
     long certificateId = repository.create(certificate);

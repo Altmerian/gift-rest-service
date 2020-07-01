@@ -1,6 +1,7 @@
 package com.epam.esm.specification;
 
 import com.epam.esm.entity.Certificate;
+import org.apache.commons.lang3.NotImplementedException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -24,17 +25,20 @@ public class NamePriceDurationCertificateSpecification implements Specification<
   }
 
   @Override
+  public String toJPQLQuery() {
+    throw new NotImplementedException();
+  }
+
+  @Override
   public Object[] getParameters() {
     return new Object[] {name, price, duration};
   }
 
   @Override
-  public boolean isSatisfiedBy(Certificate certificate) {
-    return false;
-  }
-
-  @Override
-  public Predicate toPredicate(Root<Certificate> root, CriteriaBuilder cb) {
-    return null;
+  public Predicate toPredicate(Root<Certificate> certificate, CriteriaBuilder cb) {
+    return cb.and(
+        cb.equal(certificate.get("name"), name),
+        cb.equal(certificate.get("price"), price),
+        cb.equal(certificate.get("durationInDays"), duration));
   }
 }

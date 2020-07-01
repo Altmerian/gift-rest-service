@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -9,7 +10,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Set;
@@ -31,12 +31,11 @@ public class Certificate {
   private ZonedDateTime modificationDate;
   private int durationInDays;
 
-  @ManyToMany
+  @ManyToMany(cascade = {CascadeType.DETACH})
   @JoinTable(
       name = "certificates_tags",
       joinColumns = @JoinColumn(name = "certificate_id"),
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
-  @Transient
   private Set<Tag> tags;
 
   public Certificate() {}

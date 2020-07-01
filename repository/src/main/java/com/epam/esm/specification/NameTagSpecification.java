@@ -1,6 +1,7 @@
 package com.epam.esm.specification;
 
 import com.epam.esm.entity.Tag;
+import org.apache.commons.lang3.NotImplementedException;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -19,13 +20,13 @@ public class NameTagSpecification implements Specification<Tag> {
   }
 
   @Override
-  public Object[] getParameters() {
-    return new Object[] {name};
+  public String toJPQLQuery() {
+    throw new NotImplementedException();
   }
 
   @Override
-  public boolean isSatisfiedBy(Tag tag) {
-    return tag.getName().equals(name);
+  public Object[] getParameters() {
+    return new Object[] {name};
   }
 
   @Override

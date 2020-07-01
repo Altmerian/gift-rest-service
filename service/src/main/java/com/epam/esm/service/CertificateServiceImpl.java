@@ -9,7 +9,6 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.CertificateIdTagSpecification;
 import com.epam.esm.specification.NamePriceDurationCertificateSpecification;
 import com.epam.esm.specification.NameTagSpecification;
 import com.epam.esm.specification.SearchAndSortCertificateSpecification;
@@ -20,8 +19,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +33,7 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Autowired
   public CertificateServiceImpl(
-      @Qualifier("certificateJPARepository")CertificateRepository repository,
+      @Qualifier("certificateJPARepository") CertificateRepository repository,
       @Qualifier("tagJPARepository") TagRepository tagRepository,
       ModelMapper modelMapper) {
     this.repository = repository;
@@ -58,9 +58,6 @@ public class CertificateServiceImpl implements CertificateService {
   public CertificateDTO getById(long id) {
     Certificate certificate =
         repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
-    CertificateIdTagSpecification tagSpecification =
-        new CertificateIdTagSpecification(certificate.getId());
-    certificate.setTags(new HashSet<>(tagRepository.query(tagSpecification)));
     return convertToDto(certificate);
   }
 
@@ -69,22 +66,20 @@ public class CertificateServiceImpl implements CertificateService {
   public long create(CertificateDTO certificateDTO) {
     checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
-    long certificateId = repository.create(certificate);
-    certificate.setId(certificateId);
-    certificate.getTags().forEach(tag -> addCertificateTag(certificateId, tag));
-    return certificateId;
+    fetchCertificateTags(certificate.getTags());
+    return repository.create(certificate);
   }
 
   @Override
   @Transactional
   public void update(long id, CertificateDTO certificateDTO) {
-    repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    Certificate storedCertificate = repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
+    certificate.setCreationDate(storedCertificate.getCreationDate());
     certificate.setId(id);
+    fetchCertificateTags(certificate.getTags());
     repository.update(certificate);
-    repository.clearCertificateTags(id);
-    certificate.getTags().forEach(tag -> addCertificateTag(id, tag));
   }
 
   @Override
@@ -112,22 +107,26 @@ public class CertificateServiceImpl implements CertificateService {
 
   @VisibleForTesting
   @Transactional
-  void addCertificateTag(long certificateId, Tag tag) {
-    long tagId;
-    if (tag.getId() == null || tag.getId() == 0) {
-      NameTagSpecification tagSpecification = new NameTagSpecification(tag.getName());
-      boolean tagExists = tagRepository.contains(tag);
-      tagId =
-          tagExists
-              ? tagRepository.query(tagSpecification).get(0).getId()
-              : tagRepository.create(tag);
-    } else {
-      tagId = tag.getId();
-      if (!tagRepository.get(tagId).isPresent()) {
-        throw new MinorResourceNotFoundException(tag.getClass(), tagId);
+  void fetchCertificateTags(Set<Tag> tags) {
+    for (Tag tag : tags) {
+      long tagId;
+      if (tag.getId() == null || tag.getId() == 0) {
+        NameTagSpecification tagSpecification = new NameTagSpecification(tag.getName());
+        boolean tagExists = tagRepository.contains(tag);
+        tagId =
+            tagExists
+                ? tagRepository.query(tagSpecification).get(0).getId()
+                : tagRepository.create(tag);
+        tag.setId(tagId);
+      } else {
+        tagId = tag.getId();
+        Optional<Tag> tagOptional = tagRepository.get(tagId);
+        if (!tagOptional.isPresent()) {
+          throw new MinorResourceNotFoundException(tag.getClass(), tagId);
+        }
+        tag.setName(tagOptional.get().getName());
       }
     }
-    repository.addCertificateTag(certificateId, tagId);
   }
 
   @VisibleForTesting

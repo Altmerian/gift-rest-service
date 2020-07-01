@@ -1,6 +1,7 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
+import com.epam.esm.specification.NameTagSpecification;
 import com.epam.esm.specification.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,8 +56,8 @@ public class TagJPARepository implements TagRepository {
   @Override
   public List<Tag> query(Specification<Tag> specification) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(specification.getType());
-    Root<Tag> root = criteriaQuery.from(specification.getType());
+    CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
+    Root<Tag> root = criteriaQuery.from(Tag.class);
 
     Predicate predicate = specification.toPredicate(root, criteriaBuilder);
 
@@ -66,7 +67,6 @@ public class TagJPARepository implements TagRepository {
 
   @Override
   public boolean contains(Tag tag) {
-    String containsJpql = "SELECT t.id, t.name FROM Tag AS t WHERE t.name = :name";
-    return !entityManager.createQuery(containsJpql).setParameter("name", tag.getName()).getResultList().isEmpty();
+    return !query(new NameTagSpecification(tag.getName())).isEmpty();
   }
 }

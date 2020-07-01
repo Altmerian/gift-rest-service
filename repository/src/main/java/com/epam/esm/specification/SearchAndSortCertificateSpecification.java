@@ -26,19 +26,17 @@ public class SearchAndSortCertificateSpecification
   }
 
   @Override
+  public String toJPQLQuery() {
+    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM FUNCTION('certificates_function', :tag, :search) " + sortQuery;
+  }
+
+  @Override
   public Object[] getParameters() {
-
-
     return new Object[] {tagName, searchFor};
   }
 
   @Override
-  public boolean isSatisfiedBy(Certificate certificate) {
-    return false;
-  }
-
-  @Override
   public Predicate toPredicate(Root<Certificate> root, CriteriaBuilder cb) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 }

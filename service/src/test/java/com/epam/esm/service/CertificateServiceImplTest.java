@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -132,8 +131,6 @@ public class CertificateServiceImplTest {
     // then
     verify(certificateRepository).get(1L);
     verify(certificateRepository).update(certificate);
-    verify(certificateRepository).clearCertificateTags(1L);
-    verify(certificateRepository, Mockito.times(2)).addCertificateTag(1L, 0);
   }
 
   @Test
@@ -174,14 +171,14 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  void addCertificateTag_tagWithUniqueName_registeredCertificateTag() {
+  void fetchCertificateTags_tagWithUniqueName_registeredCertificateTag() {
     // given
     when(tagRepository.contains(mockTag)).thenReturn(false);
     // when
-    certificateService.addCertificateTag(1L, mockTag);
+    certificateService.fetchCertificateTags(Collections.singleton(mockTag));
     // then
     verify(tagRepository).contains(mockTag);
-    verify(certificateRepository).addCertificateTag(anyLong(), anyLong());
+    verify(tagRepository).create(mockTag);
   }
 
   @Test
