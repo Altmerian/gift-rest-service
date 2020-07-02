@@ -1,9 +1,11 @@
 package com.epam.esm.specification;
 
 import com.epam.esm.entity.Tag;
-import org.apache.commons.lang3.NotImplementedException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -20,17 +22,17 @@ public class NameTagSpecification implements Specification<Tag> {
   }
 
   @Override
-  public String toJPQLQuery() {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Object[] getParameters() {
     return new Object[] {name};
   }
 
   @Override
-  public Predicate toPredicate(Root<Tag> tag, CriteriaBuilder cb) {
-    return cb.equal(tag.get("name"), name);
+  public TypedQuery<Tag> toJPAQuery(EntityManager entityManager) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Tag> cq = cb.createQuery(Tag.class);
+    Root<Tag> tag = cq.from(Tag.class);
+    Predicate predicate = cb.equal(tag.get("name"), name);
+    cq.where(predicate);
+    return entityManager.createQuery(cq);
   }
 }

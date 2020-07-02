@@ -1,9 +1,11 @@
 package com.epam.esm.specification;
 
 import com.epam.esm.entity.Certificate;
-import org.apache.commons.lang3.NotImplementedException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
@@ -25,20 +27,20 @@ public class NamePriceDurationCertificateSpecification implements Specification<
   }
 
   @Override
-  public String toJPQLQuery() {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Object[] getParameters() {
     return new Object[] {name, price, duration};
   }
 
   @Override
-  public Predicate toPredicate(Root<Certificate> certificate, CriteriaBuilder cb) {
-    return cb.and(
+  public TypedQuery<Certificate> toJPAQuery(EntityManager entityManager) {
+    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
+    Root<Certificate> certificate = cq.from(Certificate.class);
+    Predicate predicate = cb.and(
         cb.equal(certificate.get("name"), name),
         cb.equal(certificate.get("price"), price),
         cb.equal(certificate.get("durationInDays"), duration));
+    cq.where(predicate);
+    return entityManager.createQuery(cq);
   }
 }

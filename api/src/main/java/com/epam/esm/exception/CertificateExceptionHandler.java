@@ -54,7 +54,6 @@ public class CertificateExceptionHandler {
   @ResponseStatus(HttpStatus.CONFLICT)
   public ErrorResponse handleException(ResourceConflictException exception) {
     LOGGER.error(exception);
-//    slf4jLogger.error(exception.getMessage());
     return createErrorResponse(exception, HttpStatus.CONFLICT);
   }
 

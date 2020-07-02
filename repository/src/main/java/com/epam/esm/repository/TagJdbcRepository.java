@@ -11,12 +11,14 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class TagJdbcRepository implements TagRepository {
 
   private final JdbcTemplate jdbcTemplate;

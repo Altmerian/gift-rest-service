@@ -1,6 +1,5 @@
 package com.epam.esm.entity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,7 +30,7 @@ public class Certificate {
   private ZonedDateTime modificationDate;
   private int durationInDays;
 
-  @ManyToMany(cascade = {CascadeType.DETACH})
+  @ManyToMany
   @JoinTable(
       name = "certificates_tags",
       joinColumns = @JoinColumn(name = "certificate_id"),

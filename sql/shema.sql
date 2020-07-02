@@ -21,7 +21,7 @@ CREATE TABLE certificates
     name character varying(64) NOT NULL,
     description character varying(128),
     price numeric(14,2) NOT NULL,
-    creation_date timestamp(0) with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    creation_date timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     modification_date timestamp(0) with time zone,
     duration_in_days smallint NOT NULL DEFAULT 90,
     CONSTRAINT certificates_pkey PRIMARY KEY (id),

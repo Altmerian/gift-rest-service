@@ -3,9 +3,8 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.Tag;
 import org.apache.commons.lang3.NotImplementedException;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 public class CertificateIdTagSpecification implements Specification<Tag> {
   private final long certificate_id;
@@ -20,17 +19,12 @@ public class CertificateIdTagSpecification implements Specification<Tag> {
   }
 
   @Override
-  public String toJPQLQuery() {
-    throw new NotImplementedException();
-  }
-
-  @Override
   public Object[] getParameters() {
     return new Object[]{certificate_id};
   }
 
   @Override
-  public Predicate toPredicate(Root<Tag> tagRoot, CriteriaBuilder cb) {
+  public Query toJPAQuery(EntityManager entityManager) {
     throw new NotImplementedException();
   }
 }

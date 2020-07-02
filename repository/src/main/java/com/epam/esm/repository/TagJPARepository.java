@@ -11,7 +11,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
@@ -20,14 +19,14 @@ import java.util.Optional;
 @Transactional
 public class TagJPARepository implements TagRepository {
 
-  @PersistenceContext
-  private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
   @Override
   public List<Tag> getAll() {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Tag> cq = cb.createQuery(Tag.class);
     Root<Tag> rootEntry = cq.from(Tag.class);
+    cq.orderBy(cb.asc(rootEntry.get("id")));
     CriteriaQuery<Tag> all = cq.select(rootEntry);
 
     TypedQuery<Tag> allQuery = entityManager.createQuery(all);
@@ -52,17 +51,11 @@ public class TagJPARepository implements TagRepository {
     entityManager.remove(tag);
   }
 
-  //todo check this
   @Override
   public List<Tag> query(Specification<Tag> specification) {
-    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Tag> criteriaQuery = criteriaBuilder.createQuery(Tag.class);
-    Root<Tag> root = criteriaQuery.from(Tag.class);
-
-    Predicate predicate = specification.toPredicate(root, criteriaBuilder);
-
-    criteriaQuery.where(predicate);
-    return entityManager.createQuery(criteriaQuery).getResultList();
+    @SuppressWarnings("unchecked")
+    TypedQuery<Tag> query = (TypedQuery<Tag>) specification.toJPAQuery(entityManager);
+    return query.getResultList();
   }
 
   @Override

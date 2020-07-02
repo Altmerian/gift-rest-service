@@ -1,8 +1,7 @@
 package com.epam.esm.specification;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 /** Represents selection parameters will be applied to query from the repositories */
 public interface Specification<T> {
@@ -14,13 +13,6 @@ public interface Specification<T> {
   String toSqlQuery();
 
   /**
-   * Constructs JPQL-query according to given parameters
-   *
-   * @return proper JPQL-query
-   */
-  String toJPQLQuery();
-
-  /**
    * Creates new {@code Object[]} from specification parameters and returns it.
    *
    * @return array of specification parameters
@@ -28,9 +20,9 @@ public interface Specification<T> {
   Object[] getParameters();
 
   /**
-   * Creates new {@code Predicate} from specification parameters and returns it.
+   * Creates new {@code Query} from specification parameters and returns it.
    *
-   * @return {@code Predicate} according to specification parameters
+   * @return {@code Query} according to specification parameters
    */
-  Predicate toPredicate(Root<T> root, CriteriaBuilder cb);
+  Query toJPAQuery(EntityManager entityManager);
 }

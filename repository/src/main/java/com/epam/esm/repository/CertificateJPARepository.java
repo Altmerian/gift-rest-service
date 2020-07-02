@@ -1,23 +1,22 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
-import com.epam.esm.specification.SearchAndSortCertificateSpecification;
 import com.epam.esm.specification.Specification;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class CertificateJPARepository implements CertificateRepository {
 
   @PersistenceContext private EntityManager entityManager;
@@ -25,8 +24,6 @@ public class CertificateJPARepository implements CertificateRepository {
   @Override
   public long create(Certificate certificate) {
     certificate.setCreationDate(ZonedDateTime.now());
-    certificate.setId(null);
-    certificate.setModificationDate(null);
     entityManager.persist(certificate);
     entityManager.flush();
     return certificate.getId();
@@ -37,6 +34,7 @@ public class CertificateJPARepository implements CertificateRepository {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
     Root<Certificate> rootEntry = cq.from(Certificate.class);
+    cq.orderBy(cb.asc(rootEntry.get("id")));
     CriteriaQuery<Certificate> all = cq.select(rootEntry);
 
     TypedQuery<Certificate> allQuery = entityManager.createQuery(all);
@@ -51,21 +49,10 @@ public class CertificateJPARepository implements CertificateRepository {
 
   @Override
   public List<Certificate> query(Specification<Certificate> specification) {
-    if (specification instanceof SearchAndSortCertificateSpecification) {
-      Query nativeQuery =
-          entityManager.createNativeQuery(specification.toSqlQuery(), Certificate.class);
-      nativeQuery.setParameter(1, specification.getParameters()[0]);
-      nativeQuery.setParameter(2, specification.getParameters()[1]);
-      @SuppressWarnings("unchecked")
-      List<Certificate> resultList = nativeQuery.getResultList();
-      return resultList;
-    }
-    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
-    Root<Certificate> root = cq.from(Certificate.class);
-    Predicate predicate = specification.toPredicate(root, cb);
-    cq.where(predicate);
-    return entityManager.createQuery(cq).getResultList();
+    @SuppressWarnings("unchecked")
+    List<Certificate> resultList =
+        (List<Certificate>) specification.toJPAQuery(entityManager).getResultList();
+    return resultList;
   }
 
   @Override
