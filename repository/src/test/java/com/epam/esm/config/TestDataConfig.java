@@ -2,6 +2,7 @@ package com.epam.esm.config;
 
 import com.epam.esm.repository.CertificateJdbcRepository;
 import com.epam.esm.repository.TagJdbcRepository;
+import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,11 +51,11 @@ public class TestDataConfig {
 
   @Bean
   public CertificateJdbcRepository certificateJdbcRepository() {
-    return new CertificateJdbcRepository(dataSource(), tagJdbcRepository());
+    return new CertificateJdbcRepository(dataSource(), tagRepository());
   }
 
   @Bean
-  public TagJdbcRepository tagJdbcRepository() {
+  public TagRepository tagRepository() {
     return new TagJdbcRepository(dataSource());
   }
 }

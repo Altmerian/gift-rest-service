@@ -29,7 +29,7 @@ public class TagJdbcRepository implements TagRepository {
   }
 
   @Override
-  public List<Tag> getAll() {
+  public List<Tag> getAll(int page, int size) {
     String sqlGetAll = "SELECT id, name FROM tags";
     return jdbcTemplate.query(sqlGetAll, new TagMapper());
   }

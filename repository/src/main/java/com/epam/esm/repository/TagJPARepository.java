@@ -22,7 +22,7 @@ public class TagJPARepository implements TagRepository {
   @PersistenceContext private EntityManager entityManager;
 
   @Override
-  public List<Tag> getAll() {
+  public List<Tag> getAll(int page, int size) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Tag> cq = cb.createQuery(Tag.class);
     Root<Tag> rootEntry = cq.from(Tag.class);
@@ -30,6 +30,8 @@ public class TagJPARepository implements TagRepository {
     CriteriaQuery<Tag> all = cq.select(rootEntry);
 
     TypedQuery<Tag> allQuery = entityManager.createQuery(all);
+    allQuery.setFirstResult((page - 1) * size);
+    allQuery.setMaxResults(size);
     return allQuery.getResultList();
   }
 

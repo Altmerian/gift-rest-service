@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -7,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -26,6 +28,7 @@ public class Certificate {
   private String name;
   private String description;
   private BigDecimal price;
+  @Column(columnDefinition = "timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP", insertable = false)
   private ZonedDateTime creationDate;
   private ZonedDateTime modificationDate;
   private int durationInDays;
@@ -38,6 +41,11 @@ public class Certificate {
   private Set<Tag> tags;
 
   public Certificate() {}
+
+  @PreUpdate
+  void preUpdate() {
+    setModificationDate(ZonedDateTime.now());
+  }
 
   public Long getId() {
     return id;

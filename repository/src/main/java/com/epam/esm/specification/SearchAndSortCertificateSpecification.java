@@ -10,11 +10,15 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
   private final String tagName;
   private final String searchFor;
   private final String sortQuery;
+  private final int page;
+  private final int size;
 
-  public SearchAndSortCertificateSpecification(String tagName, String searchFor, String sortBy) {
+  public SearchAndSortCertificateSpecification(String tagName, String searchFor, String sortBy, int page, int size) {
     this.tagName = tagName == null ? "%" : QueryHelper.getQueryString(tagName);
     this.searchFor = searchFor == null ? "%" : QueryHelper.getQueryString(searchFor);
     this.sortQuery = QueryHelper.getSortQuery(sortBy);
+    this.page = page;
+    this.size = size;
   }
 
   @Override
@@ -33,6 +37,8 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
     Query nativeQuery = entityManager.createNativeQuery(toSqlQuery(), Certificate.class);
     nativeQuery.setParameter(1, tagName);
     nativeQuery.setParameter(2, searchFor);
+    nativeQuery.setFirstResult((page - 1) * size);
+    nativeQuery.setMaxResults(size);
     return nativeQuery;
   }
 }

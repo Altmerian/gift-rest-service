@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -42,14 +44,17 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
-  public List<CertificateDTO> getAll() {
-    return repository.getAll().stream().map(this::convertToDto).collect(Collectors.toList());
+  public List<CertificateDTO> getAll(int page, int size) {
+    return repository.getAll(page, size).stream()
+        .map(this::convertToDto)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy) {
+  public List<CertificateDTO> sendQuery(
+      String tagName, String searchFor, String sortBy, int page, int size) {
     SearchAndSortCertificateSpecification Specification =
-        new SearchAndSortCertificateSpecification(tagName, searchFor, sortBy);
+        new SearchAndSortCertificateSpecification(tagName, searchFor, sortBy, page, size);
     List<Certificate> certificates = repository.query(Specification);
     return certificates.stream().map(this::convertToDto).collect(Collectors.toList());
   }
@@ -73,12 +78,23 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   @Transactional
   public void update(long id, CertificateDTO certificateDTO) {
-    Certificate storedCertificate = repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    Certificate storedCertificate =
+        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setCreationDate(storedCertificate.getCreationDate());
     certificate.setId(id);
     fetchCertificateTags(certificate.getTags());
+    repository.update(certificate);
+  }
+
+  @Override
+  public void modify(long id, CertificatePatchDTO certificatePatchDTO) {
+    CertificateDTO certificateDTO = modelMapper.map(certificatePatchDTO, CertificateDTO.class);
+    checkForDuplicate(certificateDTO);
+    Certificate certificate =
+        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    setCertificateFields(certificate, certificatePatchDTO);
     repository.update(certificate);
   }
 
@@ -102,6 +118,23 @@ public class CertificateServiceImpl implements CertificateService {
       throw new ResourceConflictException(
           "Your data conflicts with existing resources. "
               + "Certificate with given name, price and duration already exists");
+    }
+  }
+
+  private void setCertificateFields(
+      Certificate certificate, CertificatePatchDTO certificatePatchDTO) {
+    for (Field field : certificatePatchDTO.getClass().getDeclaredFields()) {
+      field.setAccessible(true);
+      try {
+        Object value = field.get(certificatePatchDTO);
+        if (value != null) {
+          Field targetField = certificate.getClass().getDeclaredField(field.getName());
+          targetField.setAccessible(true);
+          targetField.set(certificate, value);
+        }
+      } catch (IllegalAccessException | NoSuchFieldException e) {
+        throw new RuntimeException("Internal server error.");
+      }
     }
   }
 

@@ -51,11 +51,11 @@ class TagServiceImplTest {
   @Test
   void getAll_queryForAll_expectedListOfAllTags() {
     // given
-    when(tagRepository.getAll()).thenReturn(Collections.singletonList(mockTag));
+    when(tagRepository.getAll(1, 10)).thenReturn(Collections.singletonList(mockTag));
     // when
-    List<TagDTO> tagDTOList = tagService.getAll();
+    List<TagDTO> tagDTOList = tagService.getAll(1, 10);
     // then
-    verify(tagRepository).getAll();
+    verify(tagRepository).getAll(1, 10);
     assertThat(tagDTOList, hasSize(1));
   }
 

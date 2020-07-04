@@ -1,14 +1,17 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.CertificateService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 /**
@@ -29,6 +34,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("api/v1/certificates")
+@Validated
 class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -46,7 +52,6 @@ class CertificateRestController {
    * @param searchFor request parameter for searching by part of certificate name or certificate
    *     description
    * @param sortBy request parameter for sorting data in the response
-   * @param request incoming HTTP request
    * @return response with body filled by requested data. For higher performance, information about
    *     certificate tags isn't provided. To clarify certificate tags one must use
    *     "../certificates/id" request.
@@ -56,13 +61,12 @@ class CertificateRestController {
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
-      @RequestParam(value = "page", defaultValue = "1") int page,
-      @RequestParam(value = "size", defaultValue = "20") int size,
-      HttpServletRequest request) {
-    if (StringUtils.isBlank(request.getQueryString())) {
-      return certificateService.getAll();
+      @RequestParam(value = "page", defaultValue = "1") @Positive int page,
+      @RequestParam(value = "size", defaultValue = "20") @Positive @Max(100) int size) {
+    if (StringUtils.isBlank(tagName + searchFor)) {
+      return certificateService.getAll(page, size);
     }
-    return certificateService.sendQuery(tagName, searchFor, sortBy);
+    return certificateService.sendQuery(tagName, searchFor, sortBy, page, size);
   }
 
   /**
@@ -111,6 +115,23 @@ class CertificateRestController {
   public void update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
+  }
+
+  /**
+   * Handles requests which use the PATCH HTTP method and a request body with data to be patched in
+   * the certificate. This method supports changing only for fields presenting in {@link
+   * CertificatePatchDTO} class
+   *
+   * @param id certificate id
+   * @param certificatePatchDTO certificate patching data in a certain format for transfer
+   * @throws ResourceConflictException if certificate with given name, price, duration and set of
+   *     tags already exists
+   */
+  @PatchMapping(value = "/{id:\\d+}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void patch(
+      @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
+    certificateService.modify(id, certificatePatchDTO);
   }
 
   /**

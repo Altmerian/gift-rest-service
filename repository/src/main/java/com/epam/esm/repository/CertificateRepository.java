@@ -13,8 +13,10 @@ public interface CertificateRepository {
    * Retrieves all persisted certificates
    *
    * @return list of certificates
+   * @param page number of page to view
+   * @param size number of certificates per page
    */
-  List<Certificate> getAll();
+  List<Certificate> getAll(int page, int size);
 
   /**
    * Retrieves a certificate with given id.

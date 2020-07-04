@@ -11,7 +11,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,14 +22,13 @@ public class CertificateJPARepository implements CertificateRepository {
 
   @Override
   public long create(Certificate certificate) {
-    certificate.setCreationDate(ZonedDateTime.now());
     entityManager.persist(certificate);
     entityManager.flush();
     return certificate.getId();
   }
 
   @Override
-  public List<Certificate> getAll() {
+  public List<Certificate> getAll(int page, int size) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
     Root<Certificate> rootEntry = cq.from(Certificate.class);
@@ -57,7 +55,6 @@ public class CertificateJPARepository implements CertificateRepository {
 
   @Override
   public void update(Certificate certificate) {
-    certificate.setModificationDate(ZonedDateTime.now());
     entityManager.merge(certificate);
   }
 

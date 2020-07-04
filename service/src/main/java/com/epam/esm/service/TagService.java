@@ -17,8 +17,10 @@ public interface TagService {
    * Gets data of all tags from the repository layer.
    *
    * @return list of tags in certain transfer format
+   * @param page number of page to view
+   * @param size number of tags per page
    */
-  List<TagDTO> getAll();
+  List<TagDTO> getAll(int page, int size);
 
   /**
    * Gets data of tags with given id from the repository layer.

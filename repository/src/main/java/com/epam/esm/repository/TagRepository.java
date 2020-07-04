@@ -13,8 +13,10 @@ public interface TagRepository {
    * Retrieves all persisted tags
    *
    * @return list of tags
+   * @param page number of page to view
+   * @param size number of tags per page
    */
-  List<Tag> getAll();
+  List<Tag> getAll(int page, int size);
 
   /**
    * Retrieves a tag with given id.

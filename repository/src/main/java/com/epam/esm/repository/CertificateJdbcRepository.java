@@ -6,6 +6,7 @@ import com.epam.esm.specification.CertificateIdTagSpecification;
 import com.epam.esm.specification.Specification;
 import com.google.common.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -23,10 +24,11 @@ import java.util.Optional;
 public class CertificateJdbcRepository implements CertificateRepository {
 
   private final JdbcTemplate jdbcTemplate;
-  private final TagJdbcRepository tagRepository;
+  private final TagRepository tagRepository;
 
   @Autowired
-  public CertificateJdbcRepository(DataSource dataSource, TagJdbcRepository tagRepository) {
+  public CertificateJdbcRepository(
+      DataSource dataSource, @Qualifier("tagJdbcRepository") TagRepository tagRepository) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
     this.tagRepository = tagRepository;
   }
@@ -54,7 +56,7 @@ public class CertificateJdbcRepository implements CertificateRepository {
   }
 
   @Override
-  public List<Certificate> getAll() {
+  public List<Certificate> getAll(int page, int size) {
     String sqlGetAll =
         "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM certificates";
     return jdbcTemplate.query(sqlGetAll, new CertificateMapper());

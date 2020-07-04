@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.specification.Specification;
@@ -15,11 +16,13 @@ import java.util.List;
 public interface CertificateService {
 
   /**
-   * Gets data of all certificates from the repository layer.
+   * Gets data about  all certificates from the repository layer.
    *
    * @return list of certificates in certain transfer format
+   * @param page number of page to view
+   * @param size number of certificates per page
    */
-  List<CertificateDTO> getAll();
+  List<CertificateDTO> getAll(int page, int size);
 
   /**
    * Gets data of certificate with given id from the repository layer.
@@ -35,9 +38,11 @@ public interface CertificateService {
    * @param tagName tag name for query
    * @param searchFor part of certificate name or description for query
    * @param sortBy sorting parameters
+   * @param page number of page to view
+   * @param size number of certificates per page
    * @return list of certificates that matched specification in data transfer format
    */
-  List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy);
+  List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy, int page, int size);
 
   /**
    * Invokes repository method to persist certificate data in the system
@@ -53,6 +58,13 @@ public interface CertificateService {
    * @param certificateDTO certificate data in transfer format
    */
   void update(long id, CertificateDTO certificateDTO);
+
+  /**
+   * Invokes repository method to modify certificate data in the system
+   *
+   * @param certificatePatchDTO certificate data to apply a patch
+   */
+  void modify(long id, CertificatePatchDTO certificatePatchDTO);
 
   /**
    * Invokes repository method to delete certificate data from the system

@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
 public class CertificateExceptionHandler {
 
   private static final Logger LOGGER = LogManager.getLogger();
-  private static final org.slf4j.Logger slf4jLogger =  LoggerFactory.getLogger(CertificateExceptionHandler.class);
+  private static final org.slf4j.Logger slf4jLogger =
+      LoggerFactory.getLogger(CertificateExceptionHandler.class);
 
   @ExceptionHandler(ResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -87,7 +88,7 @@ public class CertificateExceptionHandler {
     LOGGER.error(ex);
     List<String> messages =
         ex.getConstraintViolations().stream()
-            .map(ConstraintViolation::getMessage)
+            .map(cv -> cv.getPropertyPath().toString().split("\\.")[1] + " " + cv.getMessage())
             .collect(Collectors.toList());
     ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
     errorResponse.setMessages(messages);
@@ -117,6 +118,18 @@ public class CertificateExceptionHandler {
     return errorResponse;
   }
 
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorResponse handleException(MethodArgumentTypeMismatchException ex) {
+    LOGGER.error(ex);
+    List<String> messages =
+        Collections.singletonList(
+            "Invalid parameter value: " + ex.getValue() + "; required type: " + ex.getRequiredType());
+    ErrorResponse errorResponse = createErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    errorResponse.setMessages(messages);
+    return errorResponse;
+  }
+
   @ExceptionHandler(HttpMessageNotReadableException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(HttpMessageNotReadableException exception) {
@@ -131,9 +144,7 @@ public class CertificateExceptionHandler {
     }
     ErrorResponse errorResponse = createErrorResponse(exception, HttpStatus.BAD_REQUEST);
     String rootMessage =
-        String.format(
-            "line: %d, column: %d",
-            location.getLineNr(), location.getColumnNr());
+        String.format("line: %d, column: %d", location.getLineNr(), location.getColumnNr());
     errorResponse.setMessages(
         Arrays.asList("Invalid JSON format; " + rootMessage, originalMessage));
     return errorResponse;

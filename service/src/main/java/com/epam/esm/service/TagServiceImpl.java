@@ -28,8 +28,8 @@ public class TagServiceImpl implements TagService {
   }
 
   @Override
-  public List<TagDTO> getAll() {
-    return tagRepository.getAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+  public List<TagDTO> getAll(int page, int size) {
+    return tagRepository.getAll(page, size).stream().map(this::convertToDTO).collect(Collectors.toList());
   }
 
   @Override

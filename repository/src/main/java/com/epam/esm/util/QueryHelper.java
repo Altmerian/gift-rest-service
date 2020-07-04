@@ -1,7 +1,5 @@
 package com.epam.esm.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,11 +20,11 @@ public class QueryHelper {
       }
     }
     return stringBuilder.toString().equals("ORDER BY ")
-        ? StringUtils.EMPTY
+        ? "ORDER BY id"
         : stringBuilder.substring(0, stringBuilder.length() - 2);
   }
 
-  public static String getQueryString(String tagName) {
-    return "(" + tagName.trim().replaceAll(",", "|").toLowerCase() + ")";
+  public static String getQueryString(String queryString) {
+    return "(" + queryString.trim().replaceAll(",", "|").toLowerCase() + ")";
   }
 }

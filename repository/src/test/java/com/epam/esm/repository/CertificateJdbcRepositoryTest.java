@@ -60,7 +60,7 @@ class CertificateJdbcRepositoryTest {
   @Test
   void getAll_queryForAll_expectedAllCertificatesList() {
     // when
-    List<Certificate> certificateList = repository.getAll();
+    List<Certificate> certificateList = repository.getAll(1, 10);
     // then
     assertThat(certificateList, hasSize(2));
   }
