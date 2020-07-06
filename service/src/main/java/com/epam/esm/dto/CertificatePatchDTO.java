@@ -1,6 +1,7 @@
 package com.epam.esm.dto;
 
 import com.epam.esm.validation.NullOrNotEmptyConstraint;
+import com.epam.esm.validation.NullOrPositiveConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -26,7 +27,7 @@ public class CertificatePatchDTO {
   @Positive(message = "Certificate price must be positive.")
   private BigDecimal price;
 
-  @Positive(message = "Duration in days must be positive.")
+  @NullOrPositiveConstraint(message = "Duration in days must be positive.")
   private int durationInDays;
 
   public CertificatePatchDTO() {}

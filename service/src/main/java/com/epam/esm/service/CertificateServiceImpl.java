@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,11 +50,18 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
+  public long countAll(String tagName, String searchFor, String sortBy) {
+    SearchAndSortCertificateSpecification specification =
+        new SearchAndSortCertificateSpecification(tagName, searchFor, sortBy);
+    return repository.countAll(specification);
+  }
+
+  @Override
   public List<CertificateDTO> sendQuery(
       String tagName, String searchFor, String sortBy, int page, int size) {
-    SearchAndSortCertificateSpecification Specification =
-        new SearchAndSortCertificateSpecification(tagName, searchFor, sortBy, page, size);
-    List<Certificate> certificates = repository.query(Specification);
+    SearchAndSortCertificateSpecification specification =
+        new SearchAndSortCertificateSpecification(tagName, searchFor, sortBy);
+    List<Certificate> certificates = repository.query(specification, page, size);
     return certificates.stream().map(this::convertToDto).collect(Collectors.toList());
   }
 
@@ -90,8 +96,6 @@ public class CertificateServiceImpl implements CertificateService {
 
   @Override
   public void modify(long id, CertificatePatchDTO certificatePatchDTO) {
-    CertificateDTO certificateDTO = modelMapper.map(certificatePatchDTO, CertificateDTO.class);
-    checkForDuplicate(certificateDTO);
     Certificate certificate =
         repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     setCertificateFields(certificate, certificatePatchDTO);
@@ -123,18 +127,17 @@ public class CertificateServiceImpl implements CertificateService {
 
   private void setCertificateFields(
       Certificate certificate, CertificatePatchDTO certificatePatchDTO) {
-    for (Field field : certificatePatchDTO.getClass().getDeclaredFields()) {
-      field.setAccessible(true);
-      try {
-        Object value = field.get(certificatePatchDTO);
-        if (value != null) {
-          Field targetField = certificate.getClass().getDeclaredField(field.getName());
-          targetField.setAccessible(true);
-          targetField.set(certificate, value);
-        }
-      } catch (IllegalAccessException | NoSuchFieldException e) {
-        throw new RuntimeException("Internal server error.");
-      }
+    if (certificatePatchDTO.getName() != null) {
+      certificate.setName(certificatePatchDTO.getName());
+    }
+    if (certificatePatchDTO.getDescription() != null) {
+      certificate.setDescription(certificatePatchDTO.getDescription());
+    }
+    if (certificatePatchDTO.getPrice() != null) {
+      certificate.setPrice(certificatePatchDTO.getPrice());
+    }
+    if (certificatePatchDTO.getDurationInDays() != 0) {
+      certificate.setDurationInDays(certificatePatchDTO.getDurationInDays());
     }
   }
 

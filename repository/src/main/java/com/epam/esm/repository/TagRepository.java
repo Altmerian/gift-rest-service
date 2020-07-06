@@ -19,6 +19,13 @@ public interface TagRepository {
   List<Tag> getAll(int page, int size);
 
   /**
+   * Counts overall quantity of tags
+   *
+   * @return total amount of tags
+   */
+  long countAll();
+
+  /**
    * Retrieves a tag with given id.
    *
    * @param id tag id
@@ -43,7 +50,7 @@ public interface TagRepository {
   void delete(Tag tag);
 
   /**
-   * Makes a query for tags that match given criteria through {@code TagSpecification}
+   * Makes a query for tags that match given criteria through {@code Specification}
    *
    * @param specification tag specification with necessary parameters
    * @return list of tags that match the specification

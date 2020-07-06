@@ -3,6 +3,7 @@ package com.epam.esm.repository;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.TagMapper;
 import com.epam.esm.specification.Specification;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,6 +33,11 @@ public class TagJdbcRepository implements TagRepository {
   public List<Tag> getAll(int page, int size) {
     String sqlGetAll = "SELECT id, name FROM tags";
     return jdbcTemplate.query(sqlGetAll, new TagMapper());
+  }
+
+  @Override
+  public long countAll() {
+    throw new NotImplementedException();
   }
 
   @Override

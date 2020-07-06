@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -36,7 +37,15 @@ public class CertificateJPARepository implements CertificateRepository {
     CriteriaQuery<Certificate> all = cq.select(rootEntry);
 
     TypedQuery<Certificate> allQuery = entityManager.createQuery(all);
+    allQuery.setFirstResult((page - 1) * size);
+    allQuery.setMaxResults(size);
     return allQuery.getResultList();
+  }
+
+  @Override
+  public long countAll(Specification<Certificate> specification) {
+    Query query = specification.toJPAQuery(entityManager);
+    return query.getResultStream().count();
   }
 
   @Override
@@ -46,11 +55,18 @@ public class CertificateJPARepository implements CertificateRepository {
   }
 
   @Override
-  public List<Certificate> query(Specification<Certificate> specification) {
+  public List<Certificate> query(Specification<Certificate> specification, int page, int size) {
+    Query query = specification.toJPAQuery(entityManager);
+    query.setFirstResult((page - 1) * size);
+    query.setMaxResults(size);
     @SuppressWarnings("unchecked")
-    List<Certificate> resultList =
-        (List<Certificate>) specification.toJPAQuery(entityManager).getResultList();
+    List<Certificate> resultList = (List<Certificate>) query.getResultList();
     return resultList;
+  }
+
+  @Override
+  public List<Certificate> query(Specification<Certificate> specification) {
+    return query(specification,1, 10);
   }
 
   @Override

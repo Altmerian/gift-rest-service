@@ -45,6 +45,17 @@ public interface CertificateService {
   List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy, int page, int size);
 
   /**
+   * Constructs {@link Specification} from given parameters and send it to appropriate repository
+   * method to count total amount of suitable certificates.
+   *
+   * @param tagName tag name for query
+   * @param searchFor part of certificate name or description for query
+   * @param sortBy sorting parameters
+   * @return Overall number of certificates that matched specification
+   */
+  long countAll(String tagName, String searchFor, String sortBy);
+
+  /**
    * Invokes repository method to persist certificate data in the system
    *
    * @param certificateDTO certificate data in transfer format

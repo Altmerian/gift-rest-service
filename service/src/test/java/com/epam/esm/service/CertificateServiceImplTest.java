@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,13 +75,13 @@ public class CertificateServiceImplTest {
   @Test
   public void sendQuery_whenQueryWithParameters_expectedCertificateDTOList() {
     // given
-    when(certificateRepository.query(ArgumentMatchers.any()))
+    when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt()))
         .thenReturn(Collections.singletonList(mockCertificate));
     // when
     List<CertificateDTO> certificateDTOList =
         certificateService.sendQuery("tagName", "searchFor", "sortBy", 1, 20);
     // then
-    verify(certificateRepository).query(ArgumentMatchers.any());
+    verify(certificateRepository).query(ArgumentMatchers.any(), anyInt(), anyInt());
     assertThat(certificateDTOList, hasSize(1));
   }
 

@@ -4,11 +4,11 @@ import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.CertificateService;
+import com.epam.esm.util.ParseHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Positive;
 import java.util.List;
 
 /**
@@ -34,7 +32,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("api/v1/certificates")
-@Validated
 class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -61,12 +58,17 @@ class CertificateRestController {
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
-      @RequestParam(value = "page", defaultValue = "1") @Positive int page,
-      @RequestParam(value = "size", defaultValue = "20") @Positive @Max(100) int size) {
-    if (StringUtils.isBlank(tagName + searchFor)) {
-      return certificateService.getAll(page, size);
+      @RequestParam(value = "page", defaultValue = "1") String page,
+      @RequestParam(value = "size", defaultValue = "20") String size,
+      HttpServletResponse resp) {
+    int intPage = ParseHelper.parsePage(page);
+    int intSize = ParseHelper.parseSize(size);
+    resp.setHeader(
+        "X-Total-Count", String.valueOf(certificateService.countAll(tagName, searchFor, sortBy)));
+    if (StringUtils.isBlank(tagName) && StringUtils.isBlank(searchFor)) {
+      return certificateService.getAll(intPage, intSize);
     }
-    return certificateService.sendQuery(tagName, searchFor, sortBy, page, size);
+    return certificateService.sendQuery(tagName, searchFor, sortBy, intPage, intSize);
   }
 
   /**

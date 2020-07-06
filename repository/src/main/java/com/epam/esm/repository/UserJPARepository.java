@@ -1,7 +1,7 @@
 package com.epam.esm.repository;
 
-import com.epam.esm.entity.Tag;
-import com.epam.esm.specification.NameTagSpecification;
+import com.epam.esm.entity.User;
+import com.epam.esm.specification.EmailUserSpecification;
 import com.epam.esm.specification.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,19 +17,19 @@ import java.util.Optional;
 
 @Repository
 @Transactional
-public class TagJPARepository implements TagRepository {
+public class UserJPARepository implements UserRepository {
 
   @PersistenceContext private EntityManager entityManager;
 
   @Override
-  public List<Tag> getAll(int page, int size) {
+  public List<User> getAll(int page, int size) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Tag> cq = cb.createQuery(Tag.class);
-    Root<Tag> rootEntry = cq.from(Tag.class);
+    CriteriaQuery<User> cq = cb.createQuery(User.class);
+    Root<User> rootEntry = cq.from(User.class);
     cq.orderBy(cb.asc(rootEntry.get("id")));
-    CriteriaQuery<Tag> all = cq.select(rootEntry);
+    CriteriaQuery<User> all = cq.select(rootEntry);
 
-    TypedQuery<Tag> allQuery = entityManager.createQuery(all);
+    TypedQuery<User> allQuery = entityManager.createQuery(all);
     allQuery.setFirstResult((page - 1) * size);
     allQuery.setMaxResults(size);
     return allQuery.getResultList();
@@ -39,37 +39,37 @@ public class TagJPARepository implements TagRepository {
   public long countAll() {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-    cq.select(cb.count(cq.from(Tag.class)));
+    cq.select(cb.count(cq.from(User.class)));
     return entityManager.createQuery(cq).getSingleResult();
   }
 
   @Override
-  public Optional<Tag> get(long id) {
-    Tag tag = entityManager.find(Tag.class, id);
-    return Optional.ofNullable(tag);
+  public Optional<User> get(long id) {
+    User user = entityManager.find(User.class, id);
+    return Optional.ofNullable(user);
   }
 
   @Override
-  public long create(Tag tag) {
-    entityManager.persist(tag);
+  public long create(User user) {
+    entityManager.persist(user);
     entityManager.flush();
-    return tag.getId();
+    return user.getId();
   }
 
   @Override
-  public void delete(Tag tag) {
-    entityManager.remove(tag);
+  public void delete(User user) {
+    entityManager.remove(user);
   }
 
   @Override
-  public List<Tag> query(Specification<Tag> specification) {
+  public List<User> query(Specification<User> specification) {
     @SuppressWarnings("unchecked")
-    TypedQuery<Tag> query = (TypedQuery<Tag>) specification.toJPAQuery(entityManager);
+    TypedQuery<User> query = (TypedQuery<User>) specification.toJPAQuery(entityManager);
     return query.getResultList();
   }
 
   @Override
-  public boolean contains(Tag tag) {
-    return !query(new NameTagSpecification(tag.getName())).isEmpty();
+  public boolean contains(User user) {
+    return !query(new EmailUserSpecification(user.getEmail())).isEmpty();
   }
 }

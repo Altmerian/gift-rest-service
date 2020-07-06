@@ -51,4 +51,10 @@ public interface TagService {
    * @throws ResourceConflictException if tag with given name already exists
    */
   void checkForDuplicate(TagDTO tagDTO) throws ResourceConflictException;
+
+  /**
+   * Counts overall quantity of tags in the system
+   * @return total amount of tags
+   */
+  long countAll();
 }

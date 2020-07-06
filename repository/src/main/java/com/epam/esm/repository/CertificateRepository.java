@@ -54,7 +54,25 @@ public interface CertificateRepository {
    * CertificateSpecification}
    *
    * @param specification certificate specification with necessary parameters
+   * @param page number of page to view
+   * @param size size number of certificates per page
+   * @return list of certificates that match the specification
+   */
+  List<Certificate> query(Specification<Certificate> specification, int page, int size);
+
+  /**
+   * Makes a query for single certificate that matches given criteria through {@code Specification}
+   *
+   * @param specification certificate specification with necessary parameters
    * @return list of certificates that match the specification
    */
   List<Certificate> query(Specification<Certificate> specification);
+
+  /**
+   * Counts overall quantity of certificates witch matches given specification
+   *
+   * @param specification certificate specification with necessary parameters
+   * @return total amount of appropriate certificates
+   */
+  long countAll(Specification<Certificate> specification);
 }

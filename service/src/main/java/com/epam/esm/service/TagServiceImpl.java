@@ -33,6 +33,11 @@ public class TagServiceImpl implements TagService {
   }
 
   @Override
+  public long countAll() {
+    return tagRepository.countAll();
+  }
+
+  @Override
   public TagDTO getById(long id) {
     Tag tag = tagRepository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     return convertToDTO(tag);
