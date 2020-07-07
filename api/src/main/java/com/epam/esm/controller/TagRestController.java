@@ -31,10 +31,12 @@ class TagRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final TagService tagService;
+  private final ParseHelper parseHelper;
 
   @Autowired
-  public TagRestController(TagService tagService) {
+  public TagRestController(TagService tagService, ParseHelper parseHelper) {
     this.tagService = tagService;
+    this.parseHelper = parseHelper;
   }
 
   /**
@@ -44,12 +46,12 @@ class TagRestController {
    */
   @GetMapping("/")
   public List<TagDTO> getAll(
-      @RequestParam(value = "page", defaultValue = "1") String page,
-      @RequestParam(value = "size", defaultValue = "20") String size,
+      @RequestParam(value = "page", required = false) String page,
+      @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
     resp.setHeader("X-Total-Count", String.valueOf(tagService.countAll()));
-    int intPage = ParseHelper.parsePage(page);
-    int intSize = ParseHelper.parseSize(size);
+    int intPage = parseHelper.parsePage(page);
+    int intSize = parseHelper.parseSize(size);
     return tagService.getAll(intPage, intSize);
   }
 

@@ -36,10 +36,12 @@ class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final CertificateService certificateService;
+  private final ParseHelper parseHelper;
 
   @Autowired
-  public CertificateRestController(CertificateService certificateService) {
+  public CertificateRestController(CertificateService certificateService, ParseHelper parseHelper) {
     this.certificateService = certificateService;
+    this.parseHelper = parseHelper;
   }
 
   /**
@@ -58,11 +60,11 @@ class CertificateRestController {
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
-      @RequestParam(value = "page", defaultValue = "1") String page,
-      @RequestParam(value = "size", defaultValue = "20") String size,
+      @RequestParam(value = "page", required = false) String page,
+      @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
-    int intPage = ParseHelper.parsePage(page);
-    int intSize = ParseHelper.parseSize(size);
+    int intPage = parseHelper.parsePage(page);
+    int intSize = parseHelper.parseSize(size);
     resp.setHeader(
         "X-Total-Count", String.valueOf(certificateService.countAll(tagName, searchFor, sortBy)));
     if (StringUtils.isBlank(tagName) && StringUtils.isBlank(searchFor)) {

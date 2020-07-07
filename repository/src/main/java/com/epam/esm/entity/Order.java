@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,6 +25,8 @@ public class Order {
   private Long id;
 
   private BigDecimal cost;
+
+  @Column(columnDefinition = "timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP", insertable = false)
   private ZonedDateTime creationDate;
 
   @ManyToOne

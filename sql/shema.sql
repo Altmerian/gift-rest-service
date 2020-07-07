@@ -52,7 +52,7 @@ CREATE TABLE certificates_tags
 );
 
 CREATE TYPE user_role AS ENUM
-    ('guest', 'user', 'administrator');
+    ('GUEST', 'USER', 'ADMIN');
 
 CREATE TABLE users
 (
@@ -61,7 +61,7 @@ CREATE TABLE users
     password   character varying(32) NOT NULL,
     first_name character varying(32),
     last_name  character varying(32),
-    user_role  user_role             NOT NULL DEFAULT 'user'::user_role,
+    user_role  user_role             NOT NULL DEFAULT 'USER'::user_role,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT users_email UNIQUE (email)
 );

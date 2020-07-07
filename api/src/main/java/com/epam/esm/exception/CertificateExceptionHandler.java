@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -58,7 +59,7 @@ public class CertificateExceptionHandler {
     return createErrorResponse(exception, HttpStatus.CONFLICT);
   }
 
-  @ExceptionHandler(NoHandlerFoundException.class)
+  @ExceptionHandler({NoHandlerFoundException.class, RequestRejectedException.class})
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public ErrorResponse handleException(NoHandlerFoundException exception) {
     LOGGER.error(exception);

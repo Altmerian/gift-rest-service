@@ -1,20 +1,35 @@
 package com.epam.esm.util;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
 public class ParseHelper {
-  public static int parsePage(String page) {
-    try{
-      return Integer.parseUnsignedInt(page);
+
+  @Value("${spring.data.rest.default-page-size}")
+  private int defaultPageSize;
+
+  @Value("${spring.data.rest.max-page-size}")
+  private int maxPageSize;
+
+  private static final int DEFAULT_START_PAGE_NUMBER = 1;
+
+
+  public int parsePage(String page) {
+    try {
+      int pageNumber = Integer.parseUnsignedInt(page);
+      return pageNumber != 0 ? pageNumber : DEFAULT_START_PAGE_NUMBER;
     } catch (NumberFormatException exception) {
-      return 1;
+      return DEFAULT_START_PAGE_NUMBER;
     }
   }
 
-  public static int parseSize(String size) {
-    try{
+  public int parseSize(String size) {
+    try {
       int pageSize = Integer.parseUnsignedInt(size);
-      return Math.min(pageSize, 100);
+      return Math.min(pageSize, maxPageSize);
     } catch (NumberFormatException exception) {
-      return 20;
+      return defaultPageSize;
     }
   }
 }

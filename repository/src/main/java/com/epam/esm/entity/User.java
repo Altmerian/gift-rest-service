@@ -1,5 +1,6 @@
 package com.epam.esm.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -26,6 +27,7 @@ public class User {
   private String lastName;
 
   @Enumerated(EnumType.STRING)
+  @Column(insertable = false)
   private UserRole userRole;
 
   @OneToMany(mappedBy = "user")

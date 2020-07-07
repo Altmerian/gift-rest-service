@@ -2,6 +2,7 @@ package com.epam.esm.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Digits;
@@ -17,8 +18,10 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CertificateDTO {
 
+  @JsonView(View.Public.class)
   private Long id;
 
+  @JsonView(View.ExtendedPublic.class)
   @NotBlank(message = "Certificate name cannot be empty.")
   @Size(max = 64, message = "Certificate name mustn't be longer than 64 characters.")
   private String name;
@@ -26,14 +29,17 @@ public class CertificateDTO {
   @Size(max = 128, message = "Description mustn't be longer than 128 characters.")
   private String description;
 
+  @JsonView(View.Public.class)
   @Digits(integer = 14, fraction = 2)
   @Positive(message = "Certificate price must be positive.")
   private BigDecimal price;
 
+  @JsonView(View.ExtendedPublic.class)
   private ZonedDateTime creationDate;
 
   private ZonedDateTime modificationDate;
 
+  @JsonView(View.ExtendedPublic.class)
   @Positive(message = "Duration in days must be positive.")
   private int durationInDays;
 
