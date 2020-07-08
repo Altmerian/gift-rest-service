@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
@@ -31,6 +31,7 @@ class TagRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final TagService tagService;
+
   private final ParseHelper parseHelper;
 
   @Autowired
@@ -44,7 +45,7 @@ class TagRestController {
    *
    * @return response with body filled by requested data.
    */
-  @GetMapping("/")
+  @GetMapping
   public List<TagDTO> getAll(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
@@ -71,17 +72,19 @@ class TagRestController {
    * persisted in the system
    *
    * @param tagDTO tag data in a certain format for transfer
-   * @param req HTTP request
    * @param resp HTTP response
    * @throws ResourceConflictException if tag with given name already exists
    */
-  @PostMapping("/")
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(
-      @Valid @RequestBody TagDTO tagDTO, HttpServletRequest req, HttpServletResponse resp) {
+  public void create(@Valid @RequestBody TagDTO tagDTO, HttpServletResponse resp) {
     long tagId = tagService.create(tagDTO);
-    String url = req.getRequestURL().toString();
-    resp.setHeader("Location", url + tagId);
+    String location =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(tagId)
+            .toUriString();
+    resp.setHeader("Location", location);
   }
 
   /**

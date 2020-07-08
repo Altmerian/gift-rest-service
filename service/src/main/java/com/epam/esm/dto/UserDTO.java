@@ -3,6 +3,7 @@ package com.epam.esm.dto;
 import com.epam.esm.entity.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
@@ -13,18 +14,24 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
 
+  @JsonView(View.ExtendedPublic.class)
   private Long id;
 
   @Email(regexp = "\\w{2,40}@\\w{2,20}\\.\\w{2,4}")
   @NotBlank(message = "Email cannot be empty")
+  @JsonView(View.Internal.class)
   private String email;
 
   @Length(min = 6, max = 64, message = "Password length must be between 6 and 64")
   private String password;
 
+  @JsonView(View.Internal.class)
   private String firstName;
+
+  @JsonView(View.Internal.class)
   private String lastName;
 
+  @JsonView(View.Internal.class)
   private String UserRole;
 
   @JsonIgnore private Set<Order> orders;

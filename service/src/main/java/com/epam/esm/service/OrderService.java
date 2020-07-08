@@ -1,14 +1,15 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.repository.OrderRepository;
 
 import java.util.List;
 
 /**
  * Represents an interface of service which interacts with the underlying repository layer for
- * order-related actions. An instance of order repository {@link OrderRepository} should be aggregated
- * during implementation.
+ * order-related actions. An instance of order repository {@link OrderRepository} should be
+ * aggregated during implementation.
  */
 public interface OrderService {
 
@@ -32,15 +33,21 @@ public interface OrderService {
   List<OrderDTO> getByUserId(long userId, int page, int size);
 
   /**
+   * Gets order data with given id from the repository layer.
+   *
+   * @return order with given id in certain transfer format
+   */
+  OrderDTO getById(long orderId);
+
+  /**
    * Gets data of user's order with given id from the repository layer.
    *
    * @return order with given id in certain transfer format
    */
-  OrderDTO getById(long userId, long id);
+  OrderDTO getByUserIdAndOrderId(long userId, long id);
 
   /**
    * Invokes repository method to persist user's order data in the system
-   *
    *
    * @param userId user id
    * @param orderDTO order data in transfer format
@@ -58,14 +65,23 @@ public interface OrderService {
 
   /**
    * Counts all orders in the system
+   *
    * @return total amount of orders
    */
   long countAll();
 
   /**
    * Counts overall quantity of orders of the particular user in the system
+   *
    * @return total amount of orders
    * @param userId user id
    */
   long countAll(long userId);
+
+  /**
+   * Gets data about the most widely used tag of a user with the highest cost of all orders
+   *
+   * @return List of widely used tags
+   */
+  List<TagDTO> getTagsOfUserWithValuableOrders();
 }

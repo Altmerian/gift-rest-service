@@ -21,7 +21,7 @@ public class CertificateDTO {
   @JsonView(View.Public.class)
   private Long id;
 
-  @JsonView(View.ExtendedPublic.class)
+  @JsonView(View.Public.class)
   @NotBlank(message = "Certificate name cannot be empty.")
   @Size(max = 64, message = "Certificate name mustn't be longer than 64 characters.")
   private String name;

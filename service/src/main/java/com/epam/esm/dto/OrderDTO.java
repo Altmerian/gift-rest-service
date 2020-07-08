@@ -1,7 +1,5 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -20,8 +18,8 @@ public class OrderDTO {
 
   private ZonedDateTime creationDate;
 
-  @JsonIgnore
-  private User user;
+  @JsonView(View.ExtendedPublic.class)
+  private UserDTO user;
 
   private List<CertificateDTO> certificates;
 
@@ -49,11 +47,11 @@ public class OrderDTO {
     this.creationDate = creationDate;
   }
 
-  public User getUser() {
+  public UserDTO getUser() {
     return user;
   }
 
-  public void setUser(User user) {
+  public void setUser(UserDTO user) {
     this.user = user;
   }
 

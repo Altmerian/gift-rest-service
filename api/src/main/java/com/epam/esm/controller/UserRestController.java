@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,7 +53,8 @@ class UserRestController {
    *
    * @return response with body filled by requested data.
    */
-  @GetMapping("/")
+  @GetMapping
+  @JsonView(View.Internal.class)
   public List<UserDTO> getAllUsers(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
@@ -70,6 +72,7 @@ class UserRestController {
    * @return response with payload filled by data of the searched user
    */
   @GetMapping("/{userId:\\d+}")
+  @JsonView(View.Internal.class)
   public UserDTO getUserById(@PathVariable long userId) {
     return userService.getById(userId);
   }
@@ -101,8 +104,8 @@ class UserRestController {
    */
   @GetMapping("/{userId:\\d+}/orders/{orderId:\\d+}")
   @JsonView(View.ExtendedPublic.class)
-  public OrderDTO getOrderById(@PathVariable long userId, @PathVariable long orderId) {
-    return orderService.getById(userId, orderId);
+  public OrderDTO getUserOrderById(@PathVariable long userId, @PathVariable long orderId) {
+    return orderService.getByUserIdAndOrderId(userId, orderId);
   }
 
   /**
@@ -110,17 +113,19 @@ class UserRestController {
    * persisted in the system
    *
    * @param userDTO user data in a certain format for transfer
-   * @param req HTTP request
    * @param resp HTTP response
    * @throws ResourceConflictException if user with given name already exists
    */
-  @PostMapping("/")
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void createUser(
-      @Valid @RequestBody UserDTO userDTO, HttpServletRequest req, HttpServletResponse resp) {
+  public void createUser(@Valid @RequestBody UserDTO userDTO, HttpServletResponse resp) {
     long userId = userService.create(userDTO);
-    String url = req.getRequestURL().toString();
-    resp.setHeader("Location", url + userId);
+    String location =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(userId)
+            .toUriString();
+    resp.setHeader("Location", location);
   }
 
   /**

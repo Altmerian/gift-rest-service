@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
@@ -36,6 +36,7 @@ class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final CertificateService certificateService;
+
   private final ParseHelper parseHelper;
 
   @Autowired
@@ -89,20 +90,20 @@ class CertificateRestController {
    * persisted in the system
    *
    * @param certificateDTO certificate data in a certain format for transfer
-   * @param req HTTP request
    * @param resp HTTP response
    * @throws ResourceConflictException if certificate with given name, price, duration and set of
    *     tags already exists
    */
-  @PostMapping("/")
+  @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(
-      @Valid @RequestBody CertificateDTO certificateDTO,
-      HttpServletRequest req,
-      HttpServletResponse resp) {
+  public void create(@Valid @RequestBody CertificateDTO certificateDTO, HttpServletResponse resp) {
     long certificateId = certificateService.create(certificateDTO);
-    String url = req.getRequestURL().toString();
-    resp.setHeader(HttpHeaders.LOCATION, url + certificateId);
+    String location =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(certificateId)
+            .toUriString();
+    resp.setHeader(HttpHeaders.LOCATION, location);
   }
 
   /**

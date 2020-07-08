@@ -2,14 +2,20 @@ package com.epam.esm.service;
 
 import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Order;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
+import com.epam.esm.exception.MinorResourceNotFoundException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.OrderRepository;
+import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.UserRepository;
+import com.epam.esm.specification.UserIdOrderIdSpecification;
 import com.epam.esm.specification.UserIdOrderSpecification;
+import com.epam.esm.specification.UserWithValuableOrdersTagSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
   private final UserRepository userRepository;
   private final OrderRepository orderRepository;
   private final CertificateRepository certificateRepository;
+  private final TagRepository tagRepository;
   private final ModelMapper modelMapper;
 
   @Autowired
@@ -32,10 +39,12 @@ public class OrderServiceImpl implements OrderService {
       UserRepository userRepository,
       OrderRepository orderRepository,
       @Qualifier("certificateJPARepository") CertificateRepository certificateRepository,
+      @Qualifier("tagJPARepository") TagRepository tagRepository,
       ModelMapper modelMapper) {
     this.userRepository = userRepository;
     this.orderRepository = orderRepository;
     this.certificateRepository = certificateRepository;
+    this.tagRepository = tagRepository;
     this.modelMapper = modelMapper;
   }
 
@@ -44,6 +53,11 @@ public class OrderServiceImpl implements OrderService {
     return orderRepository.getAll(page, size).stream()
         .map(this::convertToDTO)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public long countAll() {
+    return orderRepository.countAll();
   }
 
   @Override
@@ -56,25 +70,42 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public long countAll() {
-    return orderRepository.countAll();
-  }
-
-  @Override
   public long countAll(long userId) {
     return orderRepository.countAll(userId);
   }
 
   @Override
-  public OrderDTO getById(long userId, long id) {
-    checkUserId(userId);
-    Order order = orderRepository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+  public OrderDTO getById(long orderId) {
+    Order order =
+        orderRepository.get(orderId).orElseThrow(() -> new ResourceNotFoundException(orderId));
     return convertToDTO(order);
   }
 
   @Override
+  public OrderDTO getByUserIdAndOrderId(long userId, long orderId) {
+    checkUserId(userId);
+    UserIdOrderIdSpecification specification = new UserIdOrderIdSpecification(userId, orderId);
+    return convertToDTO(
+        orderRepository.query(specification).stream()
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new ResourceNotFoundException(
+                        String.format(
+                            "User with id=%d don't have an order with id=%d", userId, orderId))));
+  }
+
+  @Override
+  public List<TagDTO> getTagsOfUserWithValuableOrders() {
+    UserWithValuableOrdersTagSpecification specification =
+        new UserWithValuableOrdersTagSpecification();
+    List<Tag> tags = tagRepository.query(specification);
+    return tags.stream().map(this::convertTagToDTO).collect(Collectors.toList());
+  }
+
+  @Override
   public long create(long userId, OrderDTO orderDTO) {
-    User user = userRepository.get(userId).orElseThrow(() -> new ResourceNotFoundException(userId));
+    User user = checkUserId(userId);
     Order order = convertToEntity(orderDTO);
     order.setUser(user);
     order.setCertificates(fetchCertificatesData(orderDTO.getCertificates()));
@@ -89,8 +120,8 @@ public class OrderServiceImpl implements OrderService {
     orderRepository.delete(order);
   }
 
-  private void checkUserId(long userId) {
-    userRepository
+  private User checkUserId(long userId) {
+    return userRepository
         .get(userId)
         .orElseThrow(
             () ->
@@ -104,7 +135,10 @@ public class OrderServiceImpl implements OrderService {
             certificate ->
                 certificateRepository
                     .get(certificate.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException(certificate.getId())))
+                    .orElseThrow(
+                        () ->
+                            new MinorResourceNotFoundException(
+                                Certificate.class, certificate.getId())))
         .collect(Collectors.toList());
   }
 
@@ -114,11 +148,15 @@ public class OrderServiceImpl implements OrderService {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
-  OrderDTO convertToDTO(Order order) {
+  private OrderDTO convertToDTO(Order order) {
     return modelMapper.map(order, OrderDTO.class);
   }
 
-  Order convertToEntity(OrderDTO orderDTO) {
+  private Order convertToEntity(OrderDTO orderDTO) {
     return modelMapper.map(orderDTO, Order.class);
+  }
+
+  private TagDTO convertTagToDTO(Tag tag) {
+    return modelMapper.map(tag, TagDTO.class);
   }
 }

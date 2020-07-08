@@ -5,7 +5,6 @@ import com.epam.esm.entity.User;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.UserRepository;
-import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,12 +67,11 @@ public class UserServiceImpl implements UserService {
     }
   }
 
-  UserDTO convertToDTO(User user) {
+  private UserDTO convertToDTO(User user) {
     return modelMapper.map(user, UserDTO.class);
   }
 
-  @VisibleForTesting
-  User convertToEntity(UserDTO userDTO) {
+  private User convertToEntity(UserDTO userDTO) {
     return modelMapper.map(userDTO, User.class);
   }
 }
