@@ -15,7 +15,7 @@ import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.UserRepository;
 import com.epam.esm.specification.UserIdOrderIdSpecification;
 import com.epam.esm.specification.UserIdOrderSpecification;
-import com.epam.esm.specification.UserWithValuableOrdersTagSpecification;
+import com.epam.esm.specification.ValuableUserTagsSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -96,9 +96,10 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public List<TagDTO> getTagsOfUserWithValuableOrders() {
-    UserWithValuableOrdersTagSpecification specification =
-        new UserWithValuableOrdersTagSpecification();
+  public List<TagDTO> getWidelyUsedTagsOfUser(long userId) {
+    checkUserId(userId);
+    ValuableUserTagsSpecification specification =
+        new ValuableUserTagsSpecification(userId);
     List<Tag> tags = tagRepository.query(specification);
     return tags.stream().map(this::convertTagToDTO).collect(Collectors.toList());
   }

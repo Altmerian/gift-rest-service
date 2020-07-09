@@ -18,7 +18,7 @@ import java.io.IOException;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class LogAndSuppressRequestRejectedExceptionFilter extends GenericFilterBean {
+public class StatusChangedRequestRejectedExceptionFilter extends GenericFilterBean {
   private static final Logger LOGGER = LogManager.getLogger();
 
   @Override

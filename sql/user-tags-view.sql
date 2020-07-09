@@ -5,10 +5,8 @@ FROM orders o
          JOIN certificates_tags ct ON oc.certificate_id = ct.certificate_id
          JOIN tags t ON t.id = ct.tag_id
 WHERE o.user_id = (SELECT user_id
-                   FROM (SELECT user_id, MAX(overal_cost)
-                         FROM (SELECT user_id, SUM(cost) AS overal_cost
-                               FROM orders
-                               GROUP BY user_id) orders
+                   FROM (SELECT user_id, SUM(cost)
+                         FROM orders
                          GROUP BY user_id
                          ORDER BY 2 DESC
                          LIMIT 1

@@ -1,6 +1,7 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.View;
 import com.epam.esm.exception.ResourceConflictException;
@@ -31,7 +32,7 @@ import java.util.List;
  * are handled with the appropriate method.
  */
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("/api/v1/users")
 class UserRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -106,6 +107,17 @@ class UserRestController {
   @JsonView(View.ExtendedPublic.class)
   public OrderDTO getUserOrderById(@PathVariable long userId, @PathVariable long orderId) {
     return orderService.getByUserIdAndOrderId(userId, orderId);
+  }
+
+  /**
+   * Handles requests to get data about the most widely used tag of a user with the highest cost of
+   * all orders
+   *
+   * @return response with payload filled by data of the searched order
+   */
+  @GetMapping("/{userId:\\d+}/tags")
+  public List<TagDTO> getWidelyUsedTagsOfUser(@PathVariable long userId) {
+    return orderService.getWidelyUsedTagsOfUser(userId);
   }
 
   /**

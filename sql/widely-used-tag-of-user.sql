@@ -1,3 +1,5 @@
+EXPLAIN ANALYZE
 SELECT id, name
-FROM user_tags
-WHERE tag_count = (SELECT MAX(tag_count) FROM user_tags)
+FROM user_tags_function(1)
+WHERE tag_cost = (SELECT MAX(tag_cost) FROM user_tags_function(1));
+

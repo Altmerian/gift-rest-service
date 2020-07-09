@@ -5,7 +5,10 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.ParseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,20 +16,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Controller to handle all tags related requests. Then requests depending on requests parameters
  * are handled with the appropriate method.
  */
 @RestController
-@RequestMapping("api/v1/tags")
+@RequestMapping("/api/v1/tags")
 class TagRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -46,14 +52,17 @@ class TagRestController {
    * @return response with body filled by requested data.
    */
   @GetMapping
-  public List<TagDTO> getAll(
+  public CollectionModel<TagDTO> getAll(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
     resp.setHeader("X-Total-Count", String.valueOf(tagService.countAll()));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
-    return tagService.getAll(intPage, intSize);
+    List<TagDTO> tags = tagService.getAll(intPage, intSize);
+    tags.forEach(tag -> tag.add(linkTo(methodOn(TagRestController.class).getById(tag.getId(), resp)).withRel("delete")));
+    Link createTagLink = linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel("create tag");
+    return CollectionModel.of(tags, createTagLink);
   }
 
   /**
@@ -63,8 +72,11 @@ class TagRestController {
    * @return response with payload filled by data of the searched tag
    */
   @GetMapping("/{id:\\d+}")
-  public TagDTO getById(@PathVariable long id) {
-    return tagService.getById(id);
+  public RepresentationModel<TagDTO> getById(@PathVariable long id, HttpServletResponse resp) {
+    TagDTO tagDTO = tagService.getById(id);
+    tagDTO.add(linkTo(methodOn(TagRestController.class).delete(id)).withRel("delete"));
+    tagDTO.add(linkTo(methodOn(TagRestController.class).getAll("1", "20", resp)).withRel("get all"));
+    return tagDTO;
   }
 
   /**
@@ -72,19 +84,16 @@ class TagRestController {
    * persisted in the system
    *
    * @param tagDTO tag data in a certain format for transfer
-   * @param resp HTTP response
    * @throws ResourceConflictException if tag with given name already exists
    */
   @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public void create(@Valid @RequestBody TagDTO tagDTO, HttpServletResponse resp) {
+  public ResponseEntity<?> create(@Valid @RequestBody TagDTO tagDTO) {
     long tagId = tagService.create(tagDTO);
-    String location =
-        ServletUriComponentsBuilder.fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(tagId)
-            .toUriString();
-    resp.setHeader("Location", location);
+    URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+        .path("/{id}")
+        .buildAndExpand(tagId)
+        .toUri();
+    return ResponseEntity.created(uri).build();
   }
 
   /**
@@ -94,8 +103,8 @@ class TagRestController {
    * @param id certificate id
    */
   @DeleteMapping("/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable("id") long id) {
+  public ResponseEntity<?> delete(@PathVariable("id") long id) {
     tagService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

@@ -2,13 +2,16 @@ package com.epam.esm.dto;
 
 import com.epam.esm.validation.NullOrNotEmptyConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.Relation;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 
 /** Data transfer object representing a tag */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TagDTO {
+@Relation(collectionRelation = "tags")
+public class TagDTO extends RepresentationModel<TagDTO> {
 
   @Positive(message = "Tag id must be positive integer.")
   private Long id;

@@ -82,6 +82,7 @@ public interface OrderService {
    * Gets data about the most widely used tag of a user with the highest cost of all orders
    *
    * @return List of widely used tags
+   * @param userId user id
    */
-  List<TagDTO> getTagsOfUserWithValuableOrders();
+  List<TagDTO> getWidelyUsedTagsOfUser(long userId);
 }

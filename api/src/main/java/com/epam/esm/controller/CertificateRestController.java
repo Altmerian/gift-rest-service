@@ -31,7 +31,7 @@ import java.util.List;
  * parameters are handled with the appropriate method.
  */
 @RestController
-@RequestMapping("api/v1/certificates")
+@RequestMapping("/api/v1/certificates")
 class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */

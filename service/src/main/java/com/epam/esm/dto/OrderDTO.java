@@ -2,6 +2,7 @@ package com.epam.esm.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -10,7 +11,7 @@ import java.util.List;
 /** Data transfer object representing a user */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonView(View.Public.class)
-public class OrderDTO {
+public class OrderDTO extends RepresentationModel<OrderDTO> {
 
   private Long id;
 
