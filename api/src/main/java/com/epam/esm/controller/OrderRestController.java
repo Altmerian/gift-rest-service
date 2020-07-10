@@ -23,7 +23,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping("/api/v1/orders")
-class OrderRestController {
+public class OrderRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final OrderService orderService;

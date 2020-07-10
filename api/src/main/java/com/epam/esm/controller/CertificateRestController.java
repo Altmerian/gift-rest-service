@@ -1,14 +1,16 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.CertificateListDTO;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.CertificateService;
+import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.ParseHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,7 +26,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Controller to handle all certificate related requests. Then requests depending on requests
@@ -32,7 +38,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/certificates")
-class CertificateRestController {
+public class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final CertificateService certificateService;
@@ -57,7 +63,7 @@ class CertificateRestController {
    *     "../certificates/id" request.
    */
   @GetMapping
-  public List<CertificateDTO> getAll(
+  public CertificateListDTO getAll(
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
@@ -68,10 +74,18 @@ class CertificateRestController {
     int intSize = parseHelper.parseSize(size);
     resp.setHeader(
         "X-Total-Count", String.valueOf(certificateService.countAll(tagName, searchFor, sortBy)));
+    List<CertificateDTO> certificates;
     if (StringUtils.isBlank(tagName) && StringUtils.isBlank(searchFor)) {
-      return certificateService.getAll(intPage, intSize);
+      certificates = certificateService.getAll(intPage, intSize);
+    } else {
+      certificates = certificateService.sendQuery(tagName, searchFor, sortBy, intPage, intSize);
     }
-    return certificateService.sendQuery(tagName, searchFor, sortBy, intPage, intSize);
+    certificates.forEach(
+        certificateDTO -> ModelAssembler.addCertificateSelfLink(certificateDTO, resp));
+    CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
+    return certificateListDTO.add(
+        linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO(), resp))
+            .withRel("create"));
   }
 
   /**
@@ -81,8 +95,10 @@ class CertificateRestController {
    * @return response with payload filled by data of the searched certificate
    */
   @GetMapping("/{id:\\d+}")
-  public CertificateDTO getById(@PathVariable long id) {
-    return certificateService.getById(id);
+  public CertificateDTO getById(@PathVariable long id, HttpServletResponse resp) {
+    CertificateDTO certificateDTO = certificateService.getById(id);
+    ModelAssembler.addCertificateLinks(certificateDTO, resp);
+    return certificateDTO;
   }
 
   /**
@@ -96,14 +112,15 @@ class CertificateRestController {
    */
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public void create(@Valid @RequestBody CertificateDTO certificateDTO, HttpServletResponse resp) {
+  public ResponseEntity<?> create(
+      @Valid @RequestBody CertificateDTO certificateDTO, HttpServletResponse resp) {
     long certificateId = certificateService.create(certificateDTO);
-    String location =
+    URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
             .buildAndExpand(certificateId)
-            .toUriString();
-    resp.setHeader(HttpHeaders.LOCATION, location);
+            .toUri();
+    return ResponseEntity.created(location).build();
   }
 
   /**
@@ -117,9 +134,10 @@ class CertificateRestController {
    */
   @PutMapping(value = "/{id:\\d+}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void update(
+  public ResponseEntity<?> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
+    return ResponseEntity.noContent().build();
   }
 
   /**
@@ -134,9 +152,10 @@ class CertificateRestController {
    */
   @PatchMapping(value = "/{id:\\d+}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void patch(
+  public ResponseEntity<?> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
+    return ResponseEntity.noContent().build();
   }
 
   /**
@@ -146,8 +165,8 @@ class CertificateRestController {
    * @param id certificate id
    */
   @DeleteMapping(value = "/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable("id") long id) {
+  public ResponseEntity<?> delete(@PathVariable("id") long id) {
     certificateService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

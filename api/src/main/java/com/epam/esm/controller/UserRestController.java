@@ -33,7 +33,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/users")
-class UserRestController {
+public class UserRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final UserService userService;

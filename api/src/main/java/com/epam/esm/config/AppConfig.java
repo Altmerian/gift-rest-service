@@ -2,7 +2,6 @@ package com.epam.esm.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -13,6 +12,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter {
   public void configure(WebSecurity webSecurity) throws Exception {
     webSecurity.ignoring().antMatchers("/**");
   }
+
 //  @Bean
 //  public Jackson2ObjectMapperBuilderCustomizer jsonCustomizer() {
 //    String dateTimeFormat = "yyyy-MM-dd hh:mm:ss XXX";

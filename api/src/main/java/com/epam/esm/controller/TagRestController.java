@@ -1,13 +1,12 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.dto.TagListDTO;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.TagService;
+import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.ParseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +32,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  */
 @RestController
 @RequestMapping("/api/v1/tags")
-class TagRestController {
+public class TagRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final TagService tagService;
@@ -52,7 +51,7 @@ class TagRestController {
    * @return response with body filled by requested data.
    */
   @GetMapping
-  public CollectionModel<TagDTO> getAll(
+  public TagListDTO getAll(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
@@ -60,9 +59,11 @@ class TagRestController {
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
     List<TagDTO> tags = tagService.getAll(intPage, intSize);
-    tags.forEach(tag -> tag.add(linkTo(methodOn(TagRestController.class).getById(tag.getId(), resp)).withRel("delete")));
-    Link createTagLink = linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel("create tag");
-    return CollectionModel.of(tags, createTagLink);
+    tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
+    TagListDTO tagListDTO = new TagListDTO(tags);
+    tagListDTO.add(
+        linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel("create"));
+    return tagListDTO;
   }
 
   /**
@@ -72,10 +73,10 @@ class TagRestController {
    * @return response with payload filled by data of the searched tag
    */
   @GetMapping("/{id:\\d+}")
-  public RepresentationModel<TagDTO> getById(@PathVariable long id, HttpServletResponse resp) {
+  public TagDTO getById(@PathVariable long id, HttpServletResponse resp) {
     TagDTO tagDTO = tagService.getById(id);
-    tagDTO.add(linkTo(methodOn(TagRestController.class).delete(id)).withRel("delete"));
-    tagDTO.add(linkTo(methodOn(TagRestController.class).getAll("1", "20", resp)).withRel("get all"));
+    ModelAssembler.addTagLinks(tagDTO, resp);
+    tagDTO.add(linkTo(methodOn(TagRestController.class).getAll("1", "10", resp)).withRel("getAll"));
     return tagDTO;
   }
 
@@ -89,10 +90,11 @@ class TagRestController {
   @PostMapping
   public ResponseEntity<?> create(@Valid @RequestBody TagDTO tagDTO) {
     long tagId = tagService.create(tagDTO);
-    URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(tagId)
-        .toUri();
+    URI uri =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(tagId)
+            .toUri();
     return ResponseEntity.created(uri).build();
   }
 
