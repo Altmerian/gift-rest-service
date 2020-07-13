@@ -98,8 +98,7 @@ public class OrderServiceImpl implements OrderService {
   @Override
   public List<TagDTO> getWidelyUsedTagsOfUser(long userId) {
     checkUserId(userId);
-    ValuableUserTagsSpecification specification =
-        new ValuableUserTagsSpecification(userId);
+    ValuableUserTagsSpecification specification = new ValuableUserTagsSpecification(userId);
     List<Tag> tags = tagRepository.query(specification);
     return tags.stream().map(this::convertTagToDTO).collect(Collectors.toList());
   }
@@ -129,6 +128,7 @@ public class OrderServiceImpl implements OrderService {
   private User checkUserId(long userId) {
     return userRepository
         .get(userId)
+        .filter(user -> !user.isDeleted())
         .orElseThrow(
             () ->
                 new ResourceNotFoundException(
@@ -138,13 +138,14 @@ public class OrderServiceImpl implements OrderService {
   private List<Certificate> fetchCertificatesData(List<CertificateDTO> certificates) {
     return certificates.stream()
         .map(
-            certificate ->
+            certificateDTO ->
                 certificateRepository
-                    .get(certificate.getId())
+                    .get(certificateDTO.getId())
+                    .filter(certificate -> !certificate.isDeleted())
                     .orElseThrow(
                         () ->
                             new MinorResourceNotFoundException(
-                                Certificate.class, certificate.getId())))
+                                Certificate.class, certificateDTO.getId())))
         .collect(Collectors.toList());
   }
 

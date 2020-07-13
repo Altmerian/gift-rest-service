@@ -82,19 +82,22 @@ public class ModelAssembler {
 
   public static void addUserSelfLink(UserDTO userDTO, HttpServletResponse resp) {
     userDTO.add(
-        linkTo(methodOn(UserRestController.class).getUserById(userDTO.getId(), resp)).withSelfRel());
+        linkTo(methodOn(UserRestController.class).getUserById(userDTO.getId(), resp))
+            .withSelfRel());
   }
 
   public static void addUserLinks(UserDTO userDTO, HttpServletResponse resp) {
     addUserSelfLink(userDTO, resp);
+    if (!userDTO.isDeleted()) {
+      userDTO.add(
+          linkTo(methodOn(UserRestController.class).deleteUser(userDTO.getId())).withRel("delete"));
+    }
     userDTO.add(
-        linkTo(methodOn(UserRestController.class).deleteUser(userDTO.getId())).withRel("delete"));
-    userDTO.add(
-        linkTo(methodOn(UserRestController.class).getAllUsers("1", "10", resp))
-            .withRel("getAll"));
+        linkTo(methodOn(UserRestController.class).getAllUsers("1", "10", resp)).withRel("getAll"));
   }
 
-  public static void addUsersOrderSelfLink(long userId, OrderDTO orderDTO, HttpServletResponse resp) {
+  public static void addUsersOrderSelfLink(
+      long userId, OrderDTO orderDTO, HttpServletResponse resp) {
     orderDTO.add(
         linkTo(methodOn(UserRestController.class).getUserOrderById(userId, orderDTO.getId(), resp))
             .withSelfRel());
@@ -106,8 +109,11 @@ public class ModelAssembler {
 
   public static void addUsersOrderLinks(long userId, OrderDTO orderDTO, HttpServletResponse resp) {
     addUsersOrderSelfLink(userId, orderDTO, resp);
-    orderDTO.add(
-        linkTo(methodOn(UserRestController.class).deleteOrder(userId, orderDTO.getId())).withRel("delete"));
+    if (!orderDTO.isDeleted()) {
+      orderDTO.add(
+          linkTo(methodOn(UserRestController.class).deleteOrder(userId, orderDTO.getId()))
+              .withRel("delete"));
+    }
     orderDTO.add(
         linkTo(methodOn(UserRestController.class).getUserOrders(userId, "1", "10", resp))
             .withRel("getAll"));

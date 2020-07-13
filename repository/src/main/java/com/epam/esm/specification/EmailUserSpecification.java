@@ -32,7 +32,8 @@ public class EmailUserSpecification implements Specification<User> {
     CriteriaQuery<User> cq = cb.createQuery(User.class);
     Root<User> user = cq.from(User.class);
     Predicate predicate = cb.equal(user.get("email"), email);
-    cq.where(predicate);
+    Predicate predicate1 = cb.notEqual(user.get("deleted"), true);
+    cq.where(cb.and(predicate, predicate1));
     return entityManager.createQuery(cq);
   }
 }

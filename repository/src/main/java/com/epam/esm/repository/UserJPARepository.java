@@ -28,6 +28,7 @@ public class UserJPARepository implements UserRepository {
     Root<User> rootEntry = cq.from(User.class);
     cq.orderBy(cb.asc(rootEntry.get("id")));
     CriteriaQuery<User> all = cq.select(rootEntry);
+    cq.where(cb.notEqual(rootEntry.get("deleted"), true));
 
     TypedQuery<User> allQuery = entityManager.createQuery(all);
     allQuery.setFirstResult((page - 1) * size);
@@ -39,7 +40,9 @@ public class UserJPARepository implements UserRepository {
   public long countAll() {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-    cq.select(cb.count(cq.from(User.class)));
+    Root<User> user = cq.from(User.class);
+    cq.select(cb.count(user));
+    cq.where(cb.notEqual(user.get("deleted"), true));
     return entityManager.createQuery(cq).getSingleResult();
   }
 
@@ -58,7 +61,8 @@ public class UserJPARepository implements UserRepository {
 
   @Override
   public void delete(User user) {
-    entityManager.remove(user);
+    user.setDeleted(true);
+    entityManager.merge(user);
   }
 
   @Override

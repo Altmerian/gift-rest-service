@@ -63,6 +63,7 @@ CREATE TABLE users
     first_name character varying(32),
     last_name  character varying(32),
     user_role  user_role             NOT NULL DEFAULT 'USER'::user_role,
+    deleted boolean DEFAULT false,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT users_email UNIQUE (email)
 );

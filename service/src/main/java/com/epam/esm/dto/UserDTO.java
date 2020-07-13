@@ -3,6 +3,7 @@ package com.epam.esm.dto;
 import com.epam.esm.entity.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.validator.constraints.Length;
@@ -33,8 +34,11 @@ public class UserDTO extends RepresentationModel<UserDTO> {
   @JsonView(View.Internal.class)
   private String lastName;
 
-//  @JsonView(View.Internal.class)
+  //  @JsonView(View.Internal.class)
   private String UserRole;
+
+  @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+  private boolean deleted;
 
   @JsonIgnore private Set<Order> orders;
 
@@ -86,6 +90,16 @@ public class UserDTO extends RepresentationModel<UserDTO> {
 
   public void setUserRole(String userRole) {
     UserRole = userRole;
+  }
+
+  @JsonProperty
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  @JsonIgnore
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public Set<Order> getOrders() {

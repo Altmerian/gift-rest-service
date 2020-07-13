@@ -4,11 +4,14 @@ import com.epam.esm.dto.UserDTO;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
+import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.UserRepository;
+import com.epam.esm.specification.EmailUserSpecification;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,12 +20,18 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
+  private final OrderRepository orderRepository;
   private final ModelMapper modelMapper;
   private final PasswordEncoder passwordEncoder;
 
   @Autowired
-  public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+  public UserServiceImpl(
+      UserRepository userRepository,
+      OrderRepository orderRepository,
+      ModelMapper modelMapper,
+      PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
+    this.orderRepository = orderRepository;
     this.modelMapper = modelMapper;
     this.passwordEncoder = passwordEncoder;
   }
@@ -53,10 +62,21 @@ public class UserServiceImpl implements UserService {
     return userRepository.create(user);
   }
 
+  @Transactional
   @Override
   public void delete(long id) {
     User user = userRepository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+    user.getOrders().forEach(orderRepository::delete);
     userRepository.delete(user);
+  }
+
+  @Override
+  public UserDTO getByEmail(String email) {
+    EmailUserSpecification specification = new EmailUserSpecification(email);
+    return userRepository.query(specification).stream()
+        .map(this::convertToDTO)
+        .findFirst()
+        .orElseThrow(() -> new ResourceNotFoundException("Can't find User with email=" + email));
   }
 
   @Override

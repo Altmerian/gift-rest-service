@@ -57,4 +57,11 @@ public interface UserService {
    * @return total amount of users
    */
   long countAll();
+
+  /**
+   * Gets data of user with given email from the repository layer.
+   *
+   * @return user with given email in certain transfer format
+   */
+  UserDTO getByEmail(String email);
 }

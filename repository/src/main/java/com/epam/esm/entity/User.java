@@ -27,8 +27,11 @@ public class User {
   private String lastName;
 
   @Enumerated(EnumType.STRING)
-  @Column(insertable = false)
+  @Column(insertable = false, updatable = false)
   private UserRole userRole;
+
+  @Column(columnDefinition = "boolean DEFAULT false", insertable = false)
+  private boolean deleted;
 
   @OneToMany(mappedBy = "user")
   private Set<Order> orders;
@@ -79,6 +82,14 @@ public class User {
 
   public void setUserRole(UserRole userRole) {
     this.userRole = userRole;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public Set<Order> getOrders() {
