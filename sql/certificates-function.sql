@@ -10,10 +10,12 @@ SELECT DISTINCT c.id,
                 c.price,
                 c.creation_date,
                 c.modification_date,
-                c.duration_in_days
+                c.duration_in_days,
+                c.deleted
 FROM certificates c
          LEFT JOIN certificates_tags ct ON c.id = ct.certificate_id
          LEFT JOIN tags t on ct.tag_id = t.id
-WHERE lower(t.name) SIMILAR TO tag_name
+WHERE c.deleted != true
+  AND lower(t.name) SIMILAR TO tag_name
   AND (lower(c.name) SIMILAR TO '%' || search_for || '%' OR lower(c.description) SIMILAR TO '%' || search_for || '%');
 $$ LANGUAGE sql;

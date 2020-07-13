@@ -56,12 +56,19 @@ public interface OrderService {
   long create(long userId, OrderDTO orderDTO);
 
   /**
-   * Invokes repository method to delete user's order data from the system
+   * Invokes repository method to mark user's order as deleted in the system
    *
    * @param userId user id
    * @param id id of the order to delete
    */
   void delete(long userId, long id);
+
+  /**
+   * Admin version of method to mark an order as deleted in the system
+   *
+   * @param id id of the order to delete
+   */
+  void delete(long id);
 
   /**
    * Counts all orders in the system

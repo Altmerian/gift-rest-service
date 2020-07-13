@@ -38,7 +38,7 @@ public interface UserService {
   long create(UserDTO userDTO);
 
   /**
-   * Invokes repository method to delete user data from the system
+   * Invokes repository method to mark user as deleted in the system
    *
    * @param id id of the user to delete
    */

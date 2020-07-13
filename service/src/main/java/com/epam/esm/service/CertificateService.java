@@ -78,7 +78,7 @@ public interface CertificateService {
   void modify(long id, CertificatePatchDTO certificatePatchDTO);
 
   /**
-   * Invokes repository method to delete certificate data from the system
+   * Invokes repository method to mark the certificate as deleted in the system
    *
    * @param id id of the certificate to delete
    */

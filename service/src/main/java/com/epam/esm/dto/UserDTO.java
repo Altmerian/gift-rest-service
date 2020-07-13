@@ -3,6 +3,7 @@ package com.epam.esm.dto;
 import com.epam.esm.entity.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.hateoas.RepresentationModel;
@@ -15,7 +16,7 @@ import java.util.Set;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO extends RepresentationModel<UserDTO> {
 
-  @JsonView(View.ExtendedPublic.class)
+  @JsonView(View.Public.class)
   private Long id;
 
   @Email(regexp = "\\w{2,40}@\\w{2,20}\\.\\w{2,4}")
@@ -32,7 +33,7 @@ public class UserDTO extends RepresentationModel<UserDTO> {
   @JsonView(View.Internal.class)
   private String lastName;
 
-  @JsonView(View.Internal.class)
+//  @JsonView(View.Internal.class)
   private String UserRole;
 
   @JsonIgnore private Set<Order> orders;
@@ -53,10 +54,12 @@ public class UserDTO extends RepresentationModel<UserDTO> {
     this.email = email;
   }
 
+  @JsonIgnore
   public String getPassword() {
     return password;
   }
 
+  @JsonProperty
   public void setPassword(String password) {
     this.password = password;
   }

@@ -1,16 +1,20 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.OrderListDTO;
 import com.epam.esm.dto.TagDTO;
+import com.epam.esm.dto.TagListDTO;
 import com.epam.esm.dto.UserDTO;
+import com.epam.esm.dto.UserListDTO;
 import com.epam.esm.dto.View;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
+import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.ParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,14 +22,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Controller to handle all users related requests. Then requests depending on requests parameters
@@ -56,14 +62,19 @@ public class UserRestController {
    */
   @GetMapping
   @JsonView(View.Internal.class)
-  public List<UserDTO> getAllUsers(
+  public UserListDTO getAllUsers(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
     resp.setHeader("X-Total-Count", String.valueOf(userService.countAll()));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
-    return userService.getAll(intPage, intSize);
+    List<UserDTO> users = userService.getAll(intPage, intSize);
+    users.forEach(userDTO -> ModelAssembler.addUserSelfLink(userDTO, resp));
+    UserListDTO userListDTO = new UserListDTO(users);
+    userListDTO.add(
+        linkTo(methodOn(UserRestController.class).createUser(new UserDTO())).withRel("create"));
+    return userListDTO;
   }
 
   /**
@@ -74,8 +85,10 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}")
   @JsonView(View.Internal.class)
-  public UserDTO getUserById(@PathVariable long userId) {
-    return userService.getById(userId);
+  public UserDTO getUserById(@PathVariable long userId, HttpServletResponse resp) {
+    UserDTO userDTO = userService.getById(userId);
+    ModelAssembler.addUserLinks(userDTO, resp);
+    return userDTO;
   }
 
   /**
@@ -85,7 +98,7 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}/orders")
   @JsonView(View.Public.class)
-  public List<OrderDTO> getUserOrders(
+  public OrderListDTO getUserOrders(
       @PathVariable long userId,
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
@@ -93,7 +106,13 @@ public class UserRestController {
     resp.setHeader("X-Total-Count", String.valueOf(orderService.countAll(userId)));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
-    return orderService.getByUserId(userId, intPage, intSize);
+    List<OrderDTO> orders = orderService.getByUserId(userId, intPage, intSize);
+    orders.forEach(orderDTO -> ModelAssembler.addUsersOrderSelfLink(userId, orderDTO, resp));
+    OrderListDTO orderListDTO = new OrderListDTO(orders);
+    orderListDTO.add(
+        linkTo(methodOn(UserRestController.class).createOrder(userId, new OrderDTO(), resp))
+            .withRel("create"));
+    return orderListDTO;
   }
 
   /**
@@ -105,8 +124,11 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}/orders/{orderId:\\d+}")
   @JsonView(View.ExtendedPublic.class)
-  public OrderDTO getUserOrderById(@PathVariable long userId, @PathVariable long orderId) {
-    return orderService.getByUserIdAndOrderId(userId, orderId);
+  public OrderDTO getUserOrderById(
+      @PathVariable long userId, @PathVariable long orderId, HttpServletResponse resp) {
+    OrderDTO orderDTO = orderService.getByUserIdAndOrderId(userId, orderId);
+    ModelAssembler.addUsersOrderLinks(userId, orderDTO, resp);
+    return orderDTO;
   }
 
   /**
@@ -116,8 +138,10 @@ public class UserRestController {
    * @return response with payload filled by data of the searched order
    */
   @GetMapping("/{userId:\\d+}/tags")
-  public List<TagDTO> getWidelyUsedTagsOfUser(@PathVariable long userId) {
-    return orderService.getWidelyUsedTagsOfUser(userId);
+  public TagListDTO getWidelyUsedTagsOfUser(@PathVariable long userId, HttpServletResponse resp) {
+    List<TagDTO> tags = orderService.getWidelyUsedTagsOfUser(userId);
+    tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
+    return new TagListDTO(tags);
   }
 
   /**
@@ -125,19 +149,17 @@ public class UserRestController {
    * persisted in the system
    *
    * @param userDTO user data in a certain format for transfer
-   * @param resp HTTP response
    * @throws ResourceConflictException if user with given name already exists
    */
   @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public void createUser(@Valid @RequestBody UserDTO userDTO, HttpServletResponse resp) {
+  public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
     long userId = userService.create(userDTO);
-    String location =
+    URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
             .buildAndExpand(userId)
-            .toUriString();
-    resp.setHeader("Location", location);
+            .toUri();
+    return ResponseEntity.created(location).build();
   }
 
   /**
@@ -146,32 +168,30 @@ public class UserRestController {
    *
    * @param userId user id
    * @param orderDTO order data in a certain format for transfer
-   * @param req HTTP request
    * @param resp HTTP response
    * @throws ResourceConflictException if order with given name already exists
    */
   @PostMapping("/{userId:\\d+}/orders")
-  @ResponseStatus(HttpStatus.CREATED)
-  public void createOrder(
-      @PathVariable long userId,
-      @Valid @RequestBody OrderDTO orderDTO,
-      HttpServletRequest req,
-      HttpServletResponse resp) {
+  public ResponseEntity<?> createOrder(
+      @PathVariable long userId, @Valid @RequestBody OrderDTO orderDTO, HttpServletResponse resp) {
     long orderId = orderService.create(userId, orderDTO);
-    String url = req.getRequestURL().toString();
-    resp.setHeader("Location", url + "/" + orderId);
+    URI location =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(orderId)
+            .toUri();
+    return ResponseEntity.created(location).build();
   }
 
   /**
-   * Handles requests which use DELETE HTTP method to delete all data linked with a certain user in
-   * the system
+   * Handles requests which use DELETE HTTP method to delete the certain user
    *
    * @param userId user id
    */
   @DeleteMapping("/{userId:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteUser(@PathVariable("userId") long userId) {
+  public ResponseEntity<?> deleteUser(@PathVariable("userId") long userId) {
     userService.delete(userId);
+    return ResponseEntity.noContent().build();
   }
 
   /**
@@ -181,8 +201,9 @@ public class UserRestController {
    * @param orderId order id
    */
   @DeleteMapping("/{userId:\\d+}/orders/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteOrder(@PathVariable long userId, @PathVariable("id") long orderId) {
+  public ResponseEntity<?> deleteOrder(
+      @PathVariable long userId, @PathVariable("id") long orderId) {
     orderService.delete(userId, orderId);
+    return ResponseEntity.noContent().build();
   }
 }

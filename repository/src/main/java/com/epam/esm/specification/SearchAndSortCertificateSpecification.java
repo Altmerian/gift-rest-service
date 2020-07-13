@@ -19,7 +19,7 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
 
   @Override
   public String toSqlQuery() {
-    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM certificates_function(?, ?) "
+    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days, deleted FROM certificates_function(?, ?) "
         + sortQuery;
   }
 

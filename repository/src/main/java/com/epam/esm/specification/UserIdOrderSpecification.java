@@ -18,12 +18,12 @@ public class UserIdOrderSpecification implements Specification<Order> {
 
   @Override
   public String toSqlQuery() {
-    return "SELECT id, cost, creation_date, user_id FROM orders WHERE userId = ?";
+    return "SELECT id, cost, creation_date, user_id, deleted FROM orders WHERE userId = ?";
   }
 
   @Override
   public Object[] getParameters() {
-    return new Object[]{userId};
+    return new Object[] {userId};
   }
 
   @Override
@@ -32,7 +32,8 @@ public class UserIdOrderSpecification implements Specification<Order> {
     CriteriaQuery<Order> cq = cb.createQuery(Order.class);
     Root<Order> order = cq.from(Order.class);
     Predicate predicate = cb.equal(order.get("user").get("id"), userId);
-    cq.where(predicate);
+    Predicate predicate1 = cb.notEqual(order.get("deleted"), true);
+    cq.where(cb.and(predicate, predicate1));
     return entityManager.createQuery(cq);
   }
 }

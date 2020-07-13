@@ -28,6 +28,7 @@ public class OrderJPARepository implements OrderRepository {
     Root<Order> rootEntry = cq.from(Order.class);
     cq.orderBy(cb.asc(rootEntry.get("id")));
     CriteriaQuery<Order> all = cq.select(rootEntry);
+    cq.where(cb.notEqual(rootEntry.get("deleted"), true));
 
     TypedQuery<Order> allQuery = entityManager.createQuery(all);
     allQuery.setFirstResult((page - 1) * size);
@@ -39,7 +40,9 @@ public class OrderJPARepository implements OrderRepository {
   public long countAll() {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-    cq.select(cb.count(cq.from(Order.class)));
+    Root<Order> order = cq.from(Order.class);
+    cq.select(cb.count(order));
+    cq.where(cb.notEqual(order.get("deleted"), true));
     return entityManager.createQuery(cq).getSingleResult();
   }
 
@@ -49,7 +52,10 @@ public class OrderJPARepository implements OrderRepository {
     CriteriaQuery<Long> cq = cb.createQuery(Long.class);
     Root<Order> order = cq.from(Order.class);
     cq.select(cb.count(order));
-    cq.where(cb.equal(order.get("user").get("id"), userId));
+    cq.where(
+        cb.and(
+            cb.equal(order.get("user").get("id"), userId),
+            cb.notEqual(order.get("deleted"), true)));
     return entityManager.createQuery(cq).getSingleResult();
   }
 
@@ -68,7 +74,8 @@ public class OrderJPARepository implements OrderRepository {
 
   @Override
   public void delete(Order order) {
-    entityManager.remove(order);
+    order.setDeleted(true);
+    entityManager.merge(order);
   }
 
   @Override

@@ -1,11 +1,15 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.OrderDTO;
+import com.epam.esm.dto.OrderListDTO;
 import com.epam.esm.dto.View;
 import com.epam.esm.service.OrderService;
+import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.ParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -42,15 +48,21 @@ public class OrderRestController {
    * @return response with body filled by requested data.
    */
   @RequestMapping(method = GET)
-  @JsonView(View.ExtendedPublic.class)
-  public List<OrderDTO> getAllOrders(
+  @JsonView(View.Public.class)
+  public OrderListDTO getAllOrders(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
     resp.setHeader("X-Total-Count", String.valueOf(orderService.countAll()));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
-    return orderService.getAll(intPage, intSize);
+    List<OrderDTO> orders = orderService.getAll(intPage, intSize);
+    orders.forEach(orderDTO -> ModelAssembler.addOrderSelfLink(orderDTO, resp));
+    OrderListDTO orderListDTO = new OrderListDTO(orders);
+    orderListDTO.add(
+        linkTo(methodOn(UserRestController.class).createOrder(1, new OrderDTO(), resp))
+            .withRel("create"));
+    return orderListDTO;
   }
 
   /**
@@ -61,7 +73,20 @@ public class OrderRestController {
    */
   @GetMapping("/{orderId:\\d+}")
   @JsonView(View.ExtendedPublic.class)
-  public OrderDTO getOrderById(@PathVariable long orderId) {
-    return orderService.getById(orderId);
+  public OrderDTO getOrderById(@PathVariable long orderId, HttpServletResponse resp) {
+    OrderDTO orderDTO = orderService.getById(orderId);
+    ModelAssembler.addOrderLinks(orderDTO, resp);
+    return orderDTO;
+  }
+
+  /**
+   * Handles requests which use DELETE HTTP method to mark an order as deleted in the system
+   *
+   * @param id order id
+   */
+  @DeleteMapping(value = "/{id:\\d+}")
+  public ResponseEntity<?> delete(@PathVariable("id") long id) {
+    orderService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

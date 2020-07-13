@@ -3,13 +3,14 @@ package com.epam.esm.controller;
 import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.CertificateListDTO;
 import com.epam.esm.dto.CertificatePatchDTO;
+import com.epam.esm.dto.View;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.ParseHelper;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -63,6 +63,7 @@ public class CertificateRestController {
    *     "../certificates/id" request.
    */
   @GetMapping
+  @JsonView(View.Internal.class)
   public CertificateListDTO getAll(
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
@@ -84,7 +85,7 @@ public class CertificateRestController {
         certificateDTO -> ModelAssembler.addCertificateSelfLink(certificateDTO, resp));
     CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
     return certificateListDTO.add(
-        linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO(), resp))
+        linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO()))
             .withRel("create"));
   }
 
@@ -94,6 +95,7 @@ public class CertificateRestController {
    * @param id certificate id
    * @return response with payload filled by data of the searched certificate
    */
+  @JsonView(View.Internal.class)
   @GetMapping("/{id:\\d+}")
   public CertificateDTO getById(@PathVariable long id, HttpServletResponse resp) {
     CertificateDTO certificateDTO = certificateService.getById(id);
@@ -106,14 +108,11 @@ public class CertificateRestController {
    * persisted in the system
    *
    * @param certificateDTO certificate data in a certain format for transfer
-   * @param resp HTTP response
    * @throws ResourceConflictException if certificate with given name, price, duration and set of
    *     tags already exists
    */
   @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<?> create(
-      @Valid @RequestBody CertificateDTO certificateDTO, HttpServletResponse resp) {
+  public ResponseEntity<?> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
     URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
@@ -133,7 +132,6 @@ public class CertificateRestController {
    *     tags already exists
    */
   @PutMapping(value = "/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
   public ResponseEntity<?> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
@@ -151,7 +149,6 @@ public class CertificateRestController {
    *     tags already exists
    */
   @PatchMapping(value = "/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
   public ResponseEntity<?> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
@@ -159,8 +156,7 @@ public class CertificateRestController {
   }
 
   /**
-   * Handles requests which use DELETE HTTP method to delete all data linked with a certain
-   * certificate in the system
+   * Handles requests which use DELETE HTTP method to delete the certain certificate
    *
    * @param id certificate id
    */

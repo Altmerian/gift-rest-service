@@ -115,8 +115,13 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
-  public void delete(long userId, long id) {
+  public void delete(long userId, long orderId) {
     checkUserId(userId);
+    delete(orderId);
+  }
+
+  @Override
+  public void delete(long id) {
     Order order = orderRepository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
     orderRepository.delete(order);
   }

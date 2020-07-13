@@ -1,7 +1,9 @@
 package com.epam.esm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -27,6 +29,7 @@ public class CertificateDTO extends RepresentationModel<CertificateDTO> {
   @Size(max = 64, message = "Certificate name mustn't be longer than 64 characters.")
   private String name;
 
+  @JsonView(View.Internal.class)
   @Size(max = 128, message = "Description mustn't be longer than 128 characters.")
   private String description;
 
@@ -38,13 +41,20 @@ public class CertificateDTO extends RepresentationModel<CertificateDTO> {
   @JsonView(View.ExtendedPublic.class)
   private ZonedDateTime creationDate;
 
+  @JsonView(View.ExtendedPublic.class)
   private ZonedDateTime modificationDate;
 
   @JsonView(View.ExtendedPublic.class)
   @Positive(message = "Duration in days must be positive.")
   private int durationInDays;
 
-  @Valid private Set<TagDTO> tags;
+  @JsonView(View.Public.class)
+  @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+  private boolean deleted;
+
+  @JsonView(View.Internal.class)
+  @Valid
+  private Set<TagDTO> tags;
 
   public CertificateDTO() {}
 
@@ -102,6 +112,16 @@ public class CertificateDTO extends RepresentationModel<CertificateDTO> {
 
   public void setDurationInDays(int durationInDays) {
     this.durationInDays = durationInDays;
+  }
+
+  @JsonProperty
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  @JsonIgnore
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public Set<TagDTO> getTags() {

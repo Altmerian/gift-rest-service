@@ -1,6 +1,9 @@
 package com.epam.esm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -19,8 +22,10 @@ public class OrderDTO extends RepresentationModel<OrderDTO> {
 
   private ZonedDateTime creationDate;
 
-  @JsonView(View.ExtendedPublic.class)
   private UserDTO user;
+
+  @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+  private boolean deleted;
 
   private List<CertificateDTO> certificates;
 
@@ -54,6 +59,16 @@ public class OrderDTO extends RepresentationModel<OrderDTO> {
 
   public void setUser(UserDTO user) {
     this.user = user;
+  }
+
+  @JsonProperty
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  @JsonIgnore
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public List<CertificateDTO> getCertificates() {

@@ -37,6 +37,7 @@ public class NamePriceDurationCertificateSpecification implements Specification<
     CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
     Root<Certificate> certificate = cq.from(Certificate.class);
     Predicate predicate = cb.and(
+        cb.notEqual(certificate.get("deleted"), true),
         cb.equal(certificate.get("name"), name),
         cb.equal(certificate.get("price"), price),
         cb.equal(certificate.get("durationInDays"), duration));

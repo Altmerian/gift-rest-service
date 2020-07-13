@@ -26,12 +26,17 @@ public class Order {
 
   private BigDecimal cost;
 
-  @Column(columnDefinition = "timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP", insertable = false)
+  @Column(
+      columnDefinition = "timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP",
+      insertable = false)
   private ZonedDateTime creationDate;
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
+
+  @Column(columnDefinition = "boolean DEFAULT false", insertable = false)
+  private boolean deleted;
 
   @ManyToMany
   @JoinTable(
@@ -72,6 +77,14 @@ public class Order {
 
   public void setUser(User user) {
     this.user = user;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public List<Certificate> getCertificates() {

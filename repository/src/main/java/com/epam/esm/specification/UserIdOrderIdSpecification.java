@@ -20,7 +20,7 @@ public class UserIdOrderIdSpecification implements Specification<Order> {
 
   @Override
   public String toSqlQuery() {
-    return "SELECT id, cost, creation_date, user_id FROM orders WHERE userId = ? AND orderId = ?";
+    return "SELECT id, cost, creation_date, user_id, deleted FROM orders WHERE userId = ? AND orderId = ?";
   }
 
   @Override

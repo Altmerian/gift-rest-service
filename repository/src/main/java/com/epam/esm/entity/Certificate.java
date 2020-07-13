@@ -28,10 +28,17 @@ public class Certificate {
   private String name;
   private String description;
   private BigDecimal price;
-  @Column(columnDefinition = "timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP", insertable = false)
+
+  @Column(
+      columnDefinition = "timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP",
+      insertable = false)
   private ZonedDateTime creationDate;
+
   private ZonedDateTime modificationDate;
   private int durationInDays;
+
+  @Column(columnDefinition = "boolean DEFAULT false", insertable = false)
+  private boolean deleted;
 
   @ManyToMany
   @JoinTable(
@@ -101,6 +108,14 @@ public class Certificate {
 
   public void setDurationInDays(int durationInDays) {
     this.durationInDays = durationInDays;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public Set<Tag> getTags() {

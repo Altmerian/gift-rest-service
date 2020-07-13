@@ -35,6 +35,7 @@ public class CertificateJPARepository implements CertificateRepository {
     Root<Certificate> rootEntry = cq.from(Certificate.class);
     cq.orderBy(cb.asc(rootEntry.get("id")));
     CriteriaQuery<Certificate> all = cq.select(rootEntry);
+    cq.where(cb.notEqual(rootEntry.get("deleted"), true));
 
     TypedQuery<Certificate> allQuery = entityManager.createQuery(all);
     allQuery.setFirstResult((page - 1) * size);
@@ -76,6 +77,7 @@ public class CertificateJPARepository implements CertificateRepository {
 
   @Override
   public void delete(Certificate certificate) {
-    entityManager.remove(certificate);
+    certificate.setDeleted(true);
+    entityManager.merge(certificate);
   }
 }

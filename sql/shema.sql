@@ -24,6 +24,7 @@ CREATE TABLE certificates
     creation_date     timestamp(0) with time zone    DEFAULT CURRENT_TIMESTAMP NOT NULL,
     modification_date timestamp(0) with time zone,
     duration_in_days  smallint              NOT NULL DEFAULT 90,
+    deleted boolean DEFAULT false,
     CONSTRAINT certificates_pkey PRIMARY KEY (id),
     CONSTRAINT positive_price CHECK (price > 0::numeric),
     CONSTRAINT positive_duration CHECK (duration_in_days > 0)
@@ -72,6 +73,7 @@ CREATE TABLE orders
     cost          numeric(14, 2),
     creation_date timestamp(0) with time zone DEFAULT CURRENT_TIMESTAMP,
     user_id       integer NOT NULL,
+    deleted boolean DEFAULT false,
     CONSTRAINT orders_pkey PRIMARY KEY (id)
 );
 
