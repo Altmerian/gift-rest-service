@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -81,6 +82,13 @@ public class CertificateExceptionHandler {
   public ErrorResponse handleException(HttpMediaTypeNotSupportedException exception) {
     LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public ErrorResponse handleException(AccessDeniedException exception) {
+    LOGGER.error(exception);
+    return createErrorResponse(exception, HttpStatus.FORBIDDEN);
   }
 
   @ExceptionHandler(ConstraintViolationException.class)

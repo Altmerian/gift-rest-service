@@ -40,7 +40,7 @@ public class ServiceConfig {
   }
 
   @Bean
-  public PasswordEncoder passwordEncoder() {
+  public PasswordEncoder bCryptPasswordEncoder() {
     return new BCryptPasswordEncoder();
   }
 }

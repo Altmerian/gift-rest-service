@@ -2,6 +2,7 @@ package com.epam.esm.specification;
 
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.util.QueryHelper;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -10,16 +11,18 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
   private final String tagName;
   private final String searchFor;
   private final String sortQuery;
+  private final int tagsCount;
 
   public SearchAndSortCertificateSpecification(String tagName, String searchFor, String sortBy) {
-    this.tagName = tagName == null ? "%" : QueryHelper.getQueryString(tagName);
-    this.searchFor = searchFor == null ? "%" : QueryHelper.getQueryString(searchFor);
+    this.tagName = StringUtils.isBlank(tagName) ? "%" : QueryHelper.getQueryString(tagName);
+    this.searchFor = StringUtils.isBlank(searchFor) ? "%" : QueryHelper.getQueryString(searchFor);
     this.sortQuery = QueryHelper.getSortQuery(sortBy);
+    this.tagsCount = StringUtils.isBlank(tagName) ? 1 : QueryHelper.getTagsCount(tagName);
   }
 
   @Override
   public String toSqlQuery() {
-    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days, deleted FROM certificates_function(?, ?) "
+    return "SELECT id, name, description, price, creation_date, modification_date, duration_in_days, deleted FROM certificates_function(?, ?, ?) "
         + sortQuery;
   }
 
@@ -33,6 +36,7 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
     Query nativeQuery = entityManager.createNativeQuery(toSqlQuery(), Certificate.class);
     nativeQuery.setParameter(1, tagName);
     nativeQuery.setParameter(2, searchFor);
+    nativeQuery.setParameter(3,tagsCount);
     return nativeQuery;
   }
 }

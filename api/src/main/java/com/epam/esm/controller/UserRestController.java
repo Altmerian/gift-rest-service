@@ -15,6 +15,7 @@ import com.epam.esm.util.ParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +40,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  */
 @RestController
 @RequestMapping("/api/v1/users")
+@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 public class UserRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -62,6 +64,7 @@ public class UserRestController {
    */
   @GetMapping
   @JsonView(View.Internal.class)
+  @PreAuthorize("hasRole('ADMIN')")
   public UserListDTO getAllUsers(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,

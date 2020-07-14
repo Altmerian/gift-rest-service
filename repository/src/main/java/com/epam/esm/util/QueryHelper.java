@@ -27,4 +27,8 @@ public class QueryHelper {
   public static String getQueryString(String queryString) {
     return "(" + queryString.trim().replaceAll(",", "|").toLowerCase() + ")";
   }
+
+  public static int getTagsCount(String tagNames) {
+    return tagNames.split(",").length;
+  }
 }
