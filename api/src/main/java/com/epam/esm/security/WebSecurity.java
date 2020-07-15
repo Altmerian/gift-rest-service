@@ -1,6 +1,7 @@
 package com.epam.esm.security;
 
-import com.epam.esm.service.UserDetailsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,7 +10,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,18 +22,19 @@ import javax.servlet.Filter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurity extends WebSecurityConfigurerAdapter {
-  private final UserDetailsServiceImpl userDetailsService;
+  private final UserDetailsService userDetailsService;
   private final PasswordEncoder bCryptPasswordEncoder;
-  private final RestAuthenticationFailureHandler restAuthenticationFailureHandler;
+  private final AuthenticationFailureHandler authenticationFailureHandler;
 
-//  @Autowired
+  @Autowired
   public WebSecurity(
-      UserDetailsServiceImpl userDetailsService,
+      @Qualifier("userDetailsServiceImpl")
+      UserDetailsService userDetailsService,
       PasswordEncoder bCryptPasswordEncoder,
-      RestAuthenticationFailureHandler restAuthenticationFailureHandler) {
+      AuthenticationFailureHandler authenticationFailureHandler) {
     this.userDetailsService = userDetailsService;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    this.restAuthenticationFailureHandler = restAuthenticationFailureHandler;
+    this.authenticationFailureHandler = authenticationFailureHandler;
   }
 
   @Override
@@ -39,7 +43,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .authorizeRequests()
         .antMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
         .permitAll()
-        .antMatchers(HttpMethod.GET, "/api/v1/certificates/**")
+        .antMatchers(HttpMethod.GET, "/api/v1/certificates/**", "/api/v1/tags/**")
         .permitAll()
         .anyRequest().authenticated()
         .and()
@@ -51,7 +55,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
   private Filter getUpJwtAuthenticationFilter() throws Exception {
     JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager());
-    jwtAuthenticationFilter.setAuthenticationFailureHandler(restAuthenticationFailureHandler);
+    jwtAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
     return jwtAuthenticationFilter;
   }
 

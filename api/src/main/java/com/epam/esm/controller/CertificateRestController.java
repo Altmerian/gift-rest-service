@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,9 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Controller to handle all certificate related requests. Then requests depending on requests
@@ -84,9 +82,8 @@ public class CertificateRestController {
     certificates.forEach(
         certificateDTO -> ModelAssembler.addCertificateSelfLink(certificateDTO, resp));
     CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
-    return certificateListDTO.add(
-        linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO()))
-            .withRel("create"));
+    ModelAssembler.addCertificateListLinks(certificateListDTO);
+    return certificateListDTO;
   }
 
   /**
@@ -112,6 +109,7 @@ public class CertificateRestController {
    *     tags already exists
    */
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
     URI location =
@@ -132,6 +130,7 @@ public class CertificateRestController {
    *     tags already exists
    */
   @PutMapping(value = "/{id:\\d+}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
@@ -149,6 +148,7 @@ public class CertificateRestController {
    *     tags already exists
    */
   @PatchMapping(value = "/{id:\\d+}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
@@ -161,6 +161,7 @@ public class CertificateRestController {
    * @param id certificate id
    */
   @DeleteMapping(value = "/{id:\\d+}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> delete(@PathVariable("id") long id) {
     certificateService.delete(id);
     return ResponseEntity.noContent().build();

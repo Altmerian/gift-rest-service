@@ -2,6 +2,7 @@ package com.epam.esm.exception;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,9 +85,9 @@ public class CertificateExceptionHandler {
     return createErrorResponse(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
   }
 
-  @ExceptionHandler(AccessDeniedException.class)
+  @ExceptionHandler({AccessDeniedException.class, ExpiredJwtException.class})
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ErrorResponse handleException(AccessDeniedException exception) {
+  public ErrorResponse handleException(RuntimeException exception) {
     LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.FORBIDDEN);
   }

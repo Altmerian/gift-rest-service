@@ -15,15 +15,19 @@ import java.util.stream.Collectors;
 
 public class TokenUtil {
   public static final String AUTHORITIES_KEY = "authorities";
+  public static final String USER_ID = "userId";
 
 
   static String generateToken(Authentication auth) {
+    AppUserDetails appUser = (AppUserDetails) auth.getPrincipal();
+    Long userId = appUser.getUserId();
     String authorities =
         auth.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
     return Jwts.builder()
         .setSubject(auth.getName())
+        .claim(USER_ID, userId)
         .claim(AUTHORITIES_KEY, authorities)
         .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
         .signWith(SignatureAlgorithm.HS512, SecurityConstants.SECRET.getBytes())
@@ -31,16 +35,16 @@ public class TokenUtil {
   }
 
   static UsernamePasswordAuthenticationToken getAuthentication(String token) {
-
     Claims claims = Jwts.parser()
         .setSigningKey(SecurityConstants.SECRET.getBytes())
         .parseClaimsJws(token).getBody();
-    String user = claims.getSubject();
+    String username = claims.getSubject();
     List<SimpleGrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
-    if (user != null) {
-      return new UsernamePasswordAuthenticationToken(user, null, authorities);
+    Integer userId = (Integer) claims.get(USER_ID);
+    if (username != null) {
+      return new UsernamePasswordAuthenticationToken(userId, username, authorities);
     }
     return null;
   }

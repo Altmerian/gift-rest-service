@@ -2,9 +2,9 @@ package com.epam.esm.service;
 
 import com.epam.esm.entity.User;
 import com.epam.esm.repository.UserRepository;
+import com.epam.esm.security.AppUserDetails;
 import com.epam.esm.specification.EmailUserSpecification;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+  public AppUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     EmailUserSpecification specification = new EmailUserSpecification(email);
     User user =
         userRepository.query(specification).stream()
@@ -32,7 +32,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                         String.format("User with email %s was not found", email)));
     List<SimpleGrantedAuthority> authorities =
         Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name()));
-    return new org.springframework.security.core.userdetails.User(
-        user.getEmail(), user.getPassword(), authorities);
+    return new AppUserDetails(user.getEmail(), user.getPassword(), user.getId(), authorities);
   }
 }

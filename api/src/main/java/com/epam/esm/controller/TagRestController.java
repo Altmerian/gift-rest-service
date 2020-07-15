@@ -8,6 +8,7 @@ import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.ParseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,8 +62,7 @@ public class TagRestController {
     List<TagDTO> tags = tagService.getAll(intPage, intSize);
     tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
     TagListDTO tagListDTO = new TagListDTO(tags);
-    tagListDTO.add(
-        linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel("create"));
+    ModelAssembler.addTagListLinks(tagListDTO);
     return tagListDTO;
   }
 
@@ -88,6 +88,7 @@ public class TagRestController {
    * @throws ResourceConflictException if tag with given name already exists
    */
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> create(@Valid @RequestBody TagDTO tagDTO) {
     long tagId = tagService.create(tagDTO);
     URI uri =
@@ -105,6 +106,7 @@ public class TagRestController {
    * @param id certificate id
    */
   @DeleteMapping("/{id:\\d+}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> delete(@PathVariable("id") long id) {
     tagService.delete(id);
     return ResponseEntity.noContent().build();

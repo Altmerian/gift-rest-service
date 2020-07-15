@@ -9,6 +9,7 @@ import com.epam.esm.util.ParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
@@ -29,6 +28,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
  */
 @RestController
 @RequestMapping("/api/v1/orders")
+@PreAuthorize("hasRole('ADMIN')")
 public class OrderRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -59,9 +59,7 @@ public class OrderRestController {
     List<OrderDTO> orders = orderService.getAll(intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addOrderSelfLink(orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
-    orderListDTO.add(
-        linkTo(methodOn(UserRestController.class).createOrder(1, new OrderDTO(), resp))
-            .withRel("create"));
+    ModelAssembler.addOrderListLinks(orderListDTO, resp);
     return orderListDTO;
   }
 

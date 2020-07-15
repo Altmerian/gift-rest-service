@@ -40,7 +40,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  */
 @RestController
 @RequestMapping("/api/v1/users")
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 public class UserRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -88,6 +87,7 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}")
   @JsonView(View.Internal.class)
+  @PreAuthorize("#userId == principal or hasRole('ADMIN')")
   public UserDTO getUserById(@PathVariable long userId, HttpServletResponse resp) {
     UserDTO userDTO = userService.getById(userId);
     ModelAssembler.addUserLinks(userDTO, resp);
@@ -101,6 +101,7 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}/orders")
   @JsonView(View.Public.class)
+  @PreAuthorize("#userId == principal or hasRole('ADMIN')")
   public OrderListDTO getUserOrders(
       @PathVariable long userId,
       @RequestParam(value = "page", required = false) String page,
@@ -127,6 +128,7 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}/orders/{orderId:\\d+}")
   @JsonView(View.ExtendedPublic.class)
+  @PreAuthorize("#userId == principal or hasRole('ADMIN')")
   public OrderDTO getUserOrderById(
       @PathVariable long userId, @PathVariable long orderId, HttpServletResponse resp) {
     OrderDTO orderDTO = orderService.getByUserIdAndOrderId(userId, orderId);
@@ -141,6 +143,7 @@ public class UserRestController {
    * @return response with payload filled by data of the searched order
    */
   @GetMapping("/{userId:\\d+}/tags")
+  @PreAuthorize("#userId == principal or hasRole('ADMIN')")
   public TagListDTO getWidelyUsedTagsOfUser(@PathVariable long userId, HttpServletResponse resp) {
     List<TagDTO> tags = orderService.getWidelyUsedTagsOfUser(userId);
     tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
@@ -175,6 +178,7 @@ public class UserRestController {
    * @throws ResourceConflictException if order with given name already exists
    */
   @PostMapping("/{userId:\\d+}/orders")
+  @PreAuthorize("#userId == principal")
   public ResponseEntity<?> createOrder(
       @PathVariable long userId, @Valid @RequestBody OrderDTO orderDTO, HttpServletResponse resp) {
     long orderId = orderService.create(userId, orderDTO);
@@ -192,6 +196,7 @@ public class UserRestController {
    * @param userId user id
    */
   @DeleteMapping("/{userId:\\d+}")
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> deleteUser(@PathVariable("userId") long userId) {
     userService.delete(userId);
     return ResponseEntity.noContent().build();
@@ -204,6 +209,7 @@ public class UserRestController {
    * @param orderId order id
    */
   @DeleteMapping("/{userId:\\d+}/orders/{id:\\d+}")
+  @PreAuthorize("#userId == principal or hasRole('ADMIN')")
   public ResponseEntity<?> deleteOrder(
       @PathVariable long userId, @PathVariable("id") long orderId) {
     orderService.delete(userId, orderId);
