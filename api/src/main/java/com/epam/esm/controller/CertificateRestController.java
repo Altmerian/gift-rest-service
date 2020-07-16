@@ -71,8 +71,8 @@ public class CertificateRestController {
       HttpServletResponse resp) {
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
-    resp.setHeader(
-        "X-Total-Count", String.valueOf(certificateService.countAll(tagName, searchFor, sortBy)));
+    long totalCount = certificateService.countAll(tagName, searchFor, sortBy);
+    resp.setHeader("X-Total-Count", String.valueOf(totalCount));
     List<CertificateDTO> certificates;
     if (StringUtils.isBlank(tagName) && StringUtils.isBlank(searchFor)) {
       certificates = certificateService.getAll(intPage, intSize);
@@ -82,6 +82,7 @@ public class CertificateRestController {
     certificates.forEach(
         certificateDTO -> ModelAssembler.addCertificateSelfLink(certificateDTO, resp));
     CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
+    certificateListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     ModelAssembler.addCertificateListLinks(certificateListDTO);
     return certificateListDTO;
   }

@@ -1,5 +1,6 @@
 package com.epam.esm.security;
 
+import com.epam.esm.exception.RequestRejectedExceptionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,13 +23,13 @@ import javax.servlet.Filter;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurity extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   private final UserDetailsService userDetailsService;
   private final PasswordEncoder bCryptPasswordEncoder;
   private final AuthenticationFailureHandler authenticationFailureHandler;
 
   @Autowired
-  public WebSecurity(
+  public WebSecurityConfig(
       @Qualifier("userDetailsServiceImpl")
       UserDetailsService userDetailsService,
       PasswordEncoder bCryptPasswordEncoder,
@@ -35,6 +37,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     this.userDetailsService = userDetailsService;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     this.authenticationFailureHandler = authenticationFailureHandler;
+  }
+
+  @Override
+  public void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
   }
 
   @Override
@@ -49,7 +56,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         .and()
         .addFilter(getUpJwtAuthenticationFilter())
         .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-        // this disables session creation on Spring Security
+        .addFilterBefore( new RequestRejectedExceptionFilter(), BasicAuthenticationFilter.class )
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
   }
 
@@ -57,11 +64,6 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(authenticationManager());
     jwtAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
     return jwtAuthenticationFilter;
-  }
-
-  @Override
-  public void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
   }
 
   @Bean

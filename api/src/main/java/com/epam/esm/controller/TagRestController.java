@@ -56,12 +56,14 @@ public class TagRestController {
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
-    resp.setHeader("X-Total-Count", String.valueOf(tagService.countAll()));
+    long totalCount = tagService.countAll();
+    resp.setHeader("X-Total-Count", String.valueOf(totalCount));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
     List<TagDTO> tags = tagService.getAll(intPage, intSize);
     tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
     TagListDTO tagListDTO = new TagListDTO(tags);
+    tagListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     ModelAssembler.addTagListLinks(tagListDTO);
     return tagListDTO;
   }

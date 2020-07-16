@@ -18,7 +18,7 @@ import java.io.IOException;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class StatusChangedRequestRejectedExceptionFilter extends GenericFilterBean {
+public class RequestRejectedExceptionFilter extends GenericFilterBean {
   private static final Logger LOGGER = LogManager.getLogger();
 
   @Override
@@ -29,7 +29,6 @@ public class StatusChangedRequestRejectedExceptionFilter extends GenericFilterBe
     } catch (RequestRejectedException e) {
       HttpServletRequest request = (HttpServletRequest) req;
       HttpServletResponse response = (HttpServletResponse) res;
-
       LOGGER.error("request_rejected: request_url={}", request.getRequestURL(), e);
       response.sendError(
           HttpServletResponse.SC_NOT_FOUND,

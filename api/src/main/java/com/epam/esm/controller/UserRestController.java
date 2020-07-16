@@ -68,12 +68,14 @@ public class UserRestController {
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
-    resp.setHeader("X-Total-Count", String.valueOf(userService.countAll()));
+    long totalCount = userService.countAll();
+    resp.setHeader("X-Total-Count", String.valueOf(totalCount));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
     List<UserDTO> users = userService.getAll(intPage, intSize);
     users.forEach(userDTO -> ModelAssembler.addUserSelfLink(userDTO, resp));
     UserListDTO userListDTO = new UserListDTO(users);
+    userListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     userListDTO.add(
         linkTo(methodOn(UserRestController.class).createUser(new UserDTO())).withRel("create"));
     return userListDTO;
@@ -107,12 +109,14 @@ public class UserRestController {
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
-    resp.setHeader("X-Total-Count", String.valueOf(orderService.countAll(userId)));
+    long totalCount = orderService.countAll(userId);
+    resp.setHeader("X-Total-Count", String.valueOf(totalCount));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
     List<OrderDTO> orders = orderService.getByUserId(userId, intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addUsersOrderSelfLink(userId, orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
+    orderListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     orderListDTO.add(
         linkTo(methodOn(UserRestController.class).createOrder(userId, new OrderDTO(), resp))
             .withRel("create"));

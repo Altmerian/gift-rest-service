@@ -53,12 +53,14 @@ public class OrderRestController {
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
-    resp.setHeader("X-Total-Count", String.valueOf(orderService.countAll()));
+    long totalCount = orderService.countAll();
+    resp.setHeader("X-Total-Count", String.valueOf(totalCount));
     int intPage = parseHelper.parsePage(page);
     int intSize = parseHelper.parseSize(size);
     List<OrderDTO> orders = orderService.getAll(intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addOrderSelfLink(orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
+    orderListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     ModelAssembler.addOrderListLinks(orderListDTO, resp);
     return orderListDTO;
   }
