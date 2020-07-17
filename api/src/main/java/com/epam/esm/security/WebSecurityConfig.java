@@ -1,6 +1,5 @@
 package com.epam.esm.security;
 
-import com.epam.esm.exception.RequestRejectedExceptionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +13,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -52,11 +50,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .permitAll()
         .antMatchers(HttpMethod.GET, "/api/v1/certificates/**", "/api/v1/tags/**")
         .permitAll()
-        .anyRequest().authenticated()
         .and()
         .addFilter(getUpJwtAuthenticationFilter())
         .addFilter(new JWTAuthorizationFilter(authenticationManager()))
-        .addFilterBefore( new RequestRejectedExceptionFilter(), BasicAuthenticationFilter.class )
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
   }
 

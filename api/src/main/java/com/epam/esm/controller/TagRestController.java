@@ -63,7 +63,6 @@ public class TagRestController {
     List<TagDTO> tags = tagService.getAll(intPage, intSize);
     tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
     TagListDTO tagListDTO = new TagListDTO(tags);
-    tagListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     ModelAssembler.addTagListLinks(tagListDTO);
     return tagListDTO;
   }

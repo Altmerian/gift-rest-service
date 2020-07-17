@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 bootJar {
     enabled = false
 }
@@ -9,5 +13,5 @@ jar {
 dependencies {
     implementation 'org.postgresql:postgresql:42.2.13'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
 }

@@ -82,7 +82,6 @@ public class CertificateRestController {
     certificates.forEach(
         certificateDTO -> ModelAssembler.addCertificateSelfLink(certificateDTO, resp));
     CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
-    certificateListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     ModelAssembler.addCertificateListLinks(certificateListDTO);
     return certificateListDTO;
   }

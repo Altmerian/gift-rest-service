@@ -1,7 +1,10 @@
 package com.epam.esm.entity;
 
+import com.epam.esm.audit.AuditListener;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -14,6 +17,7 @@ import java.util.Set;
 
 /** Represents user of the system */
 @Entity
+@EntityListeners(AuditListener.class)
 @Table(name = "users")
 public class User {
   @Id

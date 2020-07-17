@@ -60,7 +60,6 @@ public class OrderRestController {
     List<OrderDTO> orders = orderService.getAll(intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addOrderSelfLink(orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
-    orderListDTO.setPage(String.format("%d of %d", intPage, totalCount/intSize + 1));
     ModelAssembler.addOrderListLinks(orderListDTO, resp);
     return orderListDTO;
   }

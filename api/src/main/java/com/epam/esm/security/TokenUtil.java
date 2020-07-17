@@ -1,5 +1,6 @@
 package com.epam.esm.security;
 
+import com.epam.esm.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -38,11 +39,18 @@ public class TokenUtil {
     Claims claims = Jwts.parser()
         .setSigningKey(SecurityConstants.SECRET.getBytes())
         .parseClaimsJws(token).getBody();
-    String username = claims.getSubject();
-    List<SimpleGrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-        .map(SimpleGrantedAuthority::new)
-        .collect(Collectors.toList());
-    Integer userId = (Integer) claims.get(USER_ID);
+    String username;
+    List<SimpleGrantedAuthority> authorities;
+    Integer userId;
+    try {
+      username = claims.getSubject();
+      authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+          .map(SimpleGrantedAuthority::new)
+          .collect(Collectors.toList());
+      userId = (Integer) claims.get(USER_ID);
+    } catch (NullPointerException exception) {
+      throw new InvalidTokenException("Token content is invalid");
+    }
     if (username != null) {
       return new UsernamePasswordAuthenticationToken(userId, username, authorities);
     }

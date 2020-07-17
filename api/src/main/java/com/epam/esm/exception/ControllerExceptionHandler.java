@@ -2,7 +2,6 @@ package com.epam.esm.exception;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,11 +33,11 @@ import java.util.stream.Collectors;
 /** The main exception handler */
 @ControllerAdvice
 @ResponseBody
-public class CertificateExceptionHandler {
+public class ControllerExceptionHandler {
 
   private static final Logger LOGGER = LogManager.getLogger();
   private static final org.slf4j.Logger slf4jLogger =
-      LoggerFactory.getLogger(CertificateExceptionHandler.class);
+      LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
   @ExceptionHandler(ResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -85,9 +84,9 @@ public class CertificateExceptionHandler {
     return createErrorResponse(exception, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
   }
 
-  @ExceptionHandler({AccessDeniedException.class, ExpiredJwtException.class})
+  @ExceptionHandler({AccessDeniedException.class})
   @ResponseStatus(HttpStatus.FORBIDDEN)
-  public ErrorResponse handleException(RuntimeException exception) {
+  public ErrorResponse handleException(AccessDeniedException exception) {
     LOGGER.error(exception);
     return createErrorResponse(exception, HttpStatus.FORBIDDEN);
   }

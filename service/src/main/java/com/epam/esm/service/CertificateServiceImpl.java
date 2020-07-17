@@ -85,7 +85,10 @@ public class CertificateServiceImpl implements CertificateService {
   @Transactional
   public void update(long id, CertificateDTO certificateDTO) {
     Certificate storedCertificate =
-        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        repository
+            .get(id)
+            .filter(cert -> !cert.isDeleted())
+            .orElseThrow(() -> new ResourceNotFoundException(id));
     checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setCreationDate(storedCertificate.getCreationDate());
@@ -97,7 +100,10 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   public void modify(long id, CertificatePatchDTO certificatePatchDTO) {
     Certificate certificate =
-        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        repository
+            .get(id)
+            .filter(cert -> !cert.isDeleted())
+            .orElseThrow(() -> new ResourceNotFoundException(id));
     setCertificateFields(certificate, certificatePatchDTO);
     repository.update(certificate);
   }
@@ -105,7 +111,10 @@ public class CertificateServiceImpl implements CertificateService {
   @Override
   public void delete(long id) {
     Certificate certificate =
-        repository.get(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        repository
+            .get(id)
+            .filter(cert -> !cert.isDeleted())
+            .orElseThrow(() -> new ResourceNotFoundException(id));
     repository.delete(certificate);
   }
 

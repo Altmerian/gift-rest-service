@@ -92,6 +92,21 @@ CREATE TABLE orders_certificates
         ON DELETE NO ACTION
 );
 
+CREATE TABLE events
+(
+    id serial  NOT NULL,
+    "timestamp" timestamp(0) with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    operation character varying(32),
+    entity_type character varying(32),
+    entity_id integer NOT NULL,
+    user_id integer,
+    CONSTRAINT events_pkey PRIMARY KEY (id),
+    CONSTRAINT user_id_fk FOREIGN KEY (id)
+        REFERENCES users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
 
 
 
