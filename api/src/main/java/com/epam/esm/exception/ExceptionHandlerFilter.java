@@ -47,8 +47,10 @@ public class ExceptionHandlerFilter extends GenericFilterBean {
           request.getRequestURL(),
           exception);
       createErrorResponse((HttpServletResponse) res, exception, HttpStatus.BAD_REQUEST);
-    } catch (RuntimeException exception) {
+    } catch (InvalidTokenException exception) {
       createErrorResponse((HttpServletResponse) res, exception, HttpStatus.UNAUTHORIZED);
+    } catch (RuntimeException exception) {
+      createErrorResponse((HttpServletResponse) res, exception, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

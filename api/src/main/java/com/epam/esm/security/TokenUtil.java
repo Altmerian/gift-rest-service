@@ -49,7 +49,7 @@ public class TokenUtil {
           .collect(Collectors.toList());
       userId = (Integer) claims.get(USER_ID);
     } catch (NullPointerException exception) {
-      throw new InvalidTokenException("Token content is invalid");
+      throw new InvalidTokenException("Empty or invalid token!");
     }
     if (username != null) {
       return new UsernamePasswordAuthenticationToken(userId, username, authorities);

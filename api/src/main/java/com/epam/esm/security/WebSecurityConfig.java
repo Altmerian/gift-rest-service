@@ -50,6 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .permitAll()
         .antMatchers(HttpMethod.GET, "/api/v1/certificates/**", "/api/v1/tags/**")
         .permitAll()
+//        .anyRequest().authenticated()
         .and()
         .addFilter(getUpJwtAuthenticationFilter())
         .addFilter(new JWTAuthorizationFilter(authenticationManager()))
