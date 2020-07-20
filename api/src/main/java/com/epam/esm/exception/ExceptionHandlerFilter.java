@@ -1,11 +1,13 @@
 package com.epam.esm.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.JwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.stereotype.Component;
@@ -38,19 +40,24 @@ public class ExceptionHandlerFilter extends GenericFilterBean {
   @Override
   public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
       throws IOException, ServletException {
+    HttpServletRequest request = (HttpServletRequest) req;
+    HttpServletResponse response = (HttpServletResponse) res;
     try {
       chain.doFilter(req, res);
     } catch (RequestRejectedException exception) {
-      HttpServletRequest request = (HttpServletRequest) req;
       LOGGER.error(
-          "\"The request was rejected because the URL contained a potentially malicious String \"//\": request_url={}",
+          "The request was rejected because the URL contained a potentially malicious String \"//\": request_url={}",
           request.getRequestURL(),
           exception);
-      createErrorResponse((HttpServletResponse) res, exception, HttpStatus.BAD_REQUEST);
-    } catch (InvalidTokenException exception) {
-      createErrorResponse((HttpServletResponse) res, exception, HttpStatus.UNAUTHORIZED);
+      createErrorResponse(response, exception, HttpStatus.BAD_REQUEST);
+    } catch (InvalidTokenException | JwtException | AppAuthenticationException exception) {
+      String url =
+          request.getRequestURL()
+              .substring(0, request.getRequestURL().length() - request.getRequestURI().length());
+      response.setHeader(HttpHeaders.WWW_AUTHENTICATE, url + request.getContextPath() + "/login");
+      createErrorResponse(response, exception, HttpStatus.UNAUTHORIZED);
     } catch (RuntimeException exception) {
-      createErrorResponse((HttpServletResponse) res, exception, HttpStatus.INTERNAL_SERVER_ERROR);
+      createErrorResponse(response, exception, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

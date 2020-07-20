@@ -92,7 +92,7 @@ public class OrderServiceImpl implements OrderService {
                 () ->
                     new ResourceNotFoundException(
                         String.format(
-                            "User with id=%d don't have an order with id=%d", userId, orderId))));
+                            "Can't find an order with id=%d", orderId))));
   }
 
   @Override
