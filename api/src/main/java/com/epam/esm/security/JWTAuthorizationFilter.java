@@ -1,5 +1,6 @@
 package com.epam.esm.security;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,17 +14,20 @@ import java.io.IOException;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-  public JWTAuthorizationFilter(AuthenticationManager authManager) {
+  private final TokenUtil tokenUtil;
+
+  public JWTAuthorizationFilter(AuthenticationManager authManager, TokenUtil tokenUtil) {
     super(authManager);
+    this.tokenUtil = tokenUtil;
   }
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest req, HttpServletResponse res, FilterChain chain)
       throws IOException, ServletException {
-    String header = req.getHeader(SecurityConstants.HEADER_STRING);
+    String header = req.getHeader(HttpHeaders.AUTHORIZATION);
 
-    if (header == null || !header.startsWith(SecurityConstants.TOKEN_PREFIX)) {
+    if (header == null || !header.startsWith(tokenUtil.getToken_prefix())) {
       chain.doFilter(req, res);
       return;
     }
@@ -35,10 +39,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
   }
 
   private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-    String token = request.getHeader(SecurityConstants.HEADER_STRING);
+    String token = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (token != null) {
       token = token.substring(7);
-      return TokenUtil.getAuthentication(token);
+      return tokenUtil.getAuthentication(token);
     }
     logger.warn("JWT Token is not valid Bearer token");
     return null;

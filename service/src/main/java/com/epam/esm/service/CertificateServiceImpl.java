@@ -125,6 +125,7 @@ public class CertificateServiceImpl implements CertificateService {
             certificateDTO.getName(),
             certificateDTO.getPrice(),
             certificateDTO.getDurationInDays());
+    //todo refactor, add page here
     List<Certificate> certificateList = repository.query(specification);
     long certificateId = certificateList.stream().findFirst().map(Certificate::getId).orElse(0L);
     if (certificateId != 0L) {
@@ -152,6 +153,7 @@ public class CertificateServiceImpl implements CertificateService {
 
   @VisibleForTesting
   @Transactional
+  //todo refactor this
   void fetchCertificateTags(Set<Tag> tags) {
     for (Tag tag : tags) {
       long tagId;

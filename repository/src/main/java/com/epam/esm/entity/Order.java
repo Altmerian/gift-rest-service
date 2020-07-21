@@ -17,6 +17,7 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /** Represents order entity in the system */
 @Entity
@@ -97,5 +98,28 @@ public class Order {
 
   public void setCertificates(List<Certificate> certificates) {
     this.certificates = certificates;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Order)) {
+      return false;
+    }
+    Order order = (Order) o;
+    return isDeleted() == order.isDeleted()
+        && getId().equals(order.getId())
+        && getCost().equals(order.getCost())
+        && Objects.equals(getCreationDate(), order.getCreationDate())
+        && Objects.equals(getUser(), order.getUser())
+        && Objects.equals(getCertificates(), order.getCertificates());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getId(), getCost(), getCreationDate(), getUser(), isDeleted(), getCertificates());
   }
 }

@@ -31,9 +31,6 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 /**
  * Controller to handle all users related requests. Then requests depending on requests parameters
  * are handled with the appropriate method.
@@ -75,8 +72,7 @@ public class UserRestController {
     List<UserDTO> users = userService.getAll(intPage, intSize);
     users.forEach(userDTO -> ModelAssembler.addUserSelfLink(userDTO, resp));
     UserListDTO userListDTO = new UserListDTO(users);
-    userListDTO.add(
-        linkTo(methodOn(UserRestController.class).createUser(new UserDTO())).withRel("create"));
+    ModelAssembler.addUserListLinks(userListDTO);
     return userListDTO;
   }
 
@@ -115,9 +111,7 @@ public class UserRestController {
     List<OrderDTO> orders = orderService.getByUserId(userId, intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addUsersOrderSelfLink(userId, orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
-    orderListDTO.add(
-        linkTo(methodOn(UserRestController.class).createOrder(userId, new OrderDTO(), resp))
-            .withRel("create"));
+    ModelAssembler.addOrderListLinks(orderListDTO, resp);
     return orderListDTO;
   }
 

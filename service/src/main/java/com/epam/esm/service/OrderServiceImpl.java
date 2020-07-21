@@ -135,10 +135,10 @@ public class OrderServiceImpl implements OrderService {
                     String.format("User with id=%d hasn't been found", userId)));
   }
 
+  //todo refactor too long lambda
   private List<Certificate> fetchCertificatesData(List<CertificateDTO> certificates) {
     return certificates.stream()
-        .map(
-            certificateDTO ->
+        .map(certificateDTO ->
                 certificateRepository
                     .get(certificateDTO.getId())
                     .filter(certificate -> !certificate.isDeleted())

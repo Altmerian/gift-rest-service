@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Represents base certificate repository interface for common operations with data storage. */
+//todo abstract Repository
 public interface CertificateRepository {
 
   /**

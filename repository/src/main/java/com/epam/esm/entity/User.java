@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import java.util.Objects;
 import java.util.Set;
 
 /** Represents user of the system */
@@ -102,5 +103,37 @@ public class User {
 
   public void setOrders(Set<Order> orders) {
     this.orders = orders;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof User)) {
+      return false;
+    }
+    User user = (User) o;
+    return isDeleted() == user.isDeleted()
+        && getId().equals(user.getId())
+        && Objects.equals(getEmail(), user.getEmail())
+        && Objects.equals(getPassword(), user.getPassword())
+        && Objects.equals(getFirstName(), user.getFirstName())
+        && Objects.equals(getLastName(), user.getLastName())
+        && getUserRole() == user.getUserRole()
+        && Objects.equals(getOrders(), user.getOrders());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        getId(),
+        getEmail(),
+        getPassword(),
+        getFirstName(),
+        getLastName(),
+        getUserRole(),
+        isDeleted(),
+        getOrders());
   }
 }

@@ -16,9 +16,11 @@ import java.io.PrintWriter;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
   private final AuthenticationManager authenticationManager;
+  private final TokenUtil tokenUtil;
 
-  public JWTAuthenticationFilter(AuthenticationManager authenticationManager) {
+  public JWTAuthenticationFilter(AuthenticationManager authenticationManager, TokenUtil tokenUtil) {
     this.authenticationManager = authenticationManager;
+    this.tokenUtil = tokenUtil;
   }
 
   @Override
@@ -40,7 +42,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
   protected void successfulAuthentication(
       HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
       throws IOException {
-    String token = TokenUtil.generateToken(auth);
+    String token = tokenUtil.generateToken(auth);
     JWTResponse jwtResponse = new JWTResponse(token);
     ObjectMapper objectMapper = new ObjectMapper();
     try (PrintWriter pw = res.getWriter()) {

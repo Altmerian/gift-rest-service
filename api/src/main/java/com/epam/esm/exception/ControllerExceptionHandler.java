@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -34,8 +33,6 @@ import java.util.stream.Collectors;
 public class ControllerExceptionHandler {
 
   private static final Logger LOGGER = LogManager.getLogger();
-  private static final org.slf4j.Logger slf4jLogger =
-      LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
   @ExceptionHandler(ResourceNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)

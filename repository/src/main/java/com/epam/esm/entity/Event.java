@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "events")
@@ -80,5 +81,27 @@ public class Event {
 
   public void setUserId(Long userId) {
     this.userId = userId;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Event)) {
+      return false;
+    }
+    Event event = (Event) o;
+    return getId().equals(event.getId()) &&
+        getOperation() == event.getOperation() &&
+        Objects.equals(getTimestamp(), event.getTimestamp()) &&
+        Objects.equals(getEntityType(), event.getEntityType()) &&
+        Objects.equals(getEntityId(), event.getEntityId()) &&
+        Objects.equals(getUserId(), event.getUserId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId(), getOperation(), getTimestamp(), getEntityType(), getEntityId(), getUserId());
   }
 }

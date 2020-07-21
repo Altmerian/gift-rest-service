@@ -19,7 +19,7 @@ public class AuditListener {
   public AuditListener() {}
 
   @Autowired
-  public AuditListener(EventRepository eventRepository) {
+  public void setEventRepository(EventRepository eventRepository) {
     this.eventRepository = eventRepository;
   }
 
@@ -48,8 +48,11 @@ public class AuditListener {
     idField.setAccessible(true);
     Long entityId = (Long) idField.get(entity);
 
-    Integer userId =
-        (Integer) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    int userId = 0;
+    if (principal instanceof Integer) {
+      userId = (Integer) principal;
+    }
 
     Event event = new Event();
     event.setOperation(operation);

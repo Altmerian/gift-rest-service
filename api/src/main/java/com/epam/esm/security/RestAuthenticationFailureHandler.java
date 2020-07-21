@@ -15,8 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
-public class RestAuthenticationFailureHandler implements AuthenticationFailureHandler
-{
+public class RestAuthenticationFailureHandler implements AuthenticationFailureHandler {
   private final ObjectMapper objectMapper;
 
   @Autowired
@@ -25,12 +24,15 @@ public class RestAuthenticationFailureHandler implements AuthenticationFailureHa
   }
 
   @Override
-  public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse httpServletResponse,
-                                      AuthenticationException ex) throws IOException {
+  public void onAuthenticationFailure(
+      HttpServletRequest request,
+      HttpServletResponse httpServletResponse,
+      AuthenticationException ex)
+      throws IOException {
 
-    Map<String,Object> response = new LinkedHashMap<>();
+    Map<String, Object> response = new LinkedHashMap<>();
     response.put("status", 401);
-    response.put("messages", new String [] {"authentication error", ex.getMessage()});
+    response.put("messages", new String[] {"authentication error", ex.getMessage()});
     response.put("time", ZonedDateTime.now());
 
     httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

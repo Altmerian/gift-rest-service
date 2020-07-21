@@ -12,6 +12,8 @@ import com.epam.esm.dto.OrderListDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.TagListDTO;
 import com.epam.esm.dto.UserDTO;
+import com.epam.esm.dto.UserListDTO;
+import com.epam.esm.security.Authority;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -69,6 +71,7 @@ public class ModelAssembler {
       }
     }
     certificateDTO.add(
+        //todo hide nulls
         linkTo(methodOn(CertificateRestController.class).getAll(null, null, null, "1", "10", resp))
             .withRel("getAll"));
   }
@@ -104,10 +107,12 @@ public class ModelAssembler {
 
   public static void addOrderListLinks(OrderListDTO orderListDTO, HttpServletResponse resp) {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    int appUserId = principal instanceof Integer ? (Integer) principal : 1;
-    orderListDTO.add(
-        linkTo(methodOn(UserRestController.class).createOrder(appUserId, new OrderDTO(), resp))
-            .withRel("create"));
+    if (principal instanceof Integer) {
+      int appUserId =(Integer) principal;
+      orderListDTO.add(
+          linkTo(methodOn(UserRestController.class).createOrder(appUserId, new OrderDTO(), resp))
+              .withRel("create"));
+    }
   }
 
   public static void addUserSelfLink(UserDTO userDTO, HttpServletResponse resp) {
@@ -127,6 +132,12 @@ public class ModelAssembler {
           linkTo(methodOn(UserRestController.class).getAllUsers("1", "10", resp)).withRel("getAll"));
     }
   }
+
+  public static void addUserListLinks(UserListDTO userListDTO) {
+    userListDTO.add(
+        linkTo(methodOn(UserRestController.class).createUser(new UserDTO())).withRel("create"));
+  }
+
 
   public static void addUsersOrderSelfLink(
       long userId, OrderDTO orderDTO, HttpServletResponse resp) {
@@ -156,7 +167,7 @@ public class ModelAssembler {
         SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
             .findFirst()
             .map(GrantedAuthority::getAuthority)
-            .orElse("ROLE_GUEST");
-    return appUserRole.equals("ROLE_ADMIN");
+            .orElse(Authority.ROLE_GUEST.name());
+    return appUserRole.equals(Authority.ROLE_ADMIN.name());
   }
 }

@@ -60,12 +60,14 @@ public class CertificateJPARepository implements CertificateRepository {
     Query query = specification.toJPAQuery(entityManager);
     query.setFirstResult((page - 1) * size);
     query.setMaxResults(size);
+    //todo get rid of type casting?
     @SuppressWarnings("unchecked")
     List<Certificate> resultList = (List<Certificate>) query.getResultList();
     return resultList;
   }
 
   @Override
+  //todo move pages to specifications
   public List<Certificate> query(Specification<Certificate> specification) {
     return query(specification,1, 10);
   }
