@@ -125,8 +125,7 @@ public class CertificateServiceImpl implements CertificateService {
             certificateDTO.getName(),
             certificateDTO.getPrice(),
             certificateDTO.getDurationInDays());
-    //todo refactor, add page here
-    List<Certificate> certificateList = repository.query(specification);
+    List<Certificate> certificateList = repository.query(specification, 1, 10);
     long certificateId = certificateList.stream().findFirst().map(Certificate::getId).orElse(0L);
     if (certificateId != 0L) {
       throw new ResourceConflictException(
@@ -153,27 +152,34 @@ public class CertificateServiceImpl implements CertificateService {
 
   @VisibleForTesting
   @Transactional
-  //todo refactor this
+  //fills in tag's name depending on tag id and visa-versa
   void fetchCertificateTags(Set<Tag> tags) {
     for (Tag tag : tags) {
-      long tagId;
       if (tag.getId() == null || tag.getId() == 0) {
-        NameTagSpecification tagSpecification = new NameTagSpecification(tag.getName());
-        boolean tagExists = tagRepository.contains(tag);
-        tagId =
-            tagExists
-                ? tagRepository.query(tagSpecification).get(0).getId()
-                : tagRepository.create(tag);
-        tag.setId(tagId);
+        getTagIdByName(tag);
       } else {
-        tagId = tag.getId();
-        Optional<Tag> tagOptional = tagRepository.get(tagId);
-        if (!tagOptional.isPresent()) {
-          throw new MinorResourceNotFoundException(tag.getClass(), tagId);
-        }
-        tag.setName(tagOptional.get().getName());
+        getTagNameById(tag);
       }
     }
+  }
+
+  private void getTagNameById(Tag tag) {
+    long tagId = tag.getId();
+    Optional<Tag> tagOptional = tagRepository.get(tagId);
+    if (!tagOptional.isPresent()) {
+      throw new MinorResourceNotFoundException(tag.getClass(), tagId);
+    }
+    tag.setName(tagOptional.get().getName());
+  }
+
+  private void getTagIdByName(Tag tag) {
+    NameTagSpecification tagSpecification = new NameTagSpecification(tag.getName());
+    boolean tagExists = tagRepository.contains(tag);
+    long tagId =
+        tagExists
+            ? tagRepository.query(tagSpecification).get(0).getId()
+            : tagRepository.create(tag);
+    tag.setId(tagId);
   }
 
   @VisibleForTesting

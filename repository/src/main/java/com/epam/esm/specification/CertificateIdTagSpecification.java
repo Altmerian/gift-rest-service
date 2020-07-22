@@ -1,10 +1,10 @@
 package com.epam.esm.specification;
 
 import com.epam.esm.entity.Tag;
-import org.apache.commons.lang3.NotImplementedException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 public class CertificateIdTagSpecification implements Specification<Tag> {
   private final long certificate_id;
@@ -25,6 +25,12 @@ public class CertificateIdTagSpecification implements Specification<Tag> {
 
   @Override
   public Query toJPAQuery(EntityManager entityManager) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
+
+  @Override
+  public TypedQuery<Tag> typedJPAQuery(EntityManager entityManager) {
+    throw new UnsupportedOperationException();
+  }
+
 }

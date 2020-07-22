@@ -5,7 +5,7 @@ import com.epam.esm.dto.OrderListDTO;
 import com.epam.esm.dto.View;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.util.ModelAssembler;
-import com.epam.esm.util.ParseHelper;
+import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +34,12 @@ public class OrderRestController {
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final OrderService orderService;
 
-  private final ParseHelper parseHelper;
+  private final PageParseHelper pageParseHelper;
 
   @Autowired
-  public OrderRestController(OrderService orderService, ParseHelper parseHelper) {
+  public OrderRestController(OrderService orderService, PageParseHelper pageParseHelper) {
     this.orderService = orderService;
-    this.parseHelper = parseHelper;
+    this.pageParseHelper = pageParseHelper;
   }
 
   /**
@@ -55,8 +55,8 @@ public class OrderRestController {
       HttpServletResponse resp) {
     long totalCount = orderService.countAll();
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
-    int intPage = parseHelper.parsePage(page);
-    int intSize = parseHelper.parseSize(size);
+    int intPage = pageParseHelper.parsePage(page);
+    int intSize = pageParseHelper.parseSize(size);
     List<OrderDTO> orders = orderService.getAll(intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addOrderSelfLink(orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);

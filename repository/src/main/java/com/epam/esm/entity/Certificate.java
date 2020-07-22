@@ -1,13 +1,7 @@
 package com.epam.esm.entity;
 
-import com.epam.esm.audit.AuditListener;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -20,15 +14,11 @@ import java.util.Set;
 
 /** Represents certificate entity in the system */
 @Entity
-@EntityListeners(AuditListener.class)
 @Table(name = "certificates")
-public class Certificate {
+@SequenceGenerator(name = "id_seq_gen", sequenceName = "certificates_id_seq", allocationSize = 1)
+public class Certificate extends BaseEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "certificates_id_seq")
-  @SequenceGenerator(name = "certificates_id_seq", allocationSize = 1)
-  private Long id;
-
+  private static final long serialVersionUID = -840677491598390916L;
   private String name;
   private String description;
   private BigDecimal price;
@@ -56,14 +46,6 @@ public class Certificate {
   @PreUpdate
   void preUpdate() {
     setModificationDate(ZonedDateTime.now());
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public String getName() {

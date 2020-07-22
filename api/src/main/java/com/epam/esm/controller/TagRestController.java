@@ -5,7 +5,7 @@ import com.epam.esm.dto.TagListDTO;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.ModelAssembler;
-import com.epam.esm.util.ParseHelper;
+import com.epam.esm.util.PageParseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,12 +38,12 @@ public class TagRestController {
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final TagService tagService;
 
-  private final ParseHelper parseHelper;
+  private final PageParseHelper pageParseHelper;
 
   @Autowired
-  public TagRestController(TagService tagService, ParseHelper parseHelper) {
+  public TagRestController(TagService tagService, PageParseHelper pageParseHelper) {
     this.tagService = tagService;
-    this.parseHelper = parseHelper;
+    this.pageParseHelper = pageParseHelper;
   }
 
   /**
@@ -58,8 +58,8 @@ public class TagRestController {
       HttpServletResponse resp) {
     long totalCount = tagService.countAll();
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
-    int intPage = parseHelper.parsePage(page);
-    int intSize = parseHelper.parseSize(size);
+    int intPage = pageParseHelper.parsePage(page);
+    int intSize = pageParseHelper.parseSize(size);
     List<TagDTO> tags = tagService.getAll(intPage, intSize);
     tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
     TagListDTO tagListDTO = new TagListDTO(tags);

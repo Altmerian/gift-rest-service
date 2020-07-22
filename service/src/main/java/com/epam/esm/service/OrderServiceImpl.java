@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,13 +87,12 @@ public class OrderServiceImpl implements OrderService {
     checkUserId(userId);
     UserIdOrderIdSpecification specification = new UserIdOrderIdSpecification(userId, orderId);
     return convertToDTO(
-        orderRepository.query(specification).stream()
+        orderRepository.query(specification, 1, 10).stream()
             .findFirst()
             .orElseThrow(
                 () ->
                     new ResourceNotFoundException(
-                        String.format(
-                            "Can't find an order with id=%d", orderId))));
+                        String.format("Can't find an order with id=%d", orderId))));
   }
 
   @Override
@@ -135,18 +135,18 @@ public class OrderServiceImpl implements OrderService {
                     String.format("User with id=%d hasn't been found", userId)));
   }
 
-  //todo refactor too long lambda
-  private List<Certificate> fetchCertificatesData(List<CertificateDTO> certificates) {
-    return certificates.stream()
-        .map(certificateDTO ->
-                certificateRepository
-                    .get(certificateDTO.getId())
-                    .filter(certificate -> !certificate.isDeleted())
-                    .orElseThrow(
-                        () ->
-                            new MinorResourceNotFoundException(
-                                Certificate.class, certificateDTO.getId())))
-        .collect(Collectors.toList());
+  private List<Certificate> fetchCertificatesData(List<CertificateDTO> certificateDTOS) {
+    List<Certificate> certificates = new ArrayList<>();
+    for (CertificateDTO certificateDTO : certificateDTOS) {
+      Certificate certificate =
+          certificateRepository
+              .get(certificateDTO.getId())
+              .filter(cert -> !cert.isDeleted())
+              .orElseThrow(() ->new MinorResourceNotFoundException(
+                          Certificate.class, certificateDTO.getId()));
+      certificates.add(certificate);
+    }
+    return certificates;
   }
 
   private BigDecimal calculateCost(List<Certificate> certificates) {

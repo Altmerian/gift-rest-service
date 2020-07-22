@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 public class SearchAndSortCertificateSpecification implements Specification<Certificate> {
   private final String tagName;
@@ -38,5 +39,10 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
     nativeQuery.setParameter(2, searchFor);
     nativeQuery.setParameter(3,tagsCount);
     return nativeQuery;
+  }
+
+  @Override
+  public TypedQuery<Certificate> typedJPAQuery(EntityManager entityManager) {
+    throw new UnsupportedOperationException();
   }
 }

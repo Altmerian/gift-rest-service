@@ -1,5 +1,6 @@
 package com.epam.esm.audit;
 
+import com.epam.esm.entity.BaseEntity;
 import com.epam.esm.entity.Event;
 import com.epam.esm.repository.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
-import java.lang.reflect.Field;
 
 @Component
 public class AuditListener {
@@ -24,29 +24,23 @@ public class AuditListener {
   }
 
   @PostPersist
-  void afterPersist(Object object) throws Exception {
-    createEvent(object, Operation.INSERT);
+  void afterPersist(BaseEntity entity) {
+    createEvent(entity, Operation.INSERT);
   }
 
   @PostUpdate
-  void afterUpdate(Object object) throws Exception {
-    createEvent(object, Operation.UPDATE);
+  void afterUpdate(BaseEntity entity) {
+    createEvent(entity, Operation.UPDATE);
   }
 
   @PostRemove
-  void afterDelete(Object object) throws Exception {
-    createEvent(object, Operation.DELETE);
+  void afterDelete(BaseEntity entity) {
+    createEvent(entity, Operation.DELETE);
   }
 
-  private <T> void createEvent(Object object, Operation operation)
-      throws NoSuchFieldException, IllegalAccessException {
-    Class<?> aClass = object.getClass();
-    @SuppressWarnings("unchecked")
-    T entity = (T) object;
-
-    Field idField = aClass.getDeclaredField("id");
-    idField.setAccessible(true);
-    Long entityId = (Long) idField.get(entity);
+  private void createEvent(BaseEntity entity, Operation operation) {
+    Class<?> aClass = entity.getClass();
+    Long entityId = entity.getId();
 
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     int userId = 0;

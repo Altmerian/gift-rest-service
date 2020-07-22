@@ -7,7 +7,7 @@ import com.epam.esm.dto.View;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.CertificateService;
 import com.epam.esm.util.ModelAssembler;
-import com.epam.esm.util.ParseHelper;
+import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +41,12 @@ public class CertificateRestController {
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final CertificateService certificateService;
 
-  private final ParseHelper parseHelper;
+  private final PageParseHelper pageParseHelper;
 
   @Autowired
-  public CertificateRestController(CertificateService certificateService, ParseHelper parseHelper) {
+  public CertificateRestController(CertificateService certificateService, PageParseHelper pageParseHelper) {
     this.certificateService = certificateService;
-    this.parseHelper = parseHelper;
+    this.pageParseHelper = pageParseHelper;
   }
 
   /**
@@ -69,8 +69,8 @@ public class CertificateRestController {
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
       HttpServletResponse resp) {
-    int intPage = parseHelper.parsePage(page);
-    int intSize = parseHelper.parseSize(size);
+    int intPage = pageParseHelper.parsePage(page);
+    int intSize = pageParseHelper.parseSize(size);
     long totalCount = certificateService.countAll(tagName, searchFor, sortBy);
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
     List<CertificateDTO> certificates;

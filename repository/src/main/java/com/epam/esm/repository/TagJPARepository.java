@@ -2,8 +2,9 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
 import com.epam.esm.specification.NameTagSpecification;
-import com.epam.esm.specification.Specification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -11,15 +12,17 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-@Transactional
-public class TagJPARepository implements TagRepository {
+public class TagJPARepository extends AbstractRepository<Tag> implements TagRepository {
 
   @PersistenceContext private EntityManager entityManager;
+
+  @Autowired
+  public TagJPARepository(EntityManager entityManager) {
+    super(entityManager, Tag.class);
+  }
 
   @Override
   public List<Tag> getAll(int page, int size) {
@@ -44,27 +47,9 @@ public class TagJPARepository implements TagRepository {
   }
 
   @Override
-  public Optional<Tag> get(long id) {
-    Tag tag = entityManager.find(Tag.class, id);
-    return Optional.ofNullable(tag);
-  }
-
-  @Override
-  public long create(Tag tag) {
-    entityManager.persist(tag);
-    return tag.getId();
-  }
-
-  @Override
+  @Transactional
   public void delete(Tag tag) {
     entityManager.remove(tag);
-  }
-
-  @Override
-  public List<Tag> query(Specification<Tag> specification) {
-    @SuppressWarnings("unchecked")
-    TypedQuery<Tag> query = (TypedQuery<Tag>) specification.toJPAQuery(entityManager);
-    return query.getResultList();
   }
 
   @Override

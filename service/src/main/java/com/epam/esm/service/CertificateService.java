@@ -3,14 +3,14 @@ package com.epam.esm.service;
 import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.exception.ResourceConflictException;
-import com.epam.esm.repository.CertificateRepository;
+import com.epam.esm.repository.BaseRepository;
 import com.epam.esm.specification.Specification;
 
 import java.util.List;
 
 /**
  * Represents an interface of service which interacts with the underlying repository layer for
- * certificate-related actions. An instance of certificate repository {@link CertificateRepository}
+ * certificate-related actions. An instance of certificate repository {@link BaseRepository}
  * should be aggregated during implementation.
  */
 public interface CertificateService {

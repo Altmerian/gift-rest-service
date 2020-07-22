@@ -2,6 +2,7 @@ package com.epam.esm.specification;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 /** Represents selection parameters will be applied to query from the repositories */
 public interface Specification<T> {
@@ -25,4 +26,11 @@ public interface Specification<T> {
    * @return {@code Query} according to specification parameters
    */
   Query toJPAQuery(EntityManager entityManager);
+
+  /**
+   * Creates new {@code TypedQuery} from specification parameters and returns it.
+   *
+   * @return {@code TypedQuery} according to specification parameters
+   */
+  TypedQuery<T> typedJPAQuery(EntityManager entityManager);
 }

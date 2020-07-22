@@ -1,13 +1,7 @@
 package com.epam.esm.entity;
 
-import com.epam.esm.audit.AuditListener;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -21,14 +15,11 @@ import java.util.Objects;
 
 /** Represents order entity in the system */
 @Entity
-@EntityListeners(AuditListener.class)
 @Table(name = "orders")
-public class Order {
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_id_seq")
-  @SequenceGenerator(name = "orders_id_seq", allocationSize = 1)
-  private Long id;
+@SequenceGenerator(name = "orders_id_seq", allocationSize = 1)
+public class Order extends BaseEntity {
 
+  private static final long serialVersionUID = 2406652748140033005L;
   private BigDecimal cost;
 
   @Column(
@@ -51,14 +42,6 @@ public class Order {
   private List<Certificate> certificates;
 
   public Order() {}
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
 
   public BigDecimal getCost() {
     return cost;
@@ -113,13 +96,13 @@ public class Order {
         && getId().equals(order.getId())
         && getCost().equals(order.getCost())
         && Objects.equals(getCreationDate(), order.getCreationDate())
-        && Objects.equals(getUser(), order.getUser())
+        && Objects.equals(getUser().getId(), order.getUser().getId())
         && Objects.equals(getCertificates(), order.getCertificates());
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(
-        getId(), getCost(), getCreationDate(), getUser(), isDeleted(), getCertificates());
+        getId(), getCost(), getCreationDate(), getUser().getId(), isDeleted(), getCertificates());
   }
 }

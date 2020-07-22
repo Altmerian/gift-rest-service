@@ -85,7 +85,7 @@ class CertificateJdbcRepositoryTest {
     NamePriceDurationCertificateSpecification namePriceDurationCertificateSpecification =
         new NamePriceDurationCertificateSpecification("Adidas", new BigDecimal("100.00"), 90);
     // when
-    List<Certificate> certificates = repository.query(namePriceDurationCertificateSpecification);
+    List<Certificate> certificates = repository.query(namePriceDurationCertificateSpecification,1 , 10);
     Certificate actual = certificates.get(0);
     // then
     assertAll(

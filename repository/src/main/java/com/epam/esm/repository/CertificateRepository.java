@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 /** Represents base certificate repository interface for common operations with data storage. */
-//todo abstract Repository
 public interface CertificateRepository {
 
   /**
@@ -60,14 +59,6 @@ public interface CertificateRepository {
    * @return list of certificates that match the specification
    */
   List<Certificate> query(Specification<Certificate> specification, int page, int size);
-
-  /**
-   * Makes a query for single certificate that matches given criteria through {@code Specification}
-   *
-   * @param specification certificate specification with necessary parameters
-   * @return list of certificates that match the specification
-   */
-  List<Certificate> query(Specification<Certificate> specification);
 
   /**
    * Counts overall quantity of certificates witch matches given specification

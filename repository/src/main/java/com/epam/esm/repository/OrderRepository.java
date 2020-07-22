@@ -53,14 +53,6 @@ public interface OrderRepository {
   /**
    * Makes a query for orders that match given criteria through {@code Specification}
    *
-   * @param specification order specification with necessary parameters
-   * @return list of orders that match the specification
-   */
-  List<Order> query(Specification<Order> specification);
-
-  /**
-   * Makes a query for orders that match given criteria through {@code Specification}
-   *
    * @param page number of page to view
    * @param size number of orders per page
    * @param specification order specification with necessary parameters

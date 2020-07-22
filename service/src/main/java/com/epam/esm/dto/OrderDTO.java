@@ -10,6 +10,7 @@ import org.springframework.hateoas.RepresentationModel;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /** Data transfer object representing a user */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -77,5 +78,37 @@ public class OrderDTO extends RepresentationModel<OrderDTO> {
 
   public void setCertificates(List<CertificateDTO> certificates) {
     this.certificates = certificates;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof OrderDTO)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    OrderDTO orderDTO = (OrderDTO) o;
+    return isDeleted() == orderDTO.isDeleted()
+        && getId().equals(orderDTO.getId())
+        && Objects.equals(getCost(), orderDTO.getCost())
+        && Objects.equals(getCreationDate(), orderDTO.getCreationDate())
+        && Objects.equals(getUser().getId(), orderDTO.getUser().getId())
+        && Objects.equals(getCertificates(), orderDTO.getCertificates());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        super.hashCode(),
+        getId(),
+        getCost(),
+        getCreationDate(),
+        getUser().getId(),
+        isDeleted(),
+        getCertificates());
   }
 }

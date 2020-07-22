@@ -5,6 +5,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 /** Specifies the widest used tag of a user with the highest cost of all orders */
 public class ValuableUserTagsSpecification implements Specification<Tag> {
@@ -26,9 +27,14 @@ public class ValuableUserTagsSpecification implements Specification<Tag> {
 
   @Override
   public Query toJPAQuery(EntityManager entityManager) {
-    Query nativeQuery = entityManager.createNativeQuery(toSqlQuery(), Tag.class);
-    nativeQuery.setParameter(1, userId);
-    nativeQuery.setParameter(2, userId);
-    return nativeQuery;
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public TypedQuery<Tag> typedJPAQuery(EntityManager entityManager) {
+    TypedQuery<Tag> namedQuery = entityManager.createNamedQuery("getWidelyUsedTagsOfUser", Tag.class);
+    namedQuery.setParameter(1, userId);
+    namedQuery.setParameter(2, userId);
+    return namedQuery;
   }
 }

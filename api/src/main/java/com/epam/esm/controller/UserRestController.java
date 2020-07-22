@@ -11,7 +11,7 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.util.ModelAssembler;
-import com.epam.esm.util.ParseHelper;
+import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,14 +43,14 @@ public class UserRestController {
   private final UserService userService;
 
   private final OrderService orderService;
-  private final ParseHelper parseHelper;
+  private final PageParseHelper pageParseHelper;
 
   @Autowired
   public UserRestController(
-      UserService userService, OrderService orderService, ParseHelper parseHelper) {
+      UserService userService, OrderService orderService, PageParseHelper pageParseHelper) {
     this.userService = userService;
     this.orderService = orderService;
-    this.parseHelper = parseHelper;
+    this.pageParseHelper = pageParseHelper;
   }
 
   /**
@@ -67,8 +67,8 @@ public class UserRestController {
       HttpServletResponse resp) {
     long totalCount = userService.countAll();
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
-    int intPage = parseHelper.parsePage(page);
-    int intSize = parseHelper.parseSize(size);
+    int intPage = pageParseHelper.parsePage(page);
+    int intSize = pageParseHelper.parseSize(size);
     List<UserDTO> users = userService.getAll(intPage, intSize);
     users.forEach(userDTO -> ModelAssembler.addUserSelfLink(userDTO, resp));
     UserListDTO userListDTO = new UserListDTO(users);
@@ -106,8 +106,8 @@ public class UserRestController {
       HttpServletResponse resp) {
     long totalCount = orderService.countAll(userId);
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
-    int intPage = parseHelper.parsePage(page);
-    int intSize = parseHelper.parseSize(size);
+    int intPage = pageParseHelper.parsePage(page);
+    int intSize = pageParseHelper.parseSize(size);
     List<OrderDTO> orders = orderService.getByUserId(userId, intPage, intSize);
     orders.forEach(orderDTO -> ModelAssembler.addUsersOrderSelfLink(userId, orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);

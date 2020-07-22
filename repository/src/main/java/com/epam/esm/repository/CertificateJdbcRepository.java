@@ -83,11 +83,6 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public List<Certificate> query(Specification<Certificate> specification, int page, int size) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public List<Certificate> query(Specification<Certificate> specification) {
     return jdbcTemplate.query(
         specification.toSqlQuery(), specification.getParameters(), new CertificateMapper());
   }

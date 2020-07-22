@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ParseHelper {
+public class PageParseHelper {
 
   @Value("${spring.data.rest.default-page-size}")
   private int defaultPageSize;

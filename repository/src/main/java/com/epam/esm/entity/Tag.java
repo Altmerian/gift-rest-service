@@ -1,39 +1,27 @@
 package com.epam.esm.entity;
 
-import com.epam.esm.audit.AuditListener;
-
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /** Represents tag entity in the system */
 @Entity
-@EntityListeners(AuditListener.class)
 @Table(name = "tags")
-public class Tag {
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tags_id_seq")
-  @SequenceGenerator(name = "tags_id_seq", allocationSize = 1)
-  private Long id;
+@SequenceGenerator(name = "id_seq_gen", sequenceName = "tags_id_seq", allocationSize = 1)
+@NamedNativeQuery(
+    name = "getWidelyUsedTagsOfUser",
+    query ="SELECT id, name FROM user_tags_function(?) WHERE tag_cost = (SELECT MAX(tag_cost) FROM user_tags_function(?))",
+    resultClass = Tag.class)
+public class Tag extends BaseEntity {
 
+  private static final long serialVersionUID = -534616247517516824L;
   private String name;
 
   public Tag() {}
 
   public Tag(String name) {
     this.name = name;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public String getName() {

@@ -149,25 +149,25 @@ public class CertificateServiceImplTest {
   @Test
   public void checkDuplicate_givenNamePriceDurationTags_expectedException() {
     // given
-    when(certificateRepository.query(ArgumentMatchers.any()))
+    when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt()))
         .thenReturn(Collections.singletonList(mockCertificate));
     when(mockCertificate.getId()).thenReturn(1L);
     // when
     Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
     assertThrows(ResourceConflictException.class, checkingAttempt);
-    verify(certificateRepository).query(ArgumentMatchers.any());
+    verify(certificateRepository).query(ArgumentMatchers.any(), anyInt(), anyInt());
   }
 
   @Test
   public void checkDuplicate_uniqueNamePriceDurationTags_expectedNotToThrow() {
     // given
-    when(certificateRepository.query(ArgumentMatchers.any())).thenReturn(Collections.emptyList());
+    when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt())).thenReturn(Collections.emptyList());
     // when
     Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
     assertDoesNotThrow(checkingAttempt);
-    verify(certificateRepository).query(ArgumentMatchers.any());
+    verify(certificateRepository).query(ArgumentMatchers.any(), anyInt(), anyInt());
   }
 
   @Test

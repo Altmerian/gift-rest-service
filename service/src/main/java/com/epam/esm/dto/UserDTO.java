@@ -11,6 +11,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.Objects;
 import java.util.Set;
 
 /** Data transfer object representing a user */
@@ -108,5 +109,41 @@ public class UserDTO extends RepresentationModel<UserDTO> {
 
   public void setOrders(Set<Order> orders) {
     this.orders = orders;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof UserDTO)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    UserDTO userDTO = (UserDTO) o;
+    return isDeleted() == userDTO.isDeleted()
+        && getId().equals(userDTO.getId())
+        && Objects.equals(getEmail(), userDTO.getEmail())
+        && Objects.equals(getPassword(), userDTO.getPassword())
+        && Objects.equals(getFirstName(), userDTO.getFirstName())
+        && Objects.equals(getLastName(), userDTO.getLastName())
+        && Objects.equals(getUserRole(), userDTO.getUserRole())
+        && Objects.equals(getOrders(), userDTO.getOrders());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(
+        super.hashCode(),
+        getId(),
+        getEmail(),
+        getPassword(),
+        getFirstName(),
+        getLastName(),
+        getUserRole(),
+        isDeleted(),
+        getOrders());
   }
 }

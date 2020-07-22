@@ -23,6 +23,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 public class ModelAssembler {
+
+  private static final String DEFAULT_PAGE_NUMBER = "1";
+  private static final String DEFAULT_PAGE_SIZE = "10";
+
+
   public static void addTagSelfLink(TagDTO tagDTO, HttpServletResponse resp) {
     if (!tagDTO.hasLink("self")) {
       tagDTO.add(
@@ -71,9 +76,7 @@ public class ModelAssembler {
       }
     }
     certificateDTO.add(
-        //todo hide nulls
-        linkTo(methodOn(CertificateRestController.class).getAll(null, null, null, "1", "10", resp))
-            .withRel("getAll"));
+        linkTo(CertificateRestController.class).withRel("getAll"));
   }
 
   public static void addCertificateListLinks(CertificateListDTO certificateListDTO) {
@@ -101,7 +104,7 @@ public class ModelAssembler {
           linkTo(methodOn(OrderRestController.class).delete(orderDTO.getId())).withRel("delete"));
     }
     orderDTO.add(
-        linkTo(methodOn(OrderRestController.class).getAllOrders("1", "10", resp))
+        linkTo(methodOn(OrderRestController.class).getAllOrders(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
             .withRel("getAll"));
   }
 
@@ -129,7 +132,7 @@ public class ModelAssembler {
             linkTo(methodOn(UserRestController.class).deleteUser(userDTO.getId())).withRel("delete"));
       }
       userDTO.add(
-          linkTo(methodOn(UserRestController.class).getAllUsers("1", "10", resp)).withRel("getAll"));
+          linkTo(methodOn(UserRestController.class).getAllUsers(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp)).withRel("getAll"));
     }
   }
 
@@ -158,7 +161,7 @@ public class ModelAssembler {
               .withRel("delete"));
     }
     orderDTO.add(
-        linkTo(methodOn(UserRestController.class).getUserOrders(userId, "1", "10", resp))
+        linkTo(methodOn(UserRestController.class).getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
             .withRel("getAll"));
   }
 
