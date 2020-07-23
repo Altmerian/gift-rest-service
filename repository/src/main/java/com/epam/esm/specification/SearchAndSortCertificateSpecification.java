@@ -33,16 +33,13 @@ public class SearchAndSortCertificateSpecification implements Specification<Cert
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
+  public TypedQuery<Certificate> toJPAQuery(EntityManager entityManager) {
     Query nativeQuery = entityManager.createNativeQuery(toSqlQuery(), Certificate.class);
     nativeQuery.setParameter(1, tagName);
     nativeQuery.setParameter(2, searchFor);
-    nativeQuery.setParameter(3,tagsCount);
-    return nativeQuery;
-  }
-
-  @Override
-  public TypedQuery<Certificate> typedJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
+    nativeQuery.setParameter(3, tagsCount);
+    @SuppressWarnings("unchecked")
+    TypedQuery<Certificate> typedQuery = (TypedQuery<Certificate>) nativeQuery;
+    return typedQuery;
   }
 }

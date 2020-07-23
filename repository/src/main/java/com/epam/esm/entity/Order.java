@@ -16,7 +16,7 @@ import java.util.Objects;
 /** Represents order entity in the system */
 @Entity
 @Table(name = "orders")
-@SequenceGenerator(name = "orders_id_seq", allocationSize = 1)
+@SequenceGenerator(name = "id_seq_gen", sequenceName = "orders_id_seq", allocationSize = 1)
 public class Order extends BaseEntity {
 
   private static final long serialVersionUID = 2406652748140033005L;

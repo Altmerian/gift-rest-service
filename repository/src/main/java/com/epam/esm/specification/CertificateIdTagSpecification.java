@@ -3,7 +3,6 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.Tag;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 public class CertificateIdTagSpecification implements Specification<Tag> {
@@ -24,12 +23,7 @@ public class CertificateIdTagSpecification implements Specification<Tag> {
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TypedQuery<Tag> typedJPAQuery(EntityManager entityManager) {
+  public TypedQuery<Tag> toJPAQuery(EntityManager entityManager) {
     throw new UnsupportedOperationException();
   }
 

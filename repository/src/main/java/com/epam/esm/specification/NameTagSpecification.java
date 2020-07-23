@@ -3,7 +3,6 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.Tag;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,12 +27,7 @@ public class NameTagSpecification implements Specification<Tag> {
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TypedQuery<Tag> typedJPAQuery(EntityManager entityManager) {
+  public TypedQuery<Tag> toJPAQuery(EntityManager entityManager) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Tag> cq = cb.createQuery(Tag.class);
     Root<Tag> tag = cq.from(Tag.class);

@@ -3,7 +3,6 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.Certificate;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -33,12 +32,7 @@ public class NamePriceDurationCertificateSpecification implements Specification<
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TypedQuery<Certificate> typedJPAQuery(EntityManager entityManager) {
+  public TypedQuery<Certificate> toJPAQuery(EntityManager entityManager) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Certificate> cq = cb.createQuery(Certificate.class);
     Root<Certificate> certificate = cq.from(Certificate.class);

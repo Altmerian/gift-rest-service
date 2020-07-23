@@ -3,7 +3,6 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.Order;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,12 +29,7 @@ public class UserIdOrderIdSpecification implements Specification<Order> {
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TypedQuery<Order> typedJPAQuery(EntityManager entityManager) {
+  public TypedQuery<Order> toJPAQuery(EntityManager entityManager) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<Order> cq = cb.createQuery(Order.class);
     Root<Order> order = cq.from(Order.class);

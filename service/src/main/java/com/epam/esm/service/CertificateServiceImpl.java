@@ -73,7 +73,7 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
-  @Transactional
+  @Transactional()
   public long create(CertificateDTO certificateDTO) {
     checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);

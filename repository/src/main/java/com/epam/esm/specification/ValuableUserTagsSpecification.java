@@ -4,7 +4,6 @@ import com.epam.esm.entity.Tag;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 /** Specifies the widest used tag of a user with the highest cost of all orders */
@@ -26,12 +25,7 @@ public class ValuableUserTagsSpecification implements Specification<Tag> {
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TypedQuery<Tag> typedJPAQuery(EntityManager entityManager) {
+  public TypedQuery<Tag> toJPAQuery(EntityManager entityManager) {
     TypedQuery<Tag> namedQuery = entityManager.createNamedQuery("getWidelyUsedTagsOfUser", Tag.class);
     namedQuery.setParameter(1, userId);
     namedQuery.setParameter(2, userId);

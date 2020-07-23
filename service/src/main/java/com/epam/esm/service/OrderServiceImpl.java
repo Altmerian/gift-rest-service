@@ -16,6 +16,7 @@ import com.epam.esm.repository.UserRepository;
 import com.epam.esm.specification.UserIdOrderIdSpecification;
 import com.epam.esm.specification.UserIdOrderSpecification;
 import com.epam.esm.specification.ValuableUserTagsSpecification;
+import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -155,15 +156,18 @@ public class OrderServiceImpl implements OrderService {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
-  private OrderDTO convertToDTO(Order order) {
+  @VisibleForTesting
+  OrderDTO convertToDTO(Order order) {
     return modelMapper.map(order, OrderDTO.class);
   }
 
-  private Order convertToEntity(OrderDTO orderDTO) {
+  @VisibleForTesting
+  Order convertToEntity(OrderDTO orderDTO) {
     return modelMapper.map(orderDTO, Order.class);
   }
 
-  private TagDTO convertTagToDTO(Tag tag) {
+  @VisibleForTesting
+  TagDTO convertTagToDTO(Tag tag) {
     return modelMapper.map(tag, TagDTO.class);
   }
 }

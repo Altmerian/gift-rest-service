@@ -13,7 +13,6 @@ import com.epam.esm.dto.TagDTO;
 import com.epam.esm.dto.TagListDTO;
 import com.epam.esm.dto.UserDTO;
 import com.epam.esm.dto.UserListDTO;
-import com.epam.esm.security.Authority;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -26,10 +25,17 @@ public class ModelAssembler {
 
   private static final String DEFAULT_PAGE_NUMBER = "1";
   private static final String DEFAULT_PAGE_SIZE = "10";
-
+  private static final String ROLE_GUEST = "ROLE_GUEST";
+  private static final String ROLE_ADMIN = "ROLE_ADMIN";
+  private static final String SELF_RELATION = "self";
+  private static final String GET_ALL_RELATION = "getAll";
+  private static final String CREATE_RELATION = "create";
+  private static final String UPDATE_RELATION = "update";
+  private static final String PATCH_RELATION = "patch";
+  private static final String DELETE_RELATION = "delete";
 
   public static void addTagSelfLink(TagDTO tagDTO, HttpServletResponse resp) {
-    if (!tagDTO.hasLink("self")) {
+    if (!tagDTO.hasLink(SELF_RELATION)) {
       tagDTO.add(
           linkTo(methodOn(TagRestController.class).getById(tagDTO.getId(), resp)).withSelfRel());
     }
@@ -39,14 +45,15 @@ public class ModelAssembler {
     addTagSelfLink(tagDTO, resp);
     if (appUserIsAdmin()) {
       tagDTO.add(
-          linkTo(methodOn(TagRestController.class).delete(tagDTO.getId())).withRel("delete"));
+          linkTo(methodOn(TagRestController.class).delete(tagDTO.getId()))
+              .withRel(DELETE_RELATION));
     }
   }
 
   public static void addTagListLinks(TagListDTO tagListDTO) {
     if (appUserIsAdmin()) {
       tagListDTO.add(
-          linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel("create"));
+          linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel(CREATE_RELATION));
     }
   }
 
@@ -64,26 +71,25 @@ public class ModelAssembler {
       certificateDTO.add(
           linkTo(methodOn(CertificateRestController.class)
                       .update(certificateDTO.getId(), new CertificateDTO()))
-              .withRel("update"));
+              .withRel(UPDATE_RELATION));
       certificateDTO.add(
           linkTo(methodOn(CertificateRestController.class)
                       .patch(certificateDTO.getId(), new CertificatePatchDTO()))
-              .withRel("patch"));
+              .withRel(PATCH_RELATION));
       if (!certificateDTO.isDeleted()) {
         certificateDTO.add(
             linkTo(methodOn(CertificateRestController.class).delete(certificateDTO.getId()))
-                .withRel("delete"));
+                .withRel(DELETE_RELATION));
       }
     }
-    certificateDTO.add(
-        linkTo(CertificateRestController.class).withRel("getAll"));
+    certificateDTO.add(linkTo(CertificateRestController.class).withRel(GET_ALL_RELATION));
   }
 
   public static void addCertificateListLinks(CertificateListDTO certificateListDTO) {
     if (appUserIsAdmin()) {
       certificateListDTO.add(
           linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO()))
-              .withRel("create"));
+              .withRel(CREATE_RELATION));
     }
   }
 
@@ -104,17 +110,19 @@ public class ModelAssembler {
           linkTo(methodOn(OrderRestController.class).delete(orderDTO.getId())).withRel("delete"));
     }
     orderDTO.add(
-        linkTo(methodOn(OrderRestController.class).getAllOrders(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
-            .withRel("getAll"));
+        linkTo(
+                methodOn(OrderRestController.class)
+                    .getAllOrders(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
+            .withRel(GET_ALL_RELATION));
   }
 
   public static void addOrderListLinks(OrderListDTO orderListDTO, HttpServletResponse resp) {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principal instanceof Integer) {
-      int appUserId =(Integer) principal;
+      int appUserId = (Integer) principal;
       orderListDTO.add(
           linkTo(methodOn(UserRestController.class).createOrder(appUserId, new OrderDTO(), resp))
-              .withRel("create"));
+              .withRel(CREATE_RELATION));
     }
   }
 
@@ -129,18 +137,21 @@ public class ModelAssembler {
     if (appUserIsAdmin()) {
       if (!userDTO.isDeleted()) {
         userDTO.add(
-            linkTo(methodOn(UserRestController.class).deleteUser(userDTO.getId())).withRel("delete"));
+            linkTo(methodOn(UserRestController.class).deleteUser(userDTO.getId()))
+                .withRel(DELETE_RELATION));
       }
       userDTO.add(
-          linkTo(methodOn(UserRestController.class).getAllUsers(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp)).withRel("getAll"));
+          linkTo(methodOn(UserRestController.class)
+                      .getAllUsers(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
+              .withRel(GET_ALL_RELATION));
     }
   }
 
   public static void addUserListLinks(UserListDTO userListDTO) {
     userListDTO.add(
-        linkTo(methodOn(UserRestController.class).createUser(new UserDTO())).withRel("create"));
+        linkTo(methodOn(UserRestController.class).createUser(new UserDTO()))
+            .withRel(CREATE_RELATION));
   }
-
 
   public static void addUsersOrderSelfLink(
       long userId, OrderDTO orderDTO, HttpServletResponse resp) {
@@ -158,11 +169,12 @@ public class ModelAssembler {
     if (!orderDTO.isDeleted()) {
       orderDTO.add(
           linkTo(methodOn(UserRestController.class).deleteOrder(userId, orderDTO.getId()))
-              .withRel("delete"));
+              .withRel(DELETE_RELATION));
     }
     orderDTO.add(
-        linkTo(methodOn(UserRestController.class).getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
-            .withRel("getAll"));
+        linkTo(methodOn(UserRestController.class)
+                    .getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
+            .withRel(GET_ALL_RELATION));
   }
 
   private static boolean appUserIsAdmin() {
@@ -170,7 +182,7 @@ public class ModelAssembler {
         SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
             .findFirst()
             .map(GrantedAuthority::getAuthority)
-            .orElse(Authority.ROLE_GUEST.name());
-    return appUserRole.equals(Authority.ROLE_ADMIN.name());
+            .orElse(ROLE_GUEST);
+    return appUserRole.equals(ROLE_ADMIN);
   }
 }

@@ -1,6 +1,7 @@
 package com.epam.esm.repository;
 
 import com.epam.esm.entity.BaseEntity;
+import com.epam.esm.entity.Tag;
 import com.epam.esm.specification.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +30,9 @@ public abstract class AbstractRepository<E extends BaseEntity> implements BaseRe
     Root<E> rootEntry = cq.from(aClass);
     cq.orderBy(cb.asc(rootEntry.get("id")));
     CriteriaQuery<E> all = cq.select(rootEntry);
-    cq.where(cb.notEqual(rootEntry.get("deleted"), true));
+    if (aClass != Tag.class) {
+      cq.where(cb.notEqual(rootEntry.get("deleted"), true));
+    }
 
     TypedQuery<E> allQuery = entityManager.createQuery(all);
     allQuery.setFirstResult((page - 1) * size);
@@ -43,7 +46,9 @@ public abstract class AbstractRepository<E extends BaseEntity> implements BaseRe
     CriteriaQuery<Long> cq = cb.createQuery(Long.class);
     Root<E> rootEntry = cq.from(aClass);
     cq.select(cb.count(rootEntry));
-    cq.where(cb.notEqual(rootEntry.get("deleted"), true));
+    if (aClass != Tag.class) {
+      cq.where(cb.notEqual(rootEntry.get("deleted"), true));
+    }
     return entityManager.createQuery(cq).getSingleResult();
   }
 
@@ -69,7 +74,7 @@ public abstract class AbstractRepository<E extends BaseEntity> implements BaseRe
 
   @Override
   public List<E> query(Specification<E> specification) {
-    TypedQuery<E> query = specification.typedJPAQuery(entityManager);
+    TypedQuery<E> query = specification.toJPAQuery(entityManager);
     return query.getResultList();
   }
 }

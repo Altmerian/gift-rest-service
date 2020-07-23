@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.List;
 
 @Repository
@@ -30,12 +31,10 @@ public class CertificateJPARepository extends AbstractRepository<Certificate>
 
   @Override
   public List<Certificate> query(Specification<Certificate> specification, int page, int size) {
-    Query query = specification.toJPAQuery(entityManager);
-    query.setFirstResult((page - 1) * size);
-    query.setMaxResults(size);
-    @SuppressWarnings("unchecked")
-    List<Certificate> resultList = (List<Certificate>) query.getResultList();
-    return resultList;
+    TypedQuery<Certificate> typedQuery = specification.toJPAQuery(entityManager);
+    typedQuery.setFirstResult((page - 1) * size);
+    typedQuery.setMaxResults(size);
+    return typedQuery.getResultList();
   }
 
   @Override

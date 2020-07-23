@@ -88,8 +88,18 @@ public class CertificateJdbcRepository implements CertificateRepository {
   }
 
   @Override
+  public List<Certificate> query(Specification<Certificate> specification) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public long countAll(Specification<Certificate> specification) {
     throw new NotImplementedException();
+  }
+
+  @Override
+  public long countAll() {
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -85,6 +85,11 @@ public class TagJdbcRepository implements TagRepository {
   }
 
   @Override
+  public void update(Tag entity) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void delete(Tag tag) {
     String sqlDeleteTag = "delete from tags where id = ?";
     jdbcTemplate.update(sqlDeleteTag, tag.getId());

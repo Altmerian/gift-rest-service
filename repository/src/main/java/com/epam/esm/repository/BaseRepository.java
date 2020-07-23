@@ -6,7 +6,7 @@ import com.epam.esm.specification.Specification;
 import java.util.List;
 import java.util.Optional;
 
-/** Represents base repository interface for common operations with data storage. */
+/** Represents base repository interface  for common operations with entities stored in the data storage. */
 public interface BaseRepository<E extends BaseEntity> {
 
   /**

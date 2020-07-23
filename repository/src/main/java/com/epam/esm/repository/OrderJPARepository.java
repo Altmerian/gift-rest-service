@@ -37,7 +37,7 @@ public class OrderJPARepository extends AbstractRepository<Order> implements Ord
 
   @Override
   public List<Order> query(Specification<Order> specification, int page, int size) {
-    TypedQuery<Order> query = specification.typedJPAQuery(entityManager);
+    TypedQuery<Order> query = specification.toJPAQuery(entityManager);
     query.setFirstResult((page - 1) * size);
     query.setMaxResults(size);
     return query.getResultList();

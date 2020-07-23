@@ -3,7 +3,6 @@ package com.epam.esm.specification;
 import com.epam.esm.entity.User;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,12 +27,7 @@ public class EmailUserSpecification implements Specification<User> {
   }
 
   @Override
-  public Query toJPAQuery(EntityManager entityManager) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public TypedQuery<User> typedJPAQuery(EntityManager entityManager) {
+  public TypedQuery<User> toJPAQuery(EntityManager entityManager) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> cq = cb.createQuery(User.class);
     Root<User> user = cq.from(User.class);
