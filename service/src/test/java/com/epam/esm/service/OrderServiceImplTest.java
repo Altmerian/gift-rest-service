@@ -1,14 +1,11 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.OrderDTO;
 import com.epam.esm.dto.TagDTO;
-import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import com.epam.esm.exception.ResourceNotFoundException;
-import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.OrderRepository;
 import com.epam.esm.repository.TagRepository;
 import com.epam.esm.repository.UserRepository;
@@ -47,7 +44,6 @@ class OrderServiceImplTest {
   @InjectMocks private OrderServiceImpl orderService;
 
   @Mock private OrderRepository orderRepository;
-  @Mock private CertificateRepository certificateRepository;
   @Mock private UserRepository userRepository;
   @Mock private TagRepository tagRepository;
   @Mock private ModelMapper modelMapper;
@@ -56,8 +52,6 @@ class OrderServiceImplTest {
   @Mock private Tag mockTag;
   @Mock private TagDTO mockTagDTO;
   @Mock private User mockUser;
-  @Mock private Certificate mockCertificate;
-  @Mock private CertificateDTO mockCertificateDTO;
 
   @BeforeEach
   void setUp() {

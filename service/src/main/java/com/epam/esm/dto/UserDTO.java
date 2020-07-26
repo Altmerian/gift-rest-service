@@ -1,6 +1,5 @@
 package com.epam.esm.dto;
 
-import com.epam.esm.entity.Order;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -41,7 +40,7 @@ public class UserDTO extends RepresentationModel<UserDTO> {
   @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
   private boolean deleted;
 
-  @JsonIgnore private Set<Order> orders;
+  @JsonIgnore private Set<OrderDTO> orders;
 
   public Long getId() {
     return id;
@@ -103,11 +102,11 @@ public class UserDTO extends RepresentationModel<UserDTO> {
     this.deleted = deleted;
   }
 
-  public Set<Order> getOrders() {
+  public Set<OrderDTO> getOrders() {
     return orders;
   }
 
-  public void setOrders(Set<Order> orders) {
+  public void setOrders(Set<OrderDTO> orders) {
     this.orders = orders;
   }
 
