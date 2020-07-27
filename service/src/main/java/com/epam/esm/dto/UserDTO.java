@@ -20,7 +20,7 @@ public class UserDTO extends RepresentationModel<UserDTO> {
   @JsonView(View.Public.class)
   private Long id;
 
-  @Email(regexp = "\\w{2,40}@\\w{2,20}\\.\\w{2,4}")
+  @Email(regexp = "\\w{2,40}@\\w{2,20}.\\w{2,4}")
   @NotBlank(message = "Email cannot be empty")
   @JsonView(View.Internal.class)
   private String email;

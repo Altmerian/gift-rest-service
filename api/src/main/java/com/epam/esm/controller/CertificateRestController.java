@@ -9,6 +9,10 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,8 @@ import java.util.List;
  * parameters are handled with the appropriate method.
  */
 @RestController
+@Api(description = "Certificates API for all CRUD operations")
+@ApiResponses(value = {@ApiResponse(code = 500, message = "Internal server error")})
 @RequestMapping("/api/v1/certificates")
 public class CertificateRestController {
 
@@ -93,6 +99,8 @@ public class CertificateRestController {
    * @return response with payload filled by data of the searched certificate
    */
   @JsonView(View.Internal.class)
+  @ApiOperation(value = "Find certificate by id", response = CertificateDTO.class)
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "Certificate not found") })
   @GetMapping("/{id:\\d+}")
   public CertificateDTO getById(@PathVariable long id, HttpServletResponse resp) {
     CertificateDTO certificateDTO = certificateService.getById(id);
@@ -131,6 +139,7 @@ public class CertificateRestController {
    */
   @PutMapping(value = "/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
   public ResponseEntity<?> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
