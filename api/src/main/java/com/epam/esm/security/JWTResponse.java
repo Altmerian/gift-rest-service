@@ -1,5 +1,8 @@
 package com.epam.esm.security;
 
+/**
+ * Response object representing JWT authentication token
+ */
 public class JWTResponse {
   private final String jwtToken;
 

@@ -21,8 +21,6 @@ import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.Arrays;
@@ -32,6 +30,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Spring boot auto configuration and swagger documentation setup
+ */
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
 @ConfigurationPropertiesScan("com.epam.esm")
 @EnableSwagger2
@@ -39,7 +40,6 @@ public class AppConfig {
 
   private static final Set<String> DEFAULT_PRODUCES_AND_CONSUMES =
       new HashSet<>(Collections.singletonList("application/json"));
-  public static final String DEFAULT_INCLUDE_PATTERN = "/api.*";
 
   public static void main(String[] args) {
     SpringApplication.run(AppConfig.class, args);
@@ -76,7 +76,7 @@ public class AppConfig {
         .apiInfo(
             new ApiInfo(
                 "Gift rest service API",
-                "API for CRUD operations with gift certificates and the ability to order them",
+                "API for CRUD operations with gift certificates, tags and the ability to order them by users",
                 "1.0",
                 "urn:tos",
                 new Contact(
@@ -92,7 +92,6 @@ public class AppConfig {
         .directModelSubstitute(java.time.LocalDateTime.class, Date.class)
         .securityContexts(Lists.newArrayList(securityContext()))
         .securitySchemes(Lists.newArrayList(apiKey()));
-
   }
 
   private ApiKey apiKey() {
@@ -102,7 +101,7 @@ public class AppConfig {
   private SecurityContext securityContext() {
     return SecurityContext.builder()
         .securityReferences(defaultAuth())
-        .forPaths(PathSelectors.any())
+        .operationSelector(o -> o.getName().contains("Order") || o.getName().contains("User"))
         .build();
   }
 
@@ -113,15 +112,5 @@ public class AppConfig {
     authorizationScopes[0] = authorizationScope;
     return Lists.newArrayList(
         new SecurityReference("Bearer", authorizationScopes));
-  }
-
-  @Bean
-  SecurityConfiguration security() {
-    return SecurityConfigurationBuilder.builder()
-        .scopeSeparator(",")
-        .additionalQueryStringParams(null)
-        .useBasicAuthenticationWithAccessCodeGrant(false)
-        .enableCsrfSupport(false)
-        .build();
   }
 }

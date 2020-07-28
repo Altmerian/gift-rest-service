@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+/**
+ * All methods of this class add links to representation models for HATEOAS purpose
+ */
 public class ModelAssembler {
 
   private static final String DEFAULT_PAGE_NUMBER = "1";

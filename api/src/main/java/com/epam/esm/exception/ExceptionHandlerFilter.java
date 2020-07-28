@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
 
+/** Handles all exceptions that haven't reached {@link ControllerExceptionHandler} */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionHandlerFilter extends GenericFilterBean {

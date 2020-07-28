@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Main Authorization security filter that checks if the request has a proper authentication header with
+ * JWT and extract claims and credentials from it
+ */
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
   private final TokenUtil tokenUtil;
@@ -47,5 +51,4 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     logger.warn("JWT Token is not valid Bearer token");
     return null;
   }
-
 }

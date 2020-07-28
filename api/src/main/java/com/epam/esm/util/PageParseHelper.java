@@ -3,6 +3,9 @@ package com.epam.esm.util;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Utility class for parsing page and size query parameters
+ */
 @Component
 public class PageParseHelper {
 

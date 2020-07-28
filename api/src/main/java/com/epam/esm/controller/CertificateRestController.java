@@ -40,7 +40,7 @@ import java.util.List;
  * parameters are handled with the appropriate method.
  */
 @RestController
-@Api(description = "Certificates API for all CRUD operations", authorizations = @Authorization(""))
+@Api(tags = "Resource: Certificate",  description = "Certificates API for all CRUD operations", authorizations = @Authorization(""))
 @RequestMapping("/api/v1/certificates")
 public class CertificateRestController {
 
@@ -68,6 +68,7 @@ public class CertificateRestController {
    */
   @GetMapping
   @JsonView(View.Internal.class)
+  @ApiOperation(value = "Get all certificates", response = CertificateListDTO.class)
   public CertificateListDTO getAll(
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
@@ -118,8 +119,8 @@ public class CertificateRestController {
    */
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
-  @ApiOperation(value = "Create new certificate", authorizations = @Authorization(value = "Bearer"))
-  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created") })
+  @ApiOperation(value = "Create a new certificate", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
   public ResponseEntity<?> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
     URI location =
@@ -141,7 +142,8 @@ public class CertificateRestController {
    */
   @PutMapping(value = "/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
-  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
+  @ApiOperation(value = "Update existed certificate", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
   public ResponseEntity<?> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
@@ -160,7 +162,8 @@ public class CertificateRestController {
    */
   @PatchMapping(value = "/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
-  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
+  @ApiOperation(value = "Patches certain certificate fields", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
   public ResponseEntity<?> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
@@ -173,6 +176,7 @@ public class CertificateRestController {
    * @param id certificate id
    */
   @DeleteMapping(value = "/{id:\\d+}")
+  @ApiOperation(value = "Delete a certificate", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> delete(@PathVariable("id") long id) {

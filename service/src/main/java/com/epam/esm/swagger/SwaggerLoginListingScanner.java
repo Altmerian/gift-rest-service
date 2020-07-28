@@ -22,6 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Plugin for documenting {@code /login} URL endpoint exposed by Spring security filter
+ */
 @Component
 public class SwaggerLoginListingScanner implements ApiListingScannerPlugin {
 
@@ -41,11 +44,11 @@ public class SwaggerLoginListingScanner implements ApiListingScannerPlugin {
         new ApiDescription(
             null,
             "/gift-rest-service/login",
-            "login to acquire JWT token",
-            "sign in with email and password to receive authentication token",
+            "Login to acquire JWT token",
+            "Sign in with email and password to receive authentication token",
             Collections.singletonList(
                 new OperationBuilder(operationNames)
-                    .summary("sign in with credentials")
+                    .summary("Sign in with credentials")
                     .tags(Collections.singleton("JWT Authentication"))
                     .authorizations(new ArrayList<>())
                     .position(1)

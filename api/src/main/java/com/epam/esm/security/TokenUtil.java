@@ -16,6 +16,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class to create and parse JWT authentication token
+ */
 @Component
 public class TokenUtil {
   public static final String AUTHORITIES_KEY = "authorities";

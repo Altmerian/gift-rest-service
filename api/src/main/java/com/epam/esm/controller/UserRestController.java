@@ -42,7 +42,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/users")
 @ApiResponses(value = {@ApiResponse(code = 401, message = "Unauthorized") })
-@Api(description = "Users API for operations with users including registration and methods to operate users orders", authorizations = @Authorization(value = "Bearer"))
+@Api(tags = "Resource: User", description = "Users API for operations with users including registration and methods to operate users orders", authorizations = @Authorization(value = "Bearer"))
 public class UserRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */

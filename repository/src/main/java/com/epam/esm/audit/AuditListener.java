@@ -11,6 +11,9 @@ import javax.persistence.PostPersist;
 import javax.persistence.PostRemove;
 import javax.persistence.PostUpdate;
 
+/**
+ * Listener for auditing that fills Event table in the database
+ */
 @Component
 public class AuditListener {
 

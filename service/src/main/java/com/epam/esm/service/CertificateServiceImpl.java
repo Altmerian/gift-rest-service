@@ -105,6 +105,7 @@ public class CertificateServiceImpl implements CertificateService {
             .filter(cert -> !cert.isDeleted())
             .orElseThrow(() -> new ResourceNotFoundException(id));
     setCertificateFields(certificate, certificatePatchDTO);
+    checkForDuplicate(convertToDto(certificate));
     repository.update(certificate);
   }
 

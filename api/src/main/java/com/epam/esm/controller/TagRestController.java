@@ -38,7 +38,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  */
 @RestController
 @RequestMapping("/api/v1/tags")
-@Api(description = "Tags API for all operations with certificate tags", authorizations = @Authorization(""))
+@Api(tags = "Resource: Tag", description = "Tags API for all operations with certificate tags", authorizations = @Authorization(""))
 public class TagRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -58,6 +58,7 @@ public class TagRestController {
    * @return response with body filled by requested data.
    */
   @GetMapping
+  @ApiOperation(value = "Get all tags", response = TagListDTO.class)
   public TagListDTO getAll(
       @RequestParam(value = "page", required = false) String page,
       @RequestParam(value = "size", required = false) String size,
@@ -80,6 +81,8 @@ public class TagRestController {
    * @return response with payload filled by data of the searched tag
    */
   @GetMapping("/{id:\\d+}")
+  @ApiOperation(value = "Find tag by id", response = TagDTO.class)
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "Tag not found") })
   public TagDTO getById(@PathVariable long id, HttpServletResponse resp) {
     TagDTO tagDTO = tagService.getById(id);
     ModelAssembler.addTagLinks(tagDTO, resp);
@@ -97,7 +100,7 @@ public class TagRestController {
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
   @ApiOperation(value = "Create new tag", authorizations = @Authorization(value = "Bearer"))
-  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created") })
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
   public ResponseEntity<?> create(@Valid @RequestBody TagDTO tagDTO) {
     long tagId = tagService.create(tagDTO);
     URI uri =
@@ -116,6 +119,7 @@ public class TagRestController {
    */
   @DeleteMapping("/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiOperation(value = "Delete a tag", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Tag not found") })
   public ResponseEntity<?> delete(@PathVariable("id") long id) {
     tagService.delete(id);

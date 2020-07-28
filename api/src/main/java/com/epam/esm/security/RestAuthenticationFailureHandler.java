@@ -14,6 +14,9 @@ import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Handles failure login efforts with corresponding response
+ */
 @Component
 public class RestAuthenticationFailureHandler implements AuthenticationFailureHandler {
   private final ObjectMapper objectMapper;

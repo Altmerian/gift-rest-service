@@ -2,6 +2,9 @@ package com.epam.esm.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * Represents security properties are being set in {@code .properties} files
+ */
 @ConfigurationProperties(prefix = "security")
 public class SecurityProperties {
   /** secret using for signing JWT */
