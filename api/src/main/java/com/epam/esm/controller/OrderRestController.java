@@ -7,6 +7,10 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +33,8 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 @RestController
 @RequestMapping("/api/v1/orders")
 @PreAuthorize("hasRole('ADMIN')")
+@ApiResponses(value = {@ApiResponse(code = 401, message = "Unauthorized") })
+@Api(description = "Admin only API for operations with all orders", authorizations = @Authorization(value = "Bearer"))
 public class OrderRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -72,6 +78,7 @@ public class OrderRestController {
    */
   @GetMapping("/{orderId:\\d+}")
   @JsonView(View.ExtendedPublic.class)
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "Order not found") })
   public OrderDTO getOrderById(@PathVariable long orderId, HttpServletResponse resp) {
     OrderDTO orderDTO = orderService.getById(orderId);
     ModelAssembler.addOrderLinks(orderDTO, resp);
@@ -84,6 +91,7 @@ public class OrderRestController {
    * @param id order id
    */
   @DeleteMapping(value = "/{id:\\d+}")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Order not found") })
   public ResponseEntity<?> delete(@PathVariable("id") long id) {
     orderService.delete(id);
     return ResponseEntity.noContent().build();

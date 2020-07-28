@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 
 /** Data transfer object representing a user credentials */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@ApiModel(description = "UserLoginDTO")
+@ApiModel(value = "UserLoginDTO", description = "User's credentials object")
 public class UserLoginDTO {
 
   @Email(regexp = "\\w{2,40}@\\w{2,20}\\.\\w{2,4}")

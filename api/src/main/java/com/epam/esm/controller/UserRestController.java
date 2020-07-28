@@ -13,6 +13,10 @@ import com.epam.esm.service.UserService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +41,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/users")
+@ApiResponses(value = {@ApiResponse(code = 401, message = "Unauthorized") })
+@Api(description = "Users API for operations with users including registration and methods to operate users orders", authorizations = @Authorization(value = "Bearer"))
 public class UserRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -85,6 +91,7 @@ public class UserRestController {
   @GetMapping("/{userId:\\d+}")
   @JsonView(View.Internal.class)
   @PreAuthorize("#userId == principal or hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "User not found") })
   public UserDTO getUserById(@PathVariable long userId, HttpServletResponse resp) {
     UserDTO userDTO = userService.getById(userId);
     ModelAssembler.addUserLinks(userDTO, resp);
@@ -99,6 +106,7 @@ public class UserRestController {
   @GetMapping("/{userId:\\d+}/orders")
   @JsonView(View.Public.class)
   @PreAuthorize("#userId == principal or hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "User not found") })
   public OrderListDTO getUserOrders(
       @PathVariable long userId,
       @RequestParam(value = "page", required = false) String page,
@@ -125,6 +133,7 @@ public class UserRestController {
   @GetMapping("/{userId:\\d+}/orders/{orderId:\\d+}")
   @JsonView(View.ExtendedPublic.class)
   @PreAuthorize("#userId == principal or hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "Order not found") })
   public OrderDTO getUserOrderById(
       @PathVariable long userId, @PathVariable long orderId, HttpServletResponse resp) {
     OrderDTO orderDTO = orderService.getByUserIdAndOrderId(userId, orderId);
@@ -140,6 +149,7 @@ public class UserRestController {
    */
   @GetMapping("/{userId:\\d+}/tags")
   @PreAuthorize("#userId == principal or hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "User not found") })
   public TagListDTO getWidelyUsedTagsOfUser(@PathVariable long userId, HttpServletResponse resp) {
     List<TagDTO> tags = orderService.getWidelyUsedTagsOfUser(userId);
     tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
@@ -154,6 +164,7 @@ public class UserRestController {
    * @throws ResourceConflictException if user with given name already exists
    */
   @PostMapping
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created") })
   public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
     long userId = userService.create(userDTO);
     URI location =
@@ -193,6 +204,7 @@ public class UserRestController {
    */
   @DeleteMapping("/{userId:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "User not found") })
   public ResponseEntity<?> deleteUser(@PathVariable("userId") long userId) {
     userService.delete(userId);
     return ResponseEntity.noContent().build();
@@ -206,6 +218,7 @@ public class UserRestController {
    */
   @DeleteMapping("/{userId:\\d+}/orders/{id:\\d+}")
   @PreAuthorize("#userId == principal or hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Order not found") })
   public ResponseEntity<?> deleteOrder(
       @PathVariable long userId, @PathVariable("id") long orderId) {
     orderService.delete(userId, orderId);

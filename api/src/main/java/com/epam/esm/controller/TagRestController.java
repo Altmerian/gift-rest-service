@@ -6,6 +6,11 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.PageParseHelper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +38,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
  */
 @RestController
 @RequestMapping("/api/v1/tags")
+@Api(description = "Tags API for all operations with certificate tags", authorizations = @Authorization(""))
 public class TagRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
@@ -90,6 +96,8 @@ public class TagRestController {
    */
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiOperation(value = "Create new tag", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created") })
   public ResponseEntity<?> create(@Valid @RequestBody TagDTO tagDTO) {
     long tagId = tagService.create(tagDTO);
     URI uri =
@@ -108,6 +116,7 @@ public class TagRestController {
    */
   @DeleteMapping("/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Tag not found") })
   public ResponseEntity<?> delete(@PathVariable("id") long id) {
     tagService.delete(id);
     return ResponseEntity.noContent().build();

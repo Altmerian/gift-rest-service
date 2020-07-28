@@ -13,6 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +40,7 @@ import java.util.List;
  * parameters are handled with the appropriate method.
  */
 @RestController
-@Api(description = "Certificates API for all CRUD operations")
-@ApiResponses(value = {@ApiResponse(code = 500, message = "Internal server error")})
+@Api(description = "Certificates API for all CRUD operations", authorizations = @Authorization(""))
 @RequestMapping("/api/v1/certificates")
 public class CertificateRestController {
 
@@ -118,6 +118,8 @@ public class CertificateRestController {
    */
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiOperation(value = "Create new certificate", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created") })
   public ResponseEntity<?> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
     URI location =
@@ -158,6 +160,7 @@ public class CertificateRestController {
    */
   @PatchMapping(value = "/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
   public ResponseEntity<?> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
@@ -170,6 +173,7 @@ public class CertificateRestController {
    * @param id certificate id
    */
   @DeleteMapping(value = "/{id:\\d+}")
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<?> delete(@PathVariable("id") long id) {
     certificateService.delete(id);
