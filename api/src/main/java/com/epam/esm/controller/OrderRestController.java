@@ -66,7 +66,7 @@ public class OrderRestController {
     int intPage = pageParseHelper.parsePage(page);
     int intSize = pageParseHelper.parseSize(size);
     List<OrderDTO> orders = orderService.getAll(intPage, intSize);
-    orders.forEach(orderDTO -> ModelAssembler.addOrderSelfLink(orderDTO, resp));
+    orders.forEach(orderDTO -> ModelAssembler.addOrderLinks(orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
     ModelAssembler.addOrderListLinks(orderListDTO, resp);
     return orderListDTO;
@@ -85,6 +85,7 @@ public class OrderRestController {
   public OrderDTO getOrderById(@PathVariable long orderId, HttpServletResponse resp) {
     OrderDTO orderDTO = orderService.getById(orderId);
     ModelAssembler.addOrderLinks(orderDTO, resp);
+    ModelAssembler.addGetAllOrdersLink(orderDTO, resp);
     return orderDTO;
   }
 

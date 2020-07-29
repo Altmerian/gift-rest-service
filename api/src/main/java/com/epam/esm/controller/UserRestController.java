@@ -117,7 +117,7 @@ public class UserRestController {
     int intPage = pageParseHelper.parsePage(page);
     int intSize = pageParseHelper.parseSize(size);
     List<OrderDTO> orders = orderService.getByUserId(userId, intPage, intSize);
-    orders.forEach(orderDTO -> ModelAssembler.addUsersOrderSelfLink(userId, orderDTO, resp));
+    orders.forEach(orderDTO -> ModelAssembler.addUsersOrderLinks(userId, orderDTO, resp));
     OrderListDTO orderListDTO = new OrderListDTO(orders);
     ModelAssembler.addOrderListLinks(orderListDTO, resp);
     return orderListDTO;
@@ -138,6 +138,7 @@ public class UserRestController {
       @PathVariable long userId, @PathVariable long orderId, HttpServletResponse resp) {
     OrderDTO orderDTO = orderService.getByUserIdAndOrderId(userId, orderId);
     ModelAssembler.addUsersOrderLinks(userId, orderDTO, resp);
+    ModelAssembler.addGetAllOrdersLink(orderDTO, resp);
     return orderDTO;
   }
 
@@ -152,7 +153,7 @@ public class UserRestController {
   @ApiResponses(value = {@ApiResponse(code = 404, message = "User not found") })
   public TagListDTO getWidelyUsedTagsOfUser(@PathVariable long userId, HttpServletResponse resp) {
     List<TagDTO> tags = orderService.getWidelyUsedTagsOfUser(userId);
-    tags.forEach(tagDTO -> ModelAssembler.addTagSelfLink(tagDTO, resp));
+    tags.forEach(tagDTO -> ModelAssembler.addTagLinks(tagDTO, resp));
     return new TagListDTO(tags);
   }
 

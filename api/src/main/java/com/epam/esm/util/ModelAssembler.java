@@ -21,9 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-/**
- * All methods of this class add links to representation models for HATEOAS purpose
- */
+/** All methods of this class add links to representation models for HATEOAS purpose */
 public class ModelAssembler {
 
   private static final String DEFAULT_PAGE_NUMBER = "1";
@@ -53,19 +51,22 @@ public class ModelAssembler {
     }
   }
 
-  public static void addTagListLinks(TagListDTO tagListDTO) {
+  public static void addTagListLinks(TagListDTO tagListDTO, HttpServletResponse resp) {
     if (appUserIsAdmin()) {
       tagListDTO.add(
           linkTo(methodOn(TagRestController.class).create(new TagDTO())).withRel(CREATE_RELATION));
+      tagListDTO.getTags().forEach(tagDTO -> addTagLinks(tagDTO, resp));
     }
   }
 
   public static void addCertificateSelfLink(
       CertificateDTO certificateDTO, HttpServletResponse resp) {
-    certificateDTO.add(
-        linkTo(methodOn(CertificateRestController.class).getById(certificateDTO.getId(), resp))
-            .withSelfRel());
-    certificateDTO.getTags().forEach(tagDTO -> addTagSelfLink(tagDTO, resp));
+    if (!certificateDTO.hasLink(SELF_RELATION)) {
+      certificateDTO.add(
+          linkTo(methodOn(CertificateRestController.class).getById(certificateDTO.getId(), resp))
+              .withSelfRel());
+      certificateDTO.getTags().forEach(tagDTO -> addTagSelfLink(tagDTO, resp));
+    }
   }
 
   public static void addCertificateLinks(CertificateDTO certificateDTO, HttpServletResponse resp) {
@@ -85,10 +86,10 @@ public class ModelAssembler {
                 .withRel(DELETE_RELATION));
       }
     }
-    certificateDTO.add(linkTo(CertificateRestController.class).withRel(GET_ALL_RELATION));
+
   }
 
-  public static void addCertificateListLinks(CertificateListDTO certificateListDTO) {
+  public static void addCertificateListLinks(CertificateListDTO certificateListDTO, HttpServletResponse resp) {
     if (appUserIsAdmin()) {
       certificateListDTO.add(
           linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO()))
@@ -112,9 +113,11 @@ public class ModelAssembler {
       orderDTO.add(
           linkTo(methodOn(OrderRestController.class).delete(orderDTO.getId())).withRel("delete"));
     }
+  }
+
+  public static void addGetAllOrdersLink(OrderDTO orderDTO, HttpServletResponse resp) {
     orderDTO.add(
-        linkTo(
-                methodOn(OrderRestController.class)
+        linkTo(methodOn(OrderRestController.class)
                     .getAllOrders(DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
             .withRel(GET_ALL_RELATION));
   }
@@ -174,10 +177,6 @@ public class ModelAssembler {
           linkTo(methodOn(UserRestController.class).deleteOrder(userId, orderDTO.getId()))
               .withRel(DELETE_RELATION));
     }
-    orderDTO.add(
-        linkTo(methodOn(UserRestController.class)
-                    .getUserOrders(userId, DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, resp))
-            .withRel(GET_ALL_RELATION));
   }
 
   private static boolean appUserIsAdmin() {

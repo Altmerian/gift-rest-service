@@ -53,10 +53,8 @@ public class ExceptionHandlerFilter extends GenericFilterBean {
       createErrorResponse(response, exception, HttpStatus.BAD_REQUEST);
     } catch (InvalidTokenException | JwtException | AppAuthenticationException exception) {
       LOGGER.error(exception.getMessage());
-      String url =
-          request.getRequestURL()
-              .substring(0, request.getRequestURL().length() - request.getRequestURI().length());
-      response.setHeader(HttpHeaders.WWW_AUTHENTICATE, url + request.getContextPath() + "/login");
+      String loginUrl = ControllerExceptionHandler.getLoginUrl(request);
+      response.setHeader(HttpHeaders.WWW_AUTHENTICATE, loginUrl);
       createErrorResponse(response, exception, HttpStatus.UNAUTHORIZED);
     } catch (RuntimeException exception) {
       LOGGER.error(exception.getMessage());

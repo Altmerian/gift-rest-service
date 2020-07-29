@@ -16,11 +16,14 @@ import java.util.Set;
 /** Data transfer object representing a user */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO extends RepresentationModel<UserDTO> {
+  private static final String EMAIL_PATTERN = "\\w{2,40}@\\w{2,20}.\\w{2,4}";
 
   @JsonView(View.Public.class)
   private Long id;
 
-  @Email(regexp = "\\w{2,40}@\\w{2,20}.\\w{2,4}")
+  @Email(
+      regexp = EMAIL_PATTERN,
+      message = "Email doesn't match the pattern: " + EMAIL_PATTERN)
   @NotBlank(message = "Email cannot be empty")
   @JsonView(View.Internal.class)
   private String email;

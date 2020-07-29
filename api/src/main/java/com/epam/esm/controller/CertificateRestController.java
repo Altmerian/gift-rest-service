@@ -35,6 +35,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 /**
  * Controller to handle all certificate related requests. Then requests depending on requests
  * parameters are handled with the appropriate method.
@@ -87,9 +89,9 @@ public class CertificateRestController {
       certificates = certificateService.sendQuery(tagName, searchFor, sortBy, intPage, intSize);
     }
     certificates.forEach(
-        certificateDTO -> ModelAssembler.addCertificateSelfLink(certificateDTO, resp));
+        certificateDTO -> ModelAssembler.addCertificateLinks(certificateDTO, resp));
     CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
-    ModelAssembler.addCertificateListLinks(certificateListDTO);
+    ModelAssembler.addCertificateListLinks(certificateListDTO, resp);
     return certificateListDTO;
   }
 
@@ -106,6 +108,7 @@ public class CertificateRestController {
   public CertificateDTO getById(@PathVariable long id, HttpServletResponse resp) {
     CertificateDTO certificateDTO = certificateService.getById(id);
     ModelAssembler.addCertificateLinks(certificateDTO, resp);
+    certificateDTO.add(linkTo(CertificateRestController.class).withRel("getAll"));
     return certificateDTO;
   }
 
