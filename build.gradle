@@ -1,12 +1,49 @@
-subprojects {
-    apply plugin: 'java'
+buildscript {
+    ext {
+        springBootVersion = "2.3.1.RELEASE"
+    }
+
     repositories {
         mavenCentral()
     }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+    }
+}
+
+allprojects {
+
+    group 'by.epam.pavelshakhlovich'
+    version '1.0-SNAPSHOT'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    repositories {
+        mavenCentral()
+    }
+
     ext {
         springVersion = '5.2.7.RELEASE'
     }
 
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+        implementation 'com.google.guava:guava:29.0-jre'
+        implementation 'javax.annotation:javax.annotation-api:1.3.2'
+        implementation 'org.apache.commons:commons-lang3:3.10'
+        implementation 'org.apache.logging.log4j:log4j-api:2.13.3'
+        implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
+
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+    }
 
     test {
         useJUnitPlatform()
@@ -15,19 +52,6 @@ subprojects {
         }
     }
 
-    dependencies {
-        implementation 'com.google.guava:guava:29.0-jre'
-        implementation 'javax.annotation:javax.annotation-api:1.3.2'
-        implementation 'org.apache.logging.log4j:log4j-api:2.13.3'
-        implementation 'org.apache.logging.log4j:log4j-core:2.13.3'
-        implementation 'org.slf4j:slf4j-simple:1.7.30'
-        implementation 'org.apache.commons:commons-lang3:3.10'
-        testImplementation 'org.hamcrest:hamcrest-library:2.2'
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
-        testImplementation 'org.mockito:mockito-core:3.3.3'
-        testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
-    }
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -37,7 +61,3 @@ subprojects {
 
 }
 
-allprojects {
-    group 'by.epam.pavelshakhlovich'
-    version '1.0-SNAPSHOT'
-}

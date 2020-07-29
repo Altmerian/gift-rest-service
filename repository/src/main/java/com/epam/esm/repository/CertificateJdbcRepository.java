@@ -2,9 +2,12 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.CertificateMapper;
-import com.epam.esm.specification.SQLSpecification;
+import com.epam.esm.specification.CertificateIdTagSpecification;
 import com.epam.esm.specification.Specification;
+import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,7 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,10 +25,13 @@ import java.util.Optional;
 public class CertificateJdbcRepository implements CertificateRepository {
 
   private final JdbcTemplate jdbcTemplate;
+  private final TagRepository tagRepository;
 
   @Autowired
-  public CertificateJdbcRepository(DataSource dataSource) {
+  public CertificateJdbcRepository(
+      DataSource dataSource, @Qualifier("tagJdbcRepository") TagRepository tagRepository) {
     this.jdbcTemplate = new JdbcTemplate(dataSource);
+    this.tagRepository = tagRepository;
   }
 
   @Override
@@ -45,11 +51,13 @@ public class CertificateJdbcRepository implements CertificateRepository {
           return ps;
         },
         keyHolder);
-    return Objects.requireNonNull(keyHolder.getKey()).longValue();
+    long certificateId = Objects.requireNonNull(keyHolder.getKey()).longValue();
+    certificate.getTags().forEach(tag -> addCertificateTag(certificateId, tag.getId()));
+    return certificateId;
   }
 
   @Override
-  public List<Certificate> getAll() {
+  public List<Certificate> getAll(int page, int size) {
     String sqlGetAll =
         "SELECT id, name, description, price, creation_date, modification_date, duration_in_days FROM certificates";
     return jdbcTemplate.query(sqlGetAll, new CertificateMapper());
@@ -66,21 +74,37 @@ public class CertificateJdbcRepository implements CertificateRepository {
     } catch (EmptyResultDataAccessException e) {
       return Optional.empty();
     }
-    return Optional.ofNullable(certificate);
+    Objects.requireNonNull(certificate);
+    CertificateIdTagSpecification tagSpecification =
+        new CertificateIdTagSpecification(certificate.getId());
+    certificate.setTags(new HashSet<>(tagRepository.query(tagSpecification)));
+    return Optional.of(certificate);
   }
 
   @Override
-  public List<Certificate> query(Specification specification) {
-    if (!(specification instanceof SQLSpecification)) {
-      return Collections.emptyList();
-    }
-    SQLSpecification sqlSpecification = (SQLSpecification) specification;
+  public List<Certificate> query(Specification<Certificate> specification, int page, int size) {
     return jdbcTemplate.query(
-        sqlSpecification.toSqlQuery(), sqlSpecification.getParameters(), new CertificateMapper());
+        specification.toSqlQuery(), specification.getParameters(), new CertificateMapper());
+  }
+
+  @Override
+  public List<Certificate> query(Specification<Certificate> specification) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long countAll(Specification<Certificate> specification) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public long countAll() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void update(Certificate certificate) {
+    clearCertificateTags(certificate.getId());
     String sqlUpdate =
         "UPDATE certificates SET name = ?, description = ?, price = ?, duration_in_days = ?, "
             + "modification_date = current_timestamp WHERE id = ?";
@@ -91,6 +115,8 @@ public class CertificateJdbcRepository implements CertificateRepository {
         certificate.getPrice(),
         certificate.getDurationInDays(),
         certificate.getId());
+    long certificateId = certificate.getId();
+    certificate.getTags().forEach(tag -> addCertificateTag(certificateId, tag.getId()));
   }
 
   @Override
@@ -99,14 +125,25 @@ public class CertificateJdbcRepository implements CertificateRepository {
     jdbcTemplate.update(sqlDelete, certificate.getId());
   }
 
-  @Override
-  public void addCertificateTag(long certificateId, long tagId) {
+  /**
+   * Saves data about certificate tag in the repository
+   *
+   * @param certificateId certificate id
+   * @param tagId tag id
+   */
+  @VisibleForTesting
+  void addCertificateTag(long certificateId, long tagId) {
     String sqlAddCertificateTag =
         "INSERT INTO certificates_tags (certificate_id, tag_id) VALUES (?, ?)";
     jdbcTemplate.update(sqlAddCertificateTag, certificateId, tagId);
   }
 
-  @Override
+  /**
+   * Purges data in repository about certificate tags
+   *
+   * @param certificateId certificate id
+   */
+  @VisibleForTesting
   public void clearCertificateTags(long certificateId) {
     String sqlClearCertificateTags = "DELETE FROM certificates_tags WHERE certificate_id = ?";
     jdbcTemplate.update(sqlClearCertificateTags, certificateId);

@@ -2,13 +2,21 @@ plugins {
     id 'java-library'
 }
 
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
 dependencies {
     implementation project(':repository')
+    api 'io.springfox:springfox-boot-starter:3.0.0'
+    api 'io.springfox:springfox-bean-validators:3.0.0'
+    api 'org.springframework.boot:spring-boot-starter-validation'
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0'
-    api 'javax.validation:validation-api:2.0.1.Final'
-    api 'org.hibernate:hibernate-validator:6.1.5.Final'
-    implementation "org.springframework:spring-context:$springVersion"
-    implementation "org.springframework:spring-tx:$springVersion"
+    implementation 'org.springframework.hateoas:spring-hateoas:1.1.0.RELEASE'
     implementation 'org.modelmapper:modelmapper:2.3.8'
 }

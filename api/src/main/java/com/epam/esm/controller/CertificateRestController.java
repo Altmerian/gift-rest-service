@@ -1,42 +1,60 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.CertificateListDTO;
+import com.epam.esm.dto.CertificatePatchDTO;
+import com.epam.esm.dto.View;
 import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.service.CertificateService;
+import com.epam.esm.util.ModelAssembler;
+import com.epam.esm.util.PageParseHelper;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 /**
  * Controller to handle all certificate related requests. Then requests depending on requests
  * parameters are handled with the appropriate method.
  */
 @RestController
-@RequestMapping("api/v1/certificates")
-class CertificateRestController {
+@Api(tags = "Resource: Certificate",  description = "Certificates API for all CRUD operations", authorizations = @Authorization(""))
+@RequestMapping("/api/v1/certificates")
+public class CertificateRestController {
 
   /** Represents service layer to implement a domain logic and interaction with repository layer. */
   private final CertificateService certificateService;
 
+  private final PageParseHelper pageParseHelper;
+
   @Autowired
-  public CertificateRestController(CertificateService certificateService) {
+  public CertificateRestController(CertificateService certificateService, PageParseHelper pageParseHelper) {
     this.certificateService = certificateService;
+    this.pageParseHelper = pageParseHelper;
   }
 
   /**
@@ -46,21 +64,35 @@ class CertificateRestController {
    * @param searchFor request parameter for searching by part of certificate name or certificate
    *     description
    * @param sortBy request parameter for sorting data in the response
-   * @param request incoming HTTP request
    * @return response with body filled by requested data. For higher performance, information about
    *     certificate tags isn't provided. To clarify certificate tags one must use
    *     "../certificates/id" request.
    */
   @GetMapping
-  public List<CertificateDTO> getAll(
+  @JsonView(View.Internal.class)
+  @ApiOperation(value = "Get all certificates", response = CertificateListDTO.class)
+  public CertificateListDTO getAll(
       @RequestParam(value = "tag", required = false) String tagName,
       @RequestParam(value = "search", required = false) String searchFor,
       @RequestParam(value = "sort", defaultValue = "id") String sortBy,
-      HttpServletRequest request) {
-    if (StringUtils.isBlank(request.getQueryString())) {
-      return certificateService.getAll();
+      @RequestParam(value = "page", required = false) String page,
+      @RequestParam(value = "size", required = false) String size,
+      HttpServletResponse resp) {
+    int intPage = pageParseHelper.parsePage(page);
+    int intSize = pageParseHelper.parseSize(size);
+    long totalCount = certificateService.countAll(tagName, searchFor, sortBy);
+    resp.setHeader("X-Total-Count", String.valueOf(totalCount));
+    List<CertificateDTO> certificates;
+    if (StringUtils.isBlank(tagName) && StringUtils.isBlank(searchFor)) {
+      certificates = certificateService.getAll(intPage, intSize);
+    } else {
+      certificates = certificateService.sendQuery(tagName, searchFor, sortBy, intPage, intSize);
     }
-    return certificateService.sendQuery(tagName, searchFor, sortBy);
+    certificates.forEach(
+        certificateDTO -> ModelAssembler.addCertificateLinks(certificateDTO, resp));
+    CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
+    ModelAssembler.addCertificateListLinks(certificateListDTO, resp);
+    return certificateListDTO;
   }
 
   /**
@@ -69,9 +101,15 @@ class CertificateRestController {
    * @param id certificate id
    * @return response with payload filled by data of the searched certificate
    */
+  @JsonView(View.Internal.class)
+  @ApiOperation(value = "Find certificate by id", response = CertificateDTO.class)
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "Certificate not found") })
   @GetMapping("/{id:\\d+}")
-  public CertificateDTO getById(@PathVariable long id) {
-    return certificateService.getById(id);
+  public CertificateDTO getById(@PathVariable long id, HttpServletResponse resp) {
+    CertificateDTO certificateDTO = certificateService.getById(id);
+    ModelAssembler.addCertificateLinks(certificateDTO, resp);
+    certificateDTO.add(linkTo(CertificateRestController.class).withRel("getAll"));
+    return certificateDTO;
   }
 
   /**
@@ -79,20 +117,21 @@ class CertificateRestController {
    * persisted in the system
    *
    * @param certificateDTO certificate data in a certain format for transfer
-   * @param req HTTP request
-   * @param resp HTTP response
    * @throws ResourceConflictException if certificate with given name, price, duration and set of
    *     tags already exists
    */
-  @PostMapping("/")
-  @ResponseStatus(HttpStatus.CREATED)
-  public void create(
-      @Valid @RequestBody CertificateDTO certificateDTO,
-      HttpServletRequest req,
-      HttpServletResponse resp) {
+  @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
+  @ApiOperation(value = "Create a new certificate", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
+  public ResponseEntity<?> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
-    String url = req.getRequestURL().toString();
-    resp.setHeader(HttpHeaders.LOCATION, url + certificateId);
+    URI location =
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(certificateId)
+            .toUri();
+    return ResponseEntity.created(location).build();
   }
 
   /**
@@ -105,21 +144,46 @@ class CertificateRestController {
    *     tags already exists
    */
   @PutMapping(value = "/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void update(
+  @PreAuthorize("hasRole('ADMIN')")
+  @ApiOperation(value = "Update existed certificate", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
+  public ResponseEntity<?> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
+    return ResponseEntity.noContent().build();
   }
 
   /**
-   * Handles requests which use DELETE HTTP method to delete all data linked with a certain
-   * certificate in the system
+   * Handles requests which use the PATCH HTTP method and a request body with data to be patched in
+   * the certificate. This method supports changing only for fields presenting in {@link
+   * CertificatePatchDTO} class
+   *
+   * @param id certificate id
+   * @param certificatePatchDTO certificate patching data in a certain format for transfer
+   * @throws ResourceConflictException if certificate with given name, price, duration and set of
+   *     tags already exists
+   */
+  @PatchMapping(value = "/{id:\\d+}")
+  @PreAuthorize("hasRole('ADMIN')")
+  @ApiOperation(value = "Patches certain certificate fields", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
+  public ResponseEntity<?> patch(
+      @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
+    certificateService.modify(id, certificatePatchDTO);
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Handles requests which use DELETE HTTP method to delete the certain certificate
    *
    * @param id certificate id
    */
   @DeleteMapping(value = "/{id:\\d+}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable("id") long id) {
+  @ApiOperation(value = "Delete a certificate", authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<?> delete(@PathVariable("id") long id) {
     certificateService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

@@ -1,27 +1,27 @@
 package com.epam.esm.entity;
 
-import java.util.Set;
+import javax.persistence.Entity;
+import javax.persistence.NamedNativeQuery;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 
-/**
- * Represents tag entity in the system
- */
-public class Tag {
-  private Long id;
+/** Represents tag entity in the system */
+@Entity
+@Table(name = "tags")
+@SequenceGenerator(name = "id_seq_gen", sequenceName = "tags_id_seq", allocationSize = 1)
+@NamedNativeQuery(
+    name = "getWidelyUsedTagsOfUser",
+    query ="SELECT id, name FROM user_tags_function(?) WHERE tag_cost = (SELECT MAX(tag_cost) FROM user_tags_function(?))",
+    resultClass = Tag.class)
+public class Tag extends BaseEntity {
+
+  private static final long serialVersionUID = -534616247517516824L;
   private String name;
-  private Set<Certificate> certificates;
 
   public Tag() {}
 
   public Tag(String name) {
     this.name = name;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public String getName() {
@@ -30,14 +30,6 @@ public class Tag {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public Set<Certificate> getCertificates() {
-    return certificates;
-  }
-
-  public void setCertificates(Set<Certificate> certificates) {
-    this.certificates = certificates;
   }
 
   @Override

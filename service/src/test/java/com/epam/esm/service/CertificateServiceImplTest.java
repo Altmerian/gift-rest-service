@@ -8,16 +8,14 @@ import com.epam.esm.exception.ResourceConflictException;
 import com.epam.esm.exception.ResourceNotFoundException;
 import com.epam.esm.repository.CertificateRepository;
 import com.epam.esm.repository.TagRepository;
-import com.epam.esm.specification.SQLSpecification;
-import com.epam.esm.specification.Specification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -36,6 +34,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,24 +64,24 @@ public class CertificateServiceImplTest {
   @Test
   public void getAll_queryForAll_expectedListOfAllCertificates() {
     // given
-    when(certificateRepository.getAll()).thenReturn(Collections.singletonList(mockCertificate));
+    when(certificateRepository.getAll(1, 1)).thenReturn(Collections.singletonList(mockCertificate));
     // when
-    List<CertificateDTO> certificateDTOList = certificateService.getAll();
+    List<CertificateDTO> certificateDTOList = certificateService.getAll(1, 1);
     // then
-    verify(certificateRepository).getAll();
+    verify(certificateRepository).getAll(1, 1);
     assertThat(certificateDTOList, hasSize(1));
   }
 
   @Test
   public void sendQuery_whenQueryWithParameters_expectedCertificateDTOList() {
     // given
-    when(certificateRepository.query(any(Specification.class)))
+    when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt()))
         .thenReturn(Collections.singletonList(mockCertificate));
     // when
     List<CertificateDTO> certificateDTOList =
-        certificateService.sendQuery("tagName", "searchFor", "sortBy");
+        certificateService.sendQuery("tagName", "searchFor", "sortBy", 1, 20);
     // then
-    verify(certificateRepository).query(any(Specification.class));
+    verify(certificateRepository).query(ArgumentMatchers.any(), anyInt(), anyInt());
     assertThat(certificateDTOList, hasSize(1));
   }
 
@@ -133,8 +132,6 @@ public class CertificateServiceImplTest {
     // then
     verify(certificateRepository).get(1L);
     verify(certificateRepository).update(certificate);
-    verify(certificateRepository).clearCertificateTags(1L);
-    verify(certificateRepository, Mockito.times(2)).addCertificateTag(1L, 0);
   }
 
   @Test
@@ -152,37 +149,36 @@ public class CertificateServiceImplTest {
   @Test
   public void checkDuplicate_givenNamePriceDurationTags_expectedException() {
     // given
-    when(certificateRepository.query(any(SQLSpecification.class)))
+    when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt()))
         .thenReturn(Collections.singletonList(mockCertificate));
     when(mockCertificate.getId()).thenReturn(1L);
     // when
     Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
     assertThrows(ResourceConflictException.class, checkingAttempt);
-    verify(certificateRepository).query(any(SQLSpecification.class));
+    verify(certificateRepository).query(ArgumentMatchers.any(), anyInt(), anyInt());
   }
 
   @Test
   public void checkDuplicate_uniqueNamePriceDurationTags_expectedNotToThrow() {
     // given
-    when(certificateRepository.query(any(SQLSpecification.class)))
-        .thenReturn(Collections.emptyList());
+    when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt())).thenReturn(Collections.emptyList());
     // when
     Executable checkingAttempt = () -> certificateService.checkForDuplicate(mockCertificateDTO);
     // then
     assertDoesNotThrow(checkingAttempt);
-    verify(certificateRepository).query(any(SQLSpecification.class));
+    verify(certificateRepository).query(ArgumentMatchers.any(), anyInt(), anyInt());
   }
 
   @Test
-  void addCertificateTag_tagWithUniqueName_registeredCertificateTag() {
+  void fetchCertificateTags_tagWithUniqueName_registeredCertificateTag() {
     // given
     when(tagRepository.contains(mockTag)).thenReturn(false);
     // when
-    certificateService.addCertificateTag(1L, mockTag);
+    certificateService.fetchCertificateTags(Collections.singleton(mockTag));
     // then
     verify(tagRepository).contains(mockTag);
-    verify(certificateRepository).addCertificateTag(anyLong(), anyLong());
+    verify(tagRepository).create(mockTag);
   }
 
   @Test

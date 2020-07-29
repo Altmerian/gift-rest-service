@@ -8,6 +8,7 @@ import com.epam.esm.repository.TagRepository;
 import com.google.common.annotations.VisibleForTesting;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +21,20 @@ public class TagServiceImpl implements TagService {
   private final ModelMapper modelMapper;
 
   @Autowired
-  public TagServiceImpl(TagRepository tagRepository, ModelMapper modelMapper) {
+  public TagServiceImpl(
+      @Qualifier("tagJPARepository") TagRepository tagRepository, ModelMapper modelMapper) {
     this.tagRepository = tagRepository;
     this.modelMapper = modelMapper;
   }
 
   @Override
-  public List<TagDTO> getAll() {
-    return tagRepository.getAll().stream().map(this::convertToDTO).collect(Collectors.toList());
+  public List<TagDTO> getAll(int page, int size) {
+    return tagRepository.getAll(page, size).stream().map(this::convertToDTO).collect(Collectors.toList());
+  }
+
+  @Override
+  public long countAll() {
+    return tagRepository.countAll();
   }
 
   @Override

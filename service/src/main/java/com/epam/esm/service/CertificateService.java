@@ -1,25 +1,28 @@
 package com.epam.esm.service;
 
 import com.epam.esm.dto.CertificateDTO;
+import com.epam.esm.dto.CertificatePatchDTO;
 import com.epam.esm.exception.ResourceConflictException;
-import com.epam.esm.repository.CertificateRepository;
+import com.epam.esm.repository.BaseRepository;
 import com.epam.esm.specification.Specification;
 
 import java.util.List;
 
 /**
  * Represents an interface of service which interacts with the underlying repository layer for
- * certificate-related actions. An instance of certificate repository {@link CertificateRepository}
+ * certificate-related actions. An instance of certificate repository {@link BaseRepository}
  * should be aggregated during implementation.
  */
 public interface CertificateService {
 
   /**
-   * Gets data of all certificates from the repository layer.
+   * Gets data about  all certificates from the repository layer.
    *
    * @return list of certificates in certain transfer format
+   * @param page number of page to view
+   * @param size number of certificates per page
    */
-  List<CertificateDTO> getAll();
+  List<CertificateDTO> getAll(int page, int size);
 
   /**
    * Gets data of certificate with given id from the repository layer.
@@ -35,9 +38,22 @@ public interface CertificateService {
    * @param tagName tag name for query
    * @param searchFor part of certificate name or description for query
    * @param sortBy sorting parameters
+   * @param page number of page to view
+   * @param size number of certificates per page
    * @return list of certificates that matched specification in data transfer format
    */
-  List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy);
+  List<CertificateDTO> sendQuery(String tagName, String searchFor, String sortBy, int page, int size);
+
+  /**
+   * Constructs {@link Specification} from given parameters and send it to appropriate repository
+   * method to count total amount of suitable certificates.
+   *
+   * @param tagName tag name for query
+   * @param searchFor part of certificate name or description for query
+   * @param sortBy sorting parameters
+   * @return Overall number of certificates that matched specification
+   */
+  long countAll(String tagName, String searchFor, String sortBy);
 
   /**
    * Invokes repository method to persist certificate data in the system
@@ -55,7 +71,14 @@ public interface CertificateService {
   void update(long id, CertificateDTO certificateDTO);
 
   /**
-   * Invokes repository method to delete certificate data from the system
+   * Invokes repository method to modify certificate data in the system
+   *
+   * @param certificatePatchDTO certificate data to apply a patch
+   */
+  void modify(long id, CertificatePatchDTO certificatePatchDTO);
+
+  /**
+   * Invokes repository method to mark the certificate as deleted in the system
    *
    * @param id id of the certificate to delete
    */

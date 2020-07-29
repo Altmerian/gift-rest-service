@@ -11,6 +11,7 @@
                 <Pattern>%d [%t] %-5p %c{6} %m%n</Pattern>
             </PatternLayout>
             <Policies>
+                <OnStartupTriggeringPolicy/>
                 <TimeBasedTriggeringPolicy/>
                 <SizeBasedTriggeringPolicy size="512 KB"/>
             </Policies>
@@ -24,7 +25,9 @@
             </DefaultRolloverStrategy>
         </RollingFile>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{6} - %msg%n %ex{short}"/>
+            <PatternLayout
+                    pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable"/>
+            <!--            <PatternLayout pattern="%d{HH:mm:ss.SSS}{black} [%t] %-5level %logger{6} - %msg%n %ex{short}"/>-->
         </Console>
     </Appenders>
 
@@ -33,13 +36,10 @@
             <AppenderRef ref="File"/>
             <AppenderRef ref="Console"/>
         </Root>
-        <logger level="error" name="com.mchange"/>
-        <logger level="error" name="org.hibernate"/>
+        <logger level="warn" name="com.mchange"/>
+        <logger level="warn" name="org.hibernate"/>
         <logger level="info" name="org.springframework.test.context.BootstrapUtils">
-            <appender-ref ref="Console" />
-        </logger>
-        <logger level="warn" name="com.epam.esm.config.AppDispatcherServletInitializer">
-            <appender-ref ref="Console" />
+            <appender-ref ref="Console"/>
         </logger>
     </Loggers>
 </Configuration>

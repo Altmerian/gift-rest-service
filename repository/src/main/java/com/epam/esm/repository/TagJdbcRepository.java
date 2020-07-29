@@ -2,23 +2,24 @@ package com.epam.esm.repository;
 
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.TagMapper;
-import com.epam.esm.specification.SQLSpecification;
 import com.epam.esm.specification.Specification;
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class TagJdbcRepository implements TagRepository {
 
   private final JdbcTemplate jdbcTemplate;
@@ -29,9 +30,14 @@ public class TagJdbcRepository implements TagRepository {
   }
 
   @Override
-  public List<Tag> getAll() {
+  public List<Tag> getAll(int page, int size) {
     String sqlGetAll = "SELECT id, name FROM tags";
     return jdbcTemplate.query(sqlGetAll, new TagMapper());
+  }
+
+  @Override
+  public long countAll() {
+    throw new NotImplementedException();
   }
 
   @Override
@@ -47,13 +53,9 @@ public class TagJdbcRepository implements TagRepository {
   }
 
   @Override
-  public List<Tag> query(Specification specification) {
-    if (!(specification instanceof SQLSpecification)) {
-      return Collections.emptyList();
-    }
-    SQLSpecification sqlSpecification = (SQLSpecification) specification;
+  public List<Tag> query(Specification<Tag> specification) {
     return jdbcTemplate.query(
-        sqlSpecification.toSqlQuery(), sqlSpecification.getParameters(), new TagMapper());
+        specification.toSqlQuery(), specification.getParameters(), new TagMapper());
   }
 
   @Override
@@ -80,6 +82,11 @@ public class TagJdbcRepository implements TagRepository {
         },
         keyHolder);
     return Objects.requireNonNull(keyHolder.getKey()).longValue();
+  }
+
+  @Override
+  public void update(Tag entity) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

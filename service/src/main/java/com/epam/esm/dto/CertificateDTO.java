@@ -1,7 +1,11 @@
 package com.epam.esm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Digits;
@@ -15,29 +19,42 @@ import java.util.Set;
 /** Data transfer object representing a certificate */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CertificateDTO {
+public class CertificateDTO extends RepresentationModel<CertificateDTO> {
 
+  @JsonView(View.Public.class)
   private Long id;
 
+  @JsonView(View.Public.class)
   @NotBlank(message = "Certificate name cannot be empty.")
   @Size(max = 64, message = "Certificate name mustn't be longer than 64 characters.")
   private String name;
 
+  @JsonView(View.Internal.class)
   @Size(max = 128, message = "Description mustn't be longer than 128 characters.")
   private String description;
 
+  @JsonView(View.Public.class)
   @Digits(integer = 14, fraction = 2)
   @Positive(message = "Certificate price must be positive.")
   private BigDecimal price;
 
+  @JsonView(View.ExtendedPublic.class)
   private ZonedDateTime creationDate;
 
+  @JsonView(View.ExtendedPublic.class)
   private ZonedDateTime modificationDate;
 
+  @JsonView(View.ExtendedPublic.class)
   @Positive(message = "Duration in days must be positive.")
   private int durationInDays;
 
-  @Valid private Set<TagDTO> tags;
+  @JsonView(View.Public.class)
+  @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+  private boolean deleted;
+
+  @JsonView(View.Internal.class)
+  @Valid
+  private Set<TagDTO> tags;
 
   public CertificateDTO() {}
 
@@ -95,6 +112,16 @@ public class CertificateDTO {
 
   public void setDurationInDays(int durationInDays) {
     this.durationInDays = durationInDays;
+  }
+
+  @JsonProperty
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  @JsonIgnore
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 
   public Set<TagDTO> getTags() {

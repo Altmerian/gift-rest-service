@@ -1,7 +1,17 @@
+plugins {
+    id 'java-library'
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
 dependencies {
-    implementation "org.springframework:spring-jdbc:$springVersion"
-    implementation "org.springframework:spring-context:$springVersion"
     implementation 'org.postgresql:postgresql:42.2.13'
-    implementation 'com.mchange:c3p0:0.9.5.5'
-    testImplementation "org.springframework:spring-test:$springVersion"
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
 }
