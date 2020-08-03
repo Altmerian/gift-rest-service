@@ -1,3 +1,7 @@
+plugins {
+    id 'war'
+}
+
 dependencies {
     implementation project(':service')
     implementation 'org.springframework.security.oauth:spring-security-oauth2:2.5.0.RELEASE'
@@ -5,5 +9,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-hateoas'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    providedRuntime('org.springframework.boot:spring-boot-starter-tomcat')
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
