@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -36,7 +37,7 @@ import java.util.Set;
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
 @ConfigurationPropertiesScan("com.epam.esm")
 @EnableSwagger2
-public class AppConfig {
+public class AppConfig extends SpringBootServletInitializer {
 
   private static final Set<String> DEFAULT_PRODUCES_AND_CONSUMES =
       new HashSet<>(Collections.singletonList("application/json"));
