@@ -42,6 +42,11 @@ public class AppConfig extends SpringBootServletInitializer {
   private static final Set<String> DEFAULT_PRODUCES_AND_CONSUMES =
       new HashSet<>(Collections.singletonList("application/json"));
 
+  public AppConfig() {
+    super();
+    setRegisterErrorPageFilter(false);
+  }
+
   public static void main(String[] args) {
     SpringApplication.run(AppConfig.class, args);
   }
