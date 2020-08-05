@@ -4,7 +4,6 @@ import com.epam.esm.dto.CertificateDTO;
 import com.epam.esm.dto.TagDTO;
 import com.epam.esm.entity.Certificate;
 import com.epam.esm.entity.Tag;
-import com.sun.tools.javac.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,7 @@ import org.modelmapper.ModelMapper;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.HashSet;
+import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,7 +34,7 @@ class ModelMapperTest {
     Tag tag = new Tag();
     tag.setId(1L);
     tag.setName("TestTag");
-    certificate.setTags(new HashSet<>(List.of(tag)));
+    certificate.setTags(Collections.singleton(tag));
 
     certificateDTO = new CertificateDTO();
     certificateDTO.setId(1L);
@@ -46,7 +45,7 @@ class ModelMapperTest {
     TagDTO tagDTO = new TagDTO();
     tagDTO.setId(1L);
     tagDTO.setName("TestTag");
-    certificateDTO.setTags(new HashSet<>(List.of(tagDTO)));
+    certificateDTO.setTags(Collections.singleton(tagDTO));
   }
 
   @Test

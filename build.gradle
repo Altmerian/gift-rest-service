@@ -17,17 +17,12 @@ plugins {
     id "org.sonarqube" version "3.0"
 }
 
-sonarqube {
-    properties {
-        property "sonar.sourceEncoding", "UTF-8"
-    }
-}
-
 allprojects {
     group 'by.epam.pavelshakhlovich'
     version '1.0-SNAPSHOT'
 
     apply plugin: 'java'
+    apply plugin: 'jacoco'
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
@@ -38,15 +33,19 @@ allprojects {
         }
     }
 
+    sonarqube {
+        properties {
+            property "sonar.sourceEncoding", "UTF-8"
+        }
+    }
+
     jacocoTestReport {
         reports {
             xml.enabled true
         }
     }
 
-    plugins.withType(JacocoPlugin) {
-        tasks["test"].finalizedBy 'jacocoTestReport'
-    }
+    test.finalizedBy jacocoTestReport
 }
 
 subprojects {
