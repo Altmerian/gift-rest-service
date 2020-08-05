@@ -8,17 +8,22 @@ pipeline {
                 git branch: '*/module4', url: 'https://github.com/Altmerian/gift-rest-service'
             }
         }
+        stage('Test') {
+            steps {
+                echo 'Testing...'
+                bat 'gradlew.bat clean test'
+            }
+        }
         stage('Build') {
             steps {
-                sh 'gradle clean build'
+                echo 'Building...'
+                bat 'gradlew.bat build'
             }
         }
         stage('Sonarqube scanning') {
-            withSonarQubeEnv {
-                steps {
-                    echo 'Sonarqube scanning...'
-                    sh 'gradle jacocoTestReport sonarqube'
-                }
+            steps {
+                echo 'Sonarqube scanning...'
+                bat 'gradlew.bat jacocoTestReport sonarqube'
             }
         }
         stage('Deploying') {
