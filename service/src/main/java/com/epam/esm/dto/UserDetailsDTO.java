@@ -19,9 +19,6 @@ public class UserDetailsDTO {
   @Length(min = 6, max = 64, message = "Password length must be between 6 and 64")
   private String password;
 
-  public UserDetailsDTO() {
-  }
-
   public String getEmail() {
     return email;
   }

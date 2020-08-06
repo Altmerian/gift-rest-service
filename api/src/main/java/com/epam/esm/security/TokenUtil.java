@@ -28,7 +28,7 @@ public class TokenUtil {
   @Value("${security.secret}")
   private String secret;
   @Value("${security.token-prefix}")
-  private String token_prefix;
+  private String tokenPrefix;
 
 
   public String generateToken(Authentication auth) {
@@ -85,11 +85,11 @@ public class TokenUtil {
     this.secret = secret;
   }
 
-  public String getToken_prefix() {
-    return token_prefix;
+  public String getTokenPrefix() {
+    return tokenPrefix;
   }
 
-  public void setToken_prefix(String token_prefix) {
-    this.token_prefix = token_prefix;
+  public void setTokenPrefix(String tokenPrefix) {
+    this.tokenPrefix = tokenPrefix;
   }
 }

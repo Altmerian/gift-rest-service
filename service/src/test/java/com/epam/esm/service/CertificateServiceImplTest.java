@@ -42,7 +42,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith({MockitoExtension.class})
 @MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Certificate service")
-public class CertificateServiceImplTest {
+class CertificateServiceImplTest {
 
   @InjectMocks private CertificateServiceImpl certificateService;
 
@@ -62,7 +62,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void getAll_queryForAll_expectedListOfAllCertificates() {
+  void getAll_queryForAll_expectedListOfAllCertificates() {
     // given
     when(certificateRepository.getAll(1, 1)).thenReturn(Collections.singletonList(mockCertificate));
     // when
@@ -73,7 +73,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void sendQuery_whenQueryWithParameters_expectedCertificateDTOList() {
+  void sendQuery_whenQueryWithParameters_expectedCertificateDTOList() {
     // given
     when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt()))
         .thenReturn(Collections.singletonList(mockCertificate));
@@ -86,7 +86,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void getById_givenCertificateId_expectedCertificateDTO() {
+  void getById_givenCertificateId_expectedCertificateDTO() {
     // given
     when(certificateRepository.get(anyLong())).thenReturn(Optional.of(mockCertificate));
     // when
@@ -97,7 +97,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void getById_nonexistentCertificateId_thenExceptionThrows() {
+  void getById_nonexistentCertificateId_thenExceptionThrows() {
     // given
     long nonexistentCertificateId = 666L;
     when(certificateRepository.get(nonexistentCertificateId)).thenReturn(Optional.empty());
@@ -108,7 +108,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void create_givenCertificateDTO_expectedPersistedCertificateId() {
+  void create_givenCertificateDTO_expectedPersistedCertificateId() {
     // given
     when(certificateRepository.create(any(Certificate.class))).thenReturn(1L);
     // when
@@ -119,7 +119,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void update_givenCertificateDTO_shouldInvokeRepositoryUpdateMethods() {
+  void update_givenCertificateDTO_shouldInvokeRepositoryUpdateMethods() {
     // given
     CertificateDTO certificateDTO = new CertificateDTO();
     Certificate certificate = new Certificate();
@@ -135,7 +135,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void delete_givenCertificateDTOId_shouldInvokeRepositoryDeleteMethod() {
+  void delete_givenCertificateDTOId_shouldInvokeRepositoryDeleteMethod() {
     // given
     long certificateDTOId = 1L;
     when(certificateRepository.get(certificateDTOId)).thenReturn(Optional.of(mockCertificate));
@@ -147,7 +147,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void checkDuplicate_givenNamePriceDurationTags_expectedException() {
+  void checkDuplicate_givenNamePriceDurationTags_expectedException() {
     // given
     when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt()))
         .thenReturn(Collections.singletonList(mockCertificate));
@@ -160,7 +160,7 @@ public class CertificateServiceImplTest {
   }
 
   @Test
-  public void checkDuplicate_uniqueNamePriceDurationTags_expectedNotToThrow() {
+  void checkDuplicate_uniqueNamePriceDurationTags_expectedNotToThrow() {
     // given
     when(certificateRepository.query(ArgumentMatchers.any(), anyInt(), anyInt())).thenReturn(Collections.emptyList());
     // when

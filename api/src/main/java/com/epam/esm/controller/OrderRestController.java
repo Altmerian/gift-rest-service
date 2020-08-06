@@ -7,25 +7,14 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 /**
  * Controller to handle all orders related requests. Then requests depending on requests parameters
@@ -54,7 +43,7 @@ public class OrderRestController {
    *
    * @return response with body filled by requested data.
    */
-  @RequestMapping(method = GET)
+  @GetMapping
   @JsonView(View.Public.class)
   @ApiOperation(value = "Get all orders", response = OrderDTO.class, authorizations = @Authorization(value = "Bearer"))
   public OrderListDTO getAllOrders(
@@ -97,7 +86,7 @@ public class OrderRestController {
   @DeleteMapping(value = "/{id:\\d+}")
   @ApiOperation(value = "Delete order", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Order not found") })
-  public ResponseEntity<?> delete(@PathVariable("id") long id) {
+  public ResponseEntity<Object> delete(@PathVariable("id") long id) {
     orderService.delete(id);
     return ResponseEntity.noContent().build();
   }

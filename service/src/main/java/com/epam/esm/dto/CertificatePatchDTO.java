@@ -30,8 +30,6 @@ public class CertificatePatchDTO {
   @NullOrPositiveConstraint(message = "Duration in days must be positive.")
   private int durationInDays;
 
-  public CertificatePatchDTO() {}
-
   public String getName() {
     return name;
   }

@@ -56,8 +56,6 @@ public class CertificateDTO extends RepresentationModel<CertificateDTO> {
   @Valid
   private Set<TagDTO> tags;
 
-  public CertificateDTO() {}
-
   public Long getId() {
     return id;
   }

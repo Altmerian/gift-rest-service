@@ -41,8 +41,6 @@ public class Order extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "certificate_id"))
   private List<Certificate> certificates;
 
-  public Order() {}
-
   public BigDecimal getCost() {
     return cost;
   }

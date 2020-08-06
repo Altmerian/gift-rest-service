@@ -35,6 +35,8 @@ public class ModelAssembler {
   private static final String PATCH_RELATION = "patch";
   private static final String DELETE_RELATION = "delete";
 
+  private ModelAssembler() { }
+
   public static void addTagSelfLink(TagDTO tagDTO, HttpServletResponse resp) {
     if (!tagDTO.hasLink(SELF_RELATION)) {
       tagDTO.add(
@@ -89,7 +91,7 @@ public class ModelAssembler {
 
   }
 
-  public static void addCertificateListLinks(CertificateListDTO certificateListDTO, HttpServletResponse resp) {
+  public static void addCertificateListLinks(CertificateListDTO certificateListDTO) {
     if (appUserIsAdmin()) {
       certificateListDTO.add(
           linkTo(methodOn(CertificateRestController.class).create(new CertificateDTO()))
@@ -111,7 +113,7 @@ public class ModelAssembler {
     addOrderSelfLink(orderDTO, resp);
     if (!orderDTO.isDeleted()) {
       orderDTO.add(
-          linkTo(methodOn(OrderRestController.class).delete(orderDTO.getId())).withRel("delete"));
+          linkTo(methodOn(OrderRestController.class).delete(orderDTO.getId())).withRel(DELETE_RELATION));
     }
   }
 

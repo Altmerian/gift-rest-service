@@ -20,8 +20,6 @@ public class TagDTO extends RepresentationModel<TagDTO> {
   @Size(max = 64, message = "Tag name mustn't be longer than 64 characters.")
   private String name;
 
-  public TagDTO() {}
-
   public Long getId() {
     return id;
   }

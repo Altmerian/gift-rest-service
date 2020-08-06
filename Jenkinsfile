@@ -5,28 +5,28 @@ pipeline {
         stage('Clone sources') {
             steps {
                 echo 'Cloning...'
-                git branch: '*/module4', url: 'https://github.com/Altmerian/gift-rest-service'
+                git branch: 'module4', url: 'https://github.com/Altmerian/gift-rest-service'
             }
         }
-        stage('Test') {
+        stage('Run tests') {
             steps {
                 echo 'Testing...'
                 bat 'gradlew.bat clean test'
             }
         }
-        stage('Build') {
+        stage('Build project') {
             steps {
                 echo 'Building...'
                 bat 'gradlew.bat build'
             }
         }
-        stage('Sonarqube scanning') {
+        stage('Sonarqube Analysis') {
             steps {
                 echo 'Sonarqube scanning...'
-                bat 'gradlew.bat jacocoTestReport sonarqube'
+                bat 'gradlew.bat sonarqube'
             }
         }
-        stage('Deploying') {
+        stage('Deploy on Tomcat') {
             steps {
                 echo 'Deploying...'
                 deploy adapters: [tomcat9(credentialsId: 'ab6daf10-4b8d-4c41-95ed-2e6a04e41b3c', path: '', url: 'http://localhost:8088')],

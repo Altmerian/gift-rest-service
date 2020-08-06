@@ -166,7 +166,7 @@ public class UserRestController {
    */
   @PostMapping
   @ApiResponses(value = {@ApiResponse(code = 201, message = "Created") })
-  public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO userDTO) {
+  public ResponseEntity<Object> createUser(@Valid @RequestBody UserDTO userDTO) {
     long userId = userService.create(userDTO);
     URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
@@ -187,7 +187,7 @@ public class UserRestController {
    */
   @PostMapping("/{userId:\\d+}/orders")
   @PreAuthorize("#userId == principal")
-  public ResponseEntity<?> createOrder(
+  public ResponseEntity<Object> createOrder(
       @PathVariable long userId, @Valid @RequestBody OrderDTO orderDTO, HttpServletResponse resp) {
     long orderId = orderService.create(userId, orderDTO);
     URI location =
@@ -206,7 +206,7 @@ public class UserRestController {
   @DeleteMapping("/{userId:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "User not found") })
-  public ResponseEntity<?> deleteUser(@PathVariable("userId") long userId) {
+  public ResponseEntity<Object> deleteUser(@PathVariable("userId") long userId) {
     userService.delete(userId);
     return ResponseEntity.noContent().build();
   }
@@ -220,7 +220,7 @@ public class UserRestController {
   @DeleteMapping("/{userId:\\d+}/orders/{id:\\d+}")
   @PreAuthorize("#userId == principal or hasRole('ADMIN')")
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Order not found") })
-  public ResponseEntity<?> deleteOrder(
+  public ResponseEntity<Object> deleteOrder(
       @PathVariable long userId, @PathVariable("id") long orderId) {
     orderService.delete(userId, orderId);
     return ResponseEntity.noContent().build();

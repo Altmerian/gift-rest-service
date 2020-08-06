@@ -13,23 +13,13 @@ import org.springframework.http.HttpMethod;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseBuilder;
-import springfox.documentation.service.ApiInfo;
-import springfox.documentation.service.ApiKey;
-import springfox.documentation.service.AuthorizationScope;
-import springfox.documentation.service.Contact;
-import springfox.documentation.service.Response;
-import springfox.documentation.service.SecurityReference;
+import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Spring boot auto configuration and swagger documentation setup
@@ -40,7 +30,7 @@ import java.util.Set;
 public class AppConfig extends SpringBootServletInitializer {
 
   private static final Set<String> DEFAULT_PRODUCES_AND_CONSUMES =
-      new HashSet<>(Collections.singletonList("application/json"));
+     Collections.singleton("application/json");
 
   public AppConfig() {
     super();

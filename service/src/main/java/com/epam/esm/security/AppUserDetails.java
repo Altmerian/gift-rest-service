@@ -4,6 +4,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class AppUserDetails extends User {
 
@@ -20,5 +21,25 @@ public class AppUserDetails extends User {
 
   public void setUserId(Long userId) {
     this.userId = userId;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AppUserDetails)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+    AppUserDetails that = (AppUserDetails) o;
+    return Objects.equals(getUserId(), that.getUserId());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), getUserId());
   }
 }

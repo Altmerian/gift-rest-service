@@ -91,7 +91,7 @@ public class CertificateRestController {
     certificates.forEach(
         certificateDTO -> ModelAssembler.addCertificateLinks(certificateDTO, resp));
     CertificateListDTO certificateListDTO = new CertificateListDTO(certificates);
-    ModelAssembler.addCertificateListLinks(certificateListDTO, resp);
+    ModelAssembler.addCertificateListLinks(certificateListDTO);
     return certificateListDTO;
   }
 
@@ -124,7 +124,7 @@ public class CertificateRestController {
   @PreAuthorize("hasRole('ADMIN')")
   @ApiOperation(value = "Create a new certificate", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
-  public ResponseEntity<?> create(@Valid @RequestBody CertificateDTO certificateDTO) {
+  public ResponseEntity<Object> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
     URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
@@ -147,7 +147,7 @@ public class CertificateRestController {
   @PreAuthorize("hasRole('ADMIN')")
   @ApiOperation(value = "Update existed certificate", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
-  public ResponseEntity<?> update(
+  public ResponseEntity<Object> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
     return ResponseEntity.noContent().build();
@@ -167,7 +167,7 @@ public class CertificateRestController {
   @PreAuthorize("hasRole('ADMIN')")
   @ApiOperation(value = "Patches certain certificate fields", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
-  public ResponseEntity<?> patch(
+  public ResponseEntity<Object> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
     return ResponseEntity.noContent().build();
@@ -182,7 +182,7 @@ public class CertificateRestController {
   @ApiOperation(value = "Delete a certificate", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<?> delete(@PathVariable("id") long id) {
+  public ResponseEntity<Object> delete(@PathVariable("id") long id) {
     certificateService.delete(id);
     return ResponseEntity.noContent().build();
   }

@@ -41,8 +41,6 @@ public class Certificate extends BaseEntity {
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags;
 
-  public Certificate() {}
-
   @PreUpdate
   void preUpdate() {
     setModificationDate(ZonedDateTime.now());

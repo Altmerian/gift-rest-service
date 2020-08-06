@@ -101,7 +101,7 @@ public class TagRestController {
   @PreAuthorize("hasRole('ADMIN')")
   @ApiOperation(value = "Create new tag", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
-  public ResponseEntity<?> create(@Valid @RequestBody TagDTO tagDTO) {
+  public ResponseEntity<Object> create(@Valid @RequestBody TagDTO tagDTO) {
     long tagId = tagService.create(tagDTO);
     URI uri =
         ServletUriComponentsBuilder.fromCurrentRequest()
@@ -121,7 +121,7 @@ public class TagRestController {
   @PreAuthorize("hasRole('ADMIN')")
   @ApiOperation(value = "Delete a tag", authorizations = @Authorization(value = "Bearer"))
   @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Tag not found") })
-  public ResponseEntity<?> delete(@PathVariable("id") long id) {
+  public ResponseEntity<Object> delete(@PathVariable("id") long id) {
     tagService.delete(id);
     return ResponseEntity.noContent().build();
   }
