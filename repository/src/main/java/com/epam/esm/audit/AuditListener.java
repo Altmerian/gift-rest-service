@@ -19,8 +19,6 @@ public class AuditListener {
 
   private EventRepository eventRepository;
 
-  public AuditListener() {}
-
   @Autowired
   public void setEventRepository(EventRepository eventRepository) {
     this.eventRepository = eventRepository;

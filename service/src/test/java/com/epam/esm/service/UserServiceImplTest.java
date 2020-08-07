@@ -94,7 +94,7 @@ class UserServiceImplTest {
   }
 
   @Test
-  public void getById_nonexistentUserId_thenExceptionThrows() {
+  void getById_nonexistentUserId_thenExceptionThrows() {
     // given
     long nonexistentUserId = 666L;
     when(userRepository.get(nonexistentUserId)).thenReturn(Optional.empty());
@@ -146,7 +146,7 @@ class UserServiceImplTest {
   }
 
   @Test
-  public void checkDuplicate_givenExistedUser_expectedException() {
+  void checkDuplicate_givenExistedUser_expectedException() {
     // given
     when(userRepository.contains(any(User.class))).thenReturn(true);
     // when
@@ -157,7 +157,7 @@ class UserServiceImplTest {
   }
 
   @Test
-  public void checkDuplicate_uniqueUser_expectedNotToThrow() {
+  void checkDuplicate_uniqueUser_expectedNotToThrow() {
     // given
     when(userRepository.contains(any(User.class))).thenReturn(false);
     // when

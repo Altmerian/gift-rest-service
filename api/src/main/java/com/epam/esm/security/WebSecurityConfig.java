@@ -27,7 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${security.sign-up-url}")
   private String signUpUrl;
 
-  public static final String[] DEFAULT_EXCLUDE_PATTERN =
+  protected static final String[] DEFAULT_EXCLUDE_PATTERN =
       new String[] {"/api/v1/certificates/**", "/api/v1/tags/**", "/api-docs/**", "/swagger-.*"};
 
   @Autowired

@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void checkForDuplicate(UserDTO userDTO) throws ResourceConflictException {
+  public void checkForDuplicate(UserDTO userDTO) {
     if (userRepository.contains(convertToEntity(userDTO))) {
       throw new ResourceConflictException(
           "Your data conflicts with existing resources. A User with the given email already exists");

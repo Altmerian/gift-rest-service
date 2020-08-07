@@ -31,7 +31,7 @@ import java.util.Collections;
 public class ExceptionHandlerFilter extends GenericFilterBean {
 
   private final ObjectMapper objectMapper;
-  private static final Logger LOGGER = LogManager.getLogger();
+  private static final Logger LOG4J_LOGGER = LogManager.getLogger();
 
   @Autowired
   public ExceptionHandlerFilter(ObjectMapper objectMapper) {
@@ -46,18 +46,18 @@ public class ExceptionHandlerFilter extends GenericFilterBean {
     try {
       chain.doFilter(req, res);
     } catch (RequestRejectedException exception) {
-      LOGGER.error(
+      LOG4J_LOGGER.error(
           "The request was rejected because the URL contained a potentially malicious String \"//\": request_url={}",
           request.getRequestURL(),
           exception);
       createErrorResponse(response, exception, HttpStatus.BAD_REQUEST);
     } catch (InvalidTokenException | JwtException | AppAuthenticationException exception) {
-      LOGGER.error(exception.getMessage());
+      LOG4J_LOGGER.error(exception.getMessage());
       String loginUrl = ControllerExceptionHandler.getLoginUrl(request);
       response.setHeader(HttpHeaders.WWW_AUTHENTICATE, loginUrl);
       createErrorResponse(response, exception, HttpStatus.UNAUTHORIZED);
     } catch (RuntimeException exception) {
-      LOGGER.error(exception.getMessage());
+      LOG4J_LOGGER.error(exception.getMessage());
       createErrorResponse(response, exception, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

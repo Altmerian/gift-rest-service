@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class QueryHelper {
+
+  private QueryHelper() {}
+
   private static final List<String> ALLOWED_SORTABLE_COLUMNS =
       Arrays.asList(
           "name", "description", "price", "duration_in_days", "creation_date", "modification_date");
@@ -25,7 +28,7 @@ public class QueryHelper {
   }
 
   public static String getQueryString(String queryString) {
-    return "(" + queryString.trim().replaceAll(",", "|").toLowerCase() + ")";
+    return "(" + queryString.trim().replace(",", "|").toLowerCase() + ")";
   }
 
   public static int getTagsCount(String tagNames) {

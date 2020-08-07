@@ -6,10 +6,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 public class CertificateIdTagSpecification implements Specification<Tag> {
-  private final long certificate_id;
+  private final long certificateId;
 
-  public CertificateIdTagSpecification(long certificate_id) {
-    this.certificate_id = certificate_id;
+  public CertificateIdTagSpecification(long certificateId) {
+    this.certificateId = certificateId;
   }
 
   @Override
@@ -19,7 +19,7 @@ public class CertificateIdTagSpecification implements Specification<Tag> {
 
   @Override
   public Object[] getParameters() {
-    return new Object[]{certificate_id};
+    return new Object[]{certificateId};
   }
 
   @Override

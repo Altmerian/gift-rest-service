@@ -120,7 +120,7 @@ public class CertificateServiceImpl implements CertificateService {
   }
 
   @Override
-  public void checkForDuplicate(CertificateDTO certificateDTO) throws ResourceConflictException {
+  public void checkForDuplicate(CertificateDTO certificateDTO) {
     NamePriceDurationCertificateSpecification specification =
         new NamePriceDurationCertificateSpecification(
             certificateDTO.getName(),
@@ -154,7 +154,7 @@ public class CertificateServiceImpl implements CertificateService {
   @VisibleForTesting
   @Transactional
   //fills in tag's name depending on tag id and visa-versa
-  void fetchCertificateTags(Set<Tag> tags) {
+  public void fetchCertificateTags(Set<Tag> tags) {
     for (Tag tag : tags) {
       if (tag.getId() == null || tag.getId() == 0) {
         getTagIdByName(tag);

@@ -1,7 +1,6 @@
 package com.epam.esm.specification;
 
 import com.epam.esm.entity.Tag;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -21,7 +20,7 @@ public class ValuableUserTagsSpecification implements Specification<Tag> {
 
   @Override
   public Object[] getParameters() {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   @Override

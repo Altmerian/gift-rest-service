@@ -61,7 +61,7 @@ class OrderServiceImplTest {
   }
 
   @Test
-  public void getAll_queryForAll_expectedListOfAllOrders() {
+  void getAll_queryForAll_expectedListOfAllOrders() {
     // given
     when(orderRepository.getAll(1, 1)).thenReturn(Collections.singletonList(mockOrder));
     // when
@@ -72,7 +72,7 @@ class OrderServiceImplTest {
   }
 
   @Test
-  public void countAll_whenCountAll_thenExpectedCount() {
+  void countAll_whenCountAll_thenExpectedCount() {
     // given
     when(orderRepository.countAll()).thenReturn(2L);
     // when
@@ -83,7 +83,7 @@ class OrderServiceImplTest {
   }
 
   @Test
-  public void getById_givenOrderId_expectedOrderDTO() {
+  void getById_givenOrderId_expectedOrderDTO() {
     // given
     when(orderRepository.get(anyLong())).thenReturn(Optional.of(mockOrder));
     // when
@@ -94,7 +94,7 @@ class OrderServiceImplTest {
   }
 
   @Test
-  public void getById_nonexistentOrderId_thenExceptionThrows() {
+  void getById_nonexistentOrderId_thenExceptionThrows() {
     // given
     long nonexistentOrderId = 666L;
     when(orderRepository.get(nonexistentOrderId)).thenReturn(Optional.empty());

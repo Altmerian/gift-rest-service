@@ -15,7 +15,7 @@ public enum UserRole {
     return authority;
   }
 
-  public void setAuthority(String authority) {
+  void setAuthority(String authority) {
     this.authority = authority;
   }
 }

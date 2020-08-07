@@ -5,7 +5,6 @@ import com.epam.esm.entity.CertificateMapper;
 import com.epam.esm.specification.CertificateIdTagSpecification;
 import com.epam.esm.specification.Specification;
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -94,7 +93,7 @@ public class CertificateJdbcRepository implements CertificateRepository {
 
   @Override
   public long countAll(Specification<Certificate> specification) {
-    throw new NotImplementedException();
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -38,7 +38,7 @@ public class UserDTO extends RepresentationModel<UserDTO> {
   private String lastName;
 
   //  @JsonView(View.Internal.class)
-  private String UserRole;
+  private String userRole;
 
   @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
   private boolean deleted;
@@ -88,11 +88,11 @@ public class UserDTO extends RepresentationModel<UserDTO> {
   }
 
   public String getUserRole() {
-    return UserRole;
+    return userRole;
   }
 
   public void setUserRole(String userRole) {
-    UserRole = userRole;
+    this.userRole = userRole;
   }
 
   @JsonProperty
