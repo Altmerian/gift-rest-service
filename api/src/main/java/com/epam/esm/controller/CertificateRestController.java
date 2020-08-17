@@ -9,25 +9,12 @@ import com.epam.esm.service.CertificateService;
 import com.epam.esm.util.ModelAssembler;
 import com.epam.esm.util.PageParseHelper;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Authorization;
+import io.swagger.annotations.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +29,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
  * parameters are handled with the appropriate method.
  */
 @RestController
-@Api(tags = "Resource: Certificate",  description = "Certificates API for all CRUD operations", authorizations = @Authorization(""))
+@Api(
+    tags = "Resource: Certificate",
+    description = "Certificates API for all CRUD operations",
+    authorizations = @Authorization(""))
 @RequestMapping("/api/v1/certificates")
 public class CertificateRestController {
 
@@ -52,7 +42,8 @@ public class CertificateRestController {
   private final PageParseHelper pageParseHelper;
 
   @Autowired
-  public CertificateRestController(CertificateService certificateService, PageParseHelper pageParseHelper) {
+  public CertificateRestController(
+      CertificateService certificateService, PageParseHelper pageParseHelper) {
     this.certificateService = certificateService;
     this.pageParseHelper = pageParseHelper;
   }
@@ -82,8 +73,11 @@ public class CertificateRestController {
     int intSize = pageParseHelper.parseSize(size);
     long totalCount = certificateService.countAll(tagName, searchFor, sortBy);
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
+    resp.setHeader("Access-Control-Allow-Origin", "*");
     List<CertificateDTO> certificates;
-    if (StringUtils.isBlank(tagName) && StringUtils.isBlank(searchFor)) {
+    if (StringUtils.isBlank(tagName)
+        && StringUtils.isBlank(searchFor)
+        && StringUtils.isBlank(sortBy)) {
       certificates = certificateService.getAll(intPage, intSize);
     } else {
       certificates = certificateService.sendQuery(tagName, searchFor, sortBy, intPage, intSize);
@@ -103,7 +97,7 @@ public class CertificateRestController {
    */
   @JsonView(View.Internal.class)
   @ApiOperation(value = "Find certificate by id", response = CertificateDTO.class)
-  @ApiResponses(value = {@ApiResponse(code = 404, message = "Certificate not found") })
+  @ApiResponses(value = {@ApiResponse(code = 404, message = "Certificate not found")})
   @GetMapping("/{id:\\d+}")
   public CertificateDTO getById(@PathVariable long id, HttpServletResponse resp) {
     CertificateDTO certificateDTO = certificateService.getById(id);
@@ -122,8 +116,14 @@ public class CertificateRestController {
    */
   @PostMapping
   @PreAuthorize("hasRole('ADMIN')")
-  @ApiOperation(value = "Create a new certificate", authorizations = @Authorization(value = "Bearer"))
-  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
+  @ApiOperation(
+      value = "Create a new certificate",
+      authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 201, message = "Created"),
+        @ApiResponse(code = 409, message = "Conflict with existing resource")
+      })
   public ResponseEntity<Object> create(@Valid @RequestBody CertificateDTO certificateDTO) {
     long certificateId = certificateService.create(certificateDTO);
     URI location =
@@ -145,8 +145,15 @@ public class CertificateRestController {
    */
   @PutMapping(value = "/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
-  @ApiOperation(value = "Update existed certificate", authorizations = @Authorization(value = "Bearer"))
-  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
+  @ApiOperation(
+      value = "Update existed certificate",
+      authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 204, message = "No content"),
+        @ApiResponse(code = 404, message = "Certificate not found"),
+        @ApiResponse(code = 409, message = "Conflict with existing resource")
+      })
   public ResponseEntity<Object> update(
       @PathVariable("id") long id, @Valid @RequestBody CertificateDTO certificateDTO) {
     certificateService.update(id, certificateDTO);
@@ -165,8 +172,15 @@ public class CertificateRestController {
    */
   @PatchMapping(value = "/{id:\\d+}")
   @PreAuthorize("hasRole('ADMIN')")
-  @ApiOperation(value = "Patches certain certificate fields", authorizations = @Authorization(value = "Bearer"))
-  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found"), @ApiResponse(code = 409, message = "Conflict with existing resource") })
+  @ApiOperation(
+      value = "Patches certain certificate fields",
+      authorizations = @Authorization(value = "Bearer"))
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 204, message = "No content"),
+        @ApiResponse(code = 404, message = "Certificate not found"),
+        @ApiResponse(code = 409, message = "Conflict with existing resource")
+      })
   public ResponseEntity<Object> patch(
       @PathVariable("id") long id, @Valid @RequestBody CertificatePatchDTO certificatePatchDTO) {
     certificateService.modify(id, certificatePatchDTO);
@@ -180,7 +194,11 @@ public class CertificateRestController {
    */
   @DeleteMapping(value = "/{id:\\d+}")
   @ApiOperation(value = "Delete a certificate", authorizations = @Authorization(value = "Bearer"))
-  @ApiResponses(value = {@ApiResponse(code = 204, message = "No content"),@ApiResponse(code = 404, message = "Certificate not found") })
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 204, message = "No content"),
+        @ApiResponse(code = 404, message = "Certificate not found")
+      })
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Object> delete(@PathVariable("id") long id) {
     certificateService.delete(id);

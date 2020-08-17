@@ -5,7 +5,7 @@ pipeline {
         stage('Clone sources') {
             steps {
                 echo 'Cloning...'
-                git branch: 'module4', url: 'https://github.com/Altmerian/gift-rest-service'
+                git branch: 'module5', url: 'https://github.com/Altmerian/gift-rest-service'
             }
         }
         stage('Run tests') {

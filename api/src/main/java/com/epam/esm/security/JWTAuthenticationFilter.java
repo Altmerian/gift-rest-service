@@ -2,6 +2,7 @@ package com.epam.esm.security;
 
 import com.epam.esm.dto.UserDetailsDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,16 +33,19 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
   @Override
   public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
-    try {
-      UserDetailsDTO userDetails =
-          new ObjectMapper().readValue(req.getInputStream(), UserDetailsDTO.class);
-
-      return authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(
-              userDetails.getEmail(), userDetails.getPassword()));
-    } catch (IOException e) {
-      throw LOG4J_LOGGER.throwing(Level.ERROR, new RuntimeException(e));
+    UserDetailsDTO userDetails = new UserDetailsDTO();
+    if (StringUtils.isBlank(req.getParameter("email"))) {
+      try {
+        userDetails = new ObjectMapper().readValue(req.getInputStream(), UserDetailsDTO.class);
+      } catch (IOException e) {
+        throw LOG4J_LOGGER.throwing(Level.ERROR, new RuntimeException(e));
+      }
+    } else {
+      userDetails.setEmail(req.getParameter("email"));
+      userDetails.setPassword(req.getParameter("password"));
     }
+    return authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(userDetails.getEmail(), userDetails.getPassword()));
   }
 
   @Override

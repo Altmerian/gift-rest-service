@@ -65,6 +65,7 @@ public class TagRestController {
       HttpServletResponse resp) {
     long totalCount = tagService.countAll();
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
+    resp.setHeader("Access-Control-Allow-Origin", "*");
     int intPage = pageParseHelper.parsePage(page);
     int intSize = pageParseHelper.parseSize(size);
     List<TagDTO> tags = tagService.getAll(intPage, intSize);
