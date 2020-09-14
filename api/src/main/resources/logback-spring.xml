@@ -32,10 +32,15 @@
         </rollingPolicy>
     </appender>
 
+    <!-- LOG Hikari CP -->
+    <logger name="com.zaxxer.hikari" level="debug" additivity="false">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
+
     <!-- LOG everything at INFO level -->
     <root level="info">
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </root>
-
 </configuration>

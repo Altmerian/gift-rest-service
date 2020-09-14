@@ -89,7 +89,7 @@ public class CertificateServiceImpl implements CertificateService {
             .get(id)
             .filter(cert -> !cert.isDeleted())
             .orElseThrow(() -> new ResourceNotFoundException(id));
-    checkForDuplicate(certificateDTO);
+//    checkForDuplicate(certificateDTO);
     Certificate certificate = convertToEntity(certificateDTO);
     certificate.setCreationDate(storedCertificate.getCreationDate());
     certificate.setId(id);

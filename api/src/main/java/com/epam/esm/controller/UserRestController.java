@@ -187,6 +187,7 @@ public class UserRestController {
    */
   @PostMapping("/{userId:\\d+}/orders")
   @PreAuthorize("#userId == principal")
+  @ApiResponses(value = {@ApiResponse(code = 201, message = "Created")})
   public ResponseEntity<Object> createOrder(
       @PathVariable long userId, @Valid @RequestBody OrderDTO orderDTO, HttpServletResponse resp) {
     long orderId = orderService.create(userId, orderDTO);

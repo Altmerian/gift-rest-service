@@ -73,7 +73,6 @@ public class CertificateRestController {
     int intSize = pageParseHelper.parseSize(size);
     long totalCount = certificateService.countAll(tagName, searchFor, sortBy);
     resp.setHeader("X-Total-Count", String.valueOf(totalCount));
-    resp.setHeader("Access-Control-Allow-Origin", "*");
     List<CertificateDTO> certificates;
     if (StringUtils.isBlank(tagName)
         && StringUtils.isBlank(searchFor)
