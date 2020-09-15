@@ -35,7 +35,7 @@ public class RestAuthenticationFailureHandler implements AuthenticationFailureHa
 
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("status", 401);
-    response.put("messages", new String[] {"authentication error", ex.getMessage()});
+    response.put("messages", new String[] {"Invalid email or password"});
     response.put("time", ZonedDateTime.now());
 
     httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

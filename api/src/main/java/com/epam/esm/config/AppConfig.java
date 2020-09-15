@@ -10,6 +10,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.lang.NonNull;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseBuilder;
@@ -21,16 +24,14 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.*;
 
-/**
- * Spring boot auto configuration and swagger documentation setup
- */
+/** Spring boot auto configuration and swagger documentation setup */
 @SpringBootApplication(scanBasePackages = "com.epam.esm")
 @ConfigurationPropertiesScan("com.epam.esm")
 @EnableSwagger2
 public class AppConfig extends SpringBootServletInitializer {
 
   private static final Set<String> DEFAULT_PRODUCES_AND_CONSUMES =
-     Collections.singleton("application/json");
+      Collections.singleton("application/json");
 
   public AppConfig() {
     super();
@@ -42,20 +43,26 @@ public class AppConfig extends SpringBootServletInitializer {
   }
 
   @Bean
+  public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addCorsMappings(@NonNull CorsRegistry registry) {
+        registry
+            .addMapping("/**")
+            .allowedOrigins("*")
+            .allowedMethods("*")
+            .allowedHeaders("*");
+      }
+    };
+  }
+
+  @Bean
   public Docket api(TypeResolver typeResolver) {
-    final List<Response> globalResponses = Arrays.asList(
-        new ResponseBuilder()
-            .code("400")
-            .description("Bad Request")
-            .build(),
-        new ResponseBuilder()
-            .code("403")
-            .description("Forbidden")
-            .build(),
-        new ResponseBuilder()
-            .code("500")
-            .description("Internal server error")
-            .build());
+    final List<Response> globalResponses =
+        Arrays.asList(
+            new ResponseBuilder().code("400").description("Bad Request").build(),
+            new ResponseBuilder().code("403").description("Forbidden").build(),
+            new ResponseBuilder().code("500").description("Internal server error").build());
 
     return new Docket(DocumentationType.SWAGGER_2)
         .select()
@@ -102,11 +109,9 @@ public class AppConfig extends SpringBootServletInitializer {
   }
 
   List<SecurityReference> defaultAuth() {
-    AuthorizationScope authorizationScope
-        = new AuthorizationScope("global", "accessEverything");
+    AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
     AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
     authorizationScopes[0] = authorizationScope;
-    return Lists.newArrayList(
-        new SecurityReference("Bearer", authorizationScopes));
+    return Lists.newArrayList(new SecurityReference("Bearer", authorizationScopes));
   }
 }
