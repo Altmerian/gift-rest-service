@@ -2,6 +2,10 @@ plugins {
     id 'war'
 }
 
+jar {
+    enabled = true
+}
+
 dependencies {
     implementation project(':service')
     implementation 'org.springframework.security.oauth:spring-security-oauth2:2.5.0.RELEASE'

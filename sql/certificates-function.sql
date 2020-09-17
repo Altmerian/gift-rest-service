@@ -22,5 +22,3 @@ WHERE c.deleted != true
 GROUP BY c.id
 HAVING count(c.id) >= tags_count;
 $$ LANGUAGE sql;
-
--- переделать на поиск всех тэгов
