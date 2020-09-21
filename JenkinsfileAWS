@@ -1,0 +1,42 @@
+#!/usr/bin/env groovy
+pipeline {
+  agent { label 'AWS EC2 Instance' }
+  stages {
+    stage('Clone sources') {
+      steps {
+        echo 'Cloning...'
+        git branch: 'module6', url: 'https://github.com/Altmerian/gift-rest-service'
+      }
+    }
+    stage('Run tests') {
+      steps {
+        echo 'Testing...'
+        sh 'sudo fuser -k 8087/tcp || true'
+        sh 'sudo chmod +x ./gradlew'
+        sh 'sudo ./gradlew clean test'
+      }
+    }
+    stage('Build project') {
+      steps {
+        echo 'Building...'
+        sh 'sudo ./gradlew bootJar'
+      }
+    }
+    stage('Deploy on AWS') {
+      environment {
+        JENKINS_NODE_COOKIE = 'dontkill'
+      }
+      steps {
+        echo 'Deploying...'
+        sh 'sudo ./gradlew --stop'
+        sh 'sudo rm -rf /app/*'
+        sh 'sudo aws s3 cp ./api/build/libs/api-1.0-SNAPSHOT.jar s3://mjcs-gift-rest-service'
+        sh 'sudo cp ./api/build/libs/api-1.0-SNAPSHOT.jar /app/'
+        sh """
+          cd /app
+          sudo nohup java -jar ./api-1.0-SNAPSHOT.jar &
+        """
+      }
+    }
+  }
+}
